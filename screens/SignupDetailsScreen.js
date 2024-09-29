@@ -19,6 +19,15 @@ export default function SignupScreen({ navigation }) {
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [confirmPasswordFocused, setConfirmPasswordFocused] = useState(false);
 
+  const [passwordValidation, setPasswordValidation] = useState({
+    length: false,
+    uppercase: false,
+    lowercase: false,
+    number: false,
+    specialChar: false,
+  });
+
+
   const handleSignup = async () => {
     if (!name || !studentNumber || !password || !confirmPassword) {
       setError('Please fill out all fields');
@@ -26,6 +35,10 @@ export default function SignupScreen({ navigation }) {
     }
     if (password !== confirmPassword) {
       setError("Passwords do not match");
+      return;
+    }
+    else if (!isPasswordValid) {
+      alert('Password does not meet the requirements.');
       return;
     }
 
@@ -67,7 +80,27 @@ export default function SignupScreen({ navigation }) {
   };
 
   // Determine if button should be enabled
-  const isFormValid = name && studentNumber && password && confirmPassword && password === confirmPassword;
+  const isFormValid = name && studentNumber && password && confirmPassword;
+
+  const handlePassword = (password) => {
+    setPassword(password);
+    
+    const length = password.length >= 8;
+    const uppercase = /[A-Z]/.test(password);
+    const lowercase = /[a-z]/.test(password);
+    const number = /\d/.test(password);
+    const specialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    setPasswordValidation({
+      length,
+      uppercase,
+      lowercase,
+      number,
+      specialChar,
+    });
+  };
+
+  const isPasswordValid = Object.values(passwordValidation).every(Boolean);
 
   return (
     <KeyboardAvoidingView
@@ -114,7 +147,7 @@ export default function SignupScreen({ navigation }) {
             style={styles.passwordInput}
             placeholder="Password"
             value={password}
-            onChangeText={setPassword}
+            onChangeText={handlePassword}
             secureTextEntry={!showPassword}
             onFocus={() => setPasswordFocused(true)}
             onBlur={() => setPasswordFocused(false)}
@@ -127,6 +160,50 @@ export default function SignupScreen({ navigation }) {
               style={styles.eyeIcon}
             />
           </TouchableOpacity>
+        </View>
+
+        <View style={styles.passwordHintContainer}>
+        <Text style={{ fontFamily: 'Poppins-Regular', fontSize: 14, color: '#455e14' }}>Password must contain:</Text>
+          <View style={styles.passwordHintItem}>
+            <MaterialCommunityIcons 
+              name={passwordValidation.length ? 'check' : 'close'}
+              size={20} 
+              color={passwordValidation.length ? '#7a9b57' : '#ed3e3e'} 
+            />
+            <Text style={styles.passwordHintText}>At least 8 characters</Text>
+          </View>
+          <View style={styles.passwordHintItem}>
+            <MaterialCommunityIcons 
+              name={passwordValidation.uppercase ? 'check' : 'close'}
+              size={20} 
+              color={passwordValidation.uppercase ? '#7a9b57' : '#ed3e3e'} 
+            />
+            <Text style={styles.passwordHintText}>Contains uppercase letter</Text>
+          </View>
+          <View style={styles.passwordHintItem}>
+            <MaterialCommunityIcons 
+              name={passwordValidation.lowercase ? 'check' : 'close'}
+              size={20} 
+              color={passwordValidation.lowercase ? '#7a9b57' : '#ed3e3e'} 
+            />
+            <Text style={styles.passwordHintText}>Contains lowercase letter</Text>
+          </View>
+          <View style={styles.passwordHintItem}>
+            <MaterialCommunityIcons 
+              name={passwordValidation.number ? 'check' : 'close'}
+              size={20} 
+              color={passwordValidation.number ? '#7a9b57' : '#ed3e3e'} 
+            />
+            <Text style={styles.passwordHintText}>Contains number</Text>
+          </View>
+          <View style={styles.passwordHintItem}>
+            <MaterialCommunityIcons 
+              name={passwordValidation.specialChar ? 'check' : 'close'}
+              size={20} 
+              color={passwordValidation.specialChar ? '#7a9b57' : '#ed3e3e'} 
+            />
+            <Text style={styles.passwordHintText}>Contains special character</Text>
+          </View>
         </View>
 
         {/* Confirm Password Input with Icon */}
@@ -255,5 +332,20 @@ const styles = StyleSheet.create({
   },
   focusedInput: {
     borderWidth: 1.5, // Thicker border when focused
+  },
+  passwordHintContainer: {
+    marginTop: 5,
+    marginBottom:5,
+  },
+  passwordHintItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 5,
+  },
+  passwordHintText: {
+    marginLeft: 6,
+    color: '#455e14',
+    fontFamily: 'Poppins-Regular',
+    fontSize: 14,
   },
 });
