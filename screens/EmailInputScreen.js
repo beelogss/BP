@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'; // Importing MaterialCommunityIcons
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 export default function EmailInputScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -22,12 +23,13 @@ export default function EmailInputScreen({ navigation }) {
     // Navigate to Verification Code screen after sending the code
     navigation.navigate('Verification', { email });
   };
+  
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Enter Your Email</Text>
       <View style={[styles.inputContainer, emailError && styles.errorInput, emailFocused && styles.focusedInput]}>
-        <MaterialCommunityIcons name="email-outline" size={24} color="#455e14" style={styles.icon} />
+        <MaterialCommunityIcons name="email-outline" size={wp('5%')} color="#455e14" style={styles.icon} />
         <TextInput
           style={styles.input}
           placeholder="Enter Email"
@@ -45,59 +47,71 @@ export default function EmailInputScreen({ navigation }) {
       <TouchableOpacity
         style={[styles.button, (!email || emailError) && styles.disabledButton]}
         onPress={sendCodeToEmail}
-        disabled={!email || emailError} // Disable button if email is invalid
+        disabled={!email || emailError}
       >
         <Text style={styles.buttonText}>Send Code to Email</Text>
       </TouchableOpacity>
       <Text style={styles.switchText}>
-          Already have an account?{" "}
-          <Text 
-            style={{ fontFamily: 'Poppins-Black', fontSize: 14, color: '#455e14' }}
-            onPress={() => navigation.navigate('Login')}
-          >
-            Login
-          </Text>
+        Already have an account?{' '}
+        <Text
+          style={{ fontFamily: 'Poppins-Black', fontSize: wp('3.5%'), color: '#455e14' }}
+          onPress={() => navigation.navigate('Login')}
+        >
+          Login
         </Text>
+      </Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { paddingTop: 50, flex: 1, paddingHorizontal: 35, backgroundColor: 'white' },
-  title: { fontSize: 24, marginBottom: 20, textAlign: 'center', fontFamily: 'Poppins-Bold', color: '#455e14' },
+  container: { 
+    paddingTop: hp('2.5%'), 
+    flex: 1, 
+    paddingHorizontal: wp('8%'), 
+    backgroundColor: 'white' 
+  },
+  title: { 
+    fontSize: wp('8%'), 
+    marginBottom: hp('2.5%'), 
+    textAlign: 'center', 
+    fontFamily: 'Poppins-Bold', 
+    color: '#455e14' 
+  },
   inputContainer: { 
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1, // Apply border to the container only
+    borderWidth: 1, 
     borderColor: '#455e14',
     borderRadius: 5,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    marginBottom: 10,
-    height: 48,
+    paddingVertical: hp('1%'),
+    paddingHorizontal: wp('3%'),
+    marginBottom: hp('2%'),
+    height: hp('6%'),
   },
   input: { 
-    flex: 1, // Take full width minus the icon
+    flex: 1, 
     fontFamily: 'Poppins-Regular', 
     color: '#455e14', 
-    fontSize: 14,
-    paddingLeft: 5, // Add some space between icon and text
+    fontSize: wp('3.5%'),
+    paddingLeft: wp('2%'), 
   },
   icon: {
-    marginRight: 5,
+    marginRight: wp('2%'),
   },
   button: { 
-    backgroundColor: '#83951c', 
-    padding: 15, 
+    padding: wp('3%'),
     borderRadius: 5,
+    marginTop: hp('1%'),
   },
   disabledButton: {
-    backgroundColor: '#83951c80', // Lighter background when button is disabled
+    backgroundColor: '#83951c80',
   },
   buttonText: { 
     color: '#fff', 
     textAlign: 'center', 
-    fontFamily: 'Poppins-Bold' 
+    fontFamily: 'Poppins-Bold', 
+    fontSize: wp('4.5%'),
   },
   errorInput: { 
     borderColor: '#f66',
@@ -105,11 +119,11 @@ const styles = StyleSheet.create({
   switchText: {
     textAlign: 'center',
     color: '#7a9b57',
-    marginTop: 16,
+    marginTop: hp('3%'),
     fontFamily: 'Poppins-Regular',
-    fontSize: 14,
+    fontSize: wp('3.3%'),
   },
   focusedInput: {
-    borderWidth: 1.5, // Thicker border when focused
-  }
+    borderWidth: 1.5,
+  },
 });

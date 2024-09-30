@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons'; // Importing MaterialCommunityIcons
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 export default function ForgotPasswordScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -44,7 +45,7 @@ export default function ForgotPasswordScreen({ navigation }) {
 
         {/* Email Input with Icon */}
         <View style={styles.inputContainer}>
-          <MaterialCommunityIcons name="email-outline" size={20} color="#455e14" style={styles.icon} />
+          <MaterialCommunityIcons name="email-outline" size={wp('5%')} color="#455e14" style={styles.icon} />
           <TextInput
             style={styles.input}
             placeholder="Enter your email"
@@ -68,7 +69,7 @@ export default function ForgotPasswordScreen({ navigation }) {
         <Text style={styles.switchText}>
           Remember your password?{' '}
           <Text
-            style={{ fontFamily: 'Poppins-Bold', fontSize: 16, color: '#455e14' }}
+            style={{ fontFamily: 'Poppins-Black', fontSize: wp('3.5%'), color: '#455e14' }}
             onPress={() => navigation.navigate('Login')}
           >
             Login
@@ -82,17 +83,18 @@ export default function ForgotPasswordScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 35,
+    paddingHorizontal: wp('8%'),
     backgroundColor: '#fff',
   },
   formContainer: {
-    paddingBottom: 20,
+    paddingBottom: hp('2%'),
   },
   title: {
     color: '#455e14',
-    fontSize: 32,
+    fontSize: wp('8%'),
     textAlign: 'center',
-    marginBottom: 20,
+    marginTop: hp('2.5%'),
+    marginBottom: hp('2.3%'),
     fontFamily: 'Poppins-Bold',
   },
   inputContainer: {
@@ -100,35 +102,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1.5,
     borderColor: '#455e14',
-    padding: 10,
-    marginVertical: 10,
+    padding: wp('2%'),
+    marginVertical: hp('1%'),
     borderRadius: 5,
+    height: hp('6%'),
   },
   input: {
     flex: 1,
     fontFamily: 'Poppins-Regular',
     color: '#455e14',
-    fontSize: 14,
+    fontSize: wp('3.5%'),
   },
   icon: {
-    marginRight: 10,
+    marginRight: wp('2%'),
   },
   button: {
-    padding: 15,
+    padding: wp('3%'),
     borderRadius: 5,
-    marginTop: 20,
+    marginTop: hp('1%'),
   },
   buttonText: {
     color: '#fff',
     textAlign: 'center',
     fontFamily: 'Poppins-Bold',
-    fontSize: 18,
+    fontSize: wp('4.5%'),
     letterSpacing: 1,
   },
   switchText: {
     textAlign: 'center',
     color: '#7a9b57',
-    marginTop: 20,
+    marginTop: hp('3%'),
     fontFamily: 'Poppins-Regular',
+    fontSize: wp('3.3%'),
   },
 });

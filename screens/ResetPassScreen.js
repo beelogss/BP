@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-
-const { width } = Dimensions.get('window');
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { MaterialCommunityIcons } from 'react-native-vector-icons';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 export default function ResetPassScreen({ navigation }) {
   const [code, setCode] = useState('');
@@ -13,7 +12,6 @@ export default function ResetPassScreen({ navigation }) {
   const [isResendDisabled, setIsResendDisabled] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
   const [passwordValidation, setPasswordValidation] = useState({
     length: false,
     uppercase: false,
@@ -52,7 +50,7 @@ export default function ResetPassScreen({ navigation }) {
 
   const handlePasswordInput = (password) => {
     setNewPassword(password);
-    
+
     const length = password.length >= 8;
     const uppercase = /[A-Z]/.test(password);
     const lowercase = /[a-z]/.test(password);
@@ -69,7 +67,7 @@ export default function ResetPassScreen({ navigation }) {
   };
 
   const isPasswordValid = Object.values(passwordValidation).every(Boolean);
-  
+
   const handleResetPassword = () => {
     if (newPassword !== confirmNewPassword) {
       alert("Passwords don't match");
@@ -139,7 +137,7 @@ export default function ResetPassScreen({ navigation }) {
 
         {/* Password Input */}
         <View style={[styles.inputContainer, !isCodeVerified && styles.disabledInput]}>
-          <MaterialCommunityIcons name="lock-outline" size={20} color={isCodeVerified ? "#455e14" : "#ccc"} style={styles.icon} />
+          <MaterialCommunityIcons name="lock-outline" size={wp('5%')} color={isCodeVerified ? "#455e14" : "#ccc"} style={styles.icon} />
           <TextInput
             style={styles.input}
             placeholder="New Password"
@@ -154,7 +152,7 @@ export default function ResetPassScreen({ navigation }) {
           >
             <MaterialCommunityIcons
               name={showPassword ? 'eye-off' : 'eye'}
-              size={20}
+              size={wp('5%')}
               color={isCodeVerified ? "#455e14" : "#ccc"}
               style={styles.eyeIcon}
             />
@@ -163,11 +161,11 @@ export default function ResetPassScreen({ navigation }) {
 
         {/* Password Validation Hints */}
         <View style={[styles.passwordHintContainer, !isCodeVerified && styles.disabledInput]}>
-        <Text style={{ fontFamily: 'Poppins-Regular', fontSize: 14, color: '#455e14' }}>Password must contain:</Text>
+          <Text style={{ fontFamily: 'Poppins-Regular', fontSize: wp('3.5%'), color: '#455e14' }}>Password must contain:</Text>
           <View style={styles.passwordHintItem}>
             <MaterialCommunityIcons 
               name={passwordValidation.length ? 'check' : 'close'}
-              size={20} 
+              size={wp('5%')} 
               color={passwordValidation.length ? '#7a9b57' : '#ed3e3e'} 
             />
             <Text style={styles.passwordHintText}>At least 8 characters</Text>
@@ -175,7 +173,7 @@ export default function ResetPassScreen({ navigation }) {
           <View style={styles.passwordHintItem}>
             <MaterialCommunityIcons 
               name={passwordValidation.uppercase ? 'check' : 'close'}
-              size={20} 
+              size={wp('5%')} 
               color={passwordValidation.uppercase ? '#7a9b57' : '#ed3e3e'} 
             />
             <Text style={styles.passwordHintText}>Contains uppercase letter</Text>
@@ -183,7 +181,7 @@ export default function ResetPassScreen({ navigation }) {
           <View style={styles.passwordHintItem}>
             <MaterialCommunityIcons 
               name={passwordValidation.lowercase ? 'check' : 'close'}
-              size={20} 
+              size={wp('5%')} 
               color={passwordValidation.lowercase ? '#7a9b57' : '#ed3e3e'} 
             />
             <Text style={styles.passwordHintText}>Contains lowercase letter</Text>
@@ -191,7 +189,7 @@ export default function ResetPassScreen({ navigation }) {
           <View style={styles.passwordHintItem}>
             <MaterialCommunityIcons 
               name={passwordValidation.number ? 'check' : 'close'}
-              size={20} 
+              size={wp('5%')} 
               color={passwordValidation.number ? '#7a9b57' : '#ed3e3e'} 
             />
             <Text style={styles.passwordHintText}>Contains number</Text>
@@ -199,7 +197,7 @@ export default function ResetPassScreen({ navigation }) {
           <View style={styles.passwordHintItem}>
             <MaterialCommunityIcons 
               name={passwordValidation.specialChar ? 'check' : 'close'}
-              size={20} 
+              size={wp('5%')} 
               color={passwordValidation.specialChar ? '#7a9b57' : '#ed3e3e'} 
             />
             <Text style={styles.passwordHintText}>Contains special character</Text>
@@ -208,7 +206,7 @@ export default function ResetPassScreen({ navigation }) {
 
         {/* Confirm Password Input */}
         <View style={[styles.inputContainer, !isCodeVerified && styles.disabledInput]}>
-          <MaterialCommunityIcons name="lock-check-outline" size={20} color={isCodeVerified ? "#455e14" : "#ccc"} style={styles.icon} />
+          <MaterialCommunityIcons name="lock-check-outline" size={wp('5%')} color={isCodeVerified ? "#455e14" : "#ccc"} style={styles.icon} />
           <TextInput
             style={styles.input}
             placeholder="Confirm New Password"
@@ -223,7 +221,7 @@ export default function ResetPassScreen({ navigation }) {
           >
             <MaterialCommunityIcons
               name={showConfirmPassword ? 'eye-off' : 'eye'}
-              size={20}
+              size={wp('5%')}
               color={isCodeVerified ? "#455e14" : "#ccc"}
               style={styles.eyeIcon}
             />
@@ -247,7 +245,7 @@ export default function ResetPassScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: width * 0.08,
+    paddingHorizontal: wp('7%'),
     backgroundColor: '#fff',
   },
   formContainer: {
@@ -255,66 +253,64 @@ const styles = StyleSheet.create({
   },
   title: {
     color: '#455e14',
-    fontSize: 28,
+    fontSize: wp('7%'),
     textAlign: 'center',
-    marginBottom: 10,
-    marginTop:  20,
+    marginBottom: wp('2.5%'),
+    marginTop:  wp('2.5%'),
     fontFamily: 'Poppins-Bold',
   },
   instructions: {
     fontFamily: 'Poppins-Regular',
     color: '#455e14',
     textAlign: 'center',
-    marginBottom: 20,
-    fontSize: 15,
+    marginBottom: wp('2.5%'),
+    fontSize: wp('3.5%'),
   },
   codeContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
-    textAlign:  'center',
+    marginBottom: wp('5%'),
   },
   codeInput: {
     flex: 1,
     borderWidth: 1.5,
     borderColor: '#455e14',
-    padding: 10,
+    padding: wp('2%'),
     borderRadius: 5,
     fontFamily: 'Poppins-Regular',
     color: '#455e14',
-    fontSize: 16,
+    fontSize: wp('4%'),
   },
   verifyButton: {
     backgroundColor: '#83951c',
-    padding: 12,
+    padding: wp('2.5%'),
     borderRadius: 5,
-    marginLeft: 10,
-    width: 100,
+    marginLeft: wp('2%'),
+    width: wp('25%'),
   },
   verifiedContainer: {
     backgroundColor: '#e5eeda',
-    paddingVertical: 2,
-    paddingHorizontal: 5,
+    paddingVertical: wp('0.5%'),
+    paddingHorizontal: wp('2%'),
     borderRadius: 5,
-    height: 48,
+    height: wp('10%'),
     justifyContent: 'center',
   },
   verifiedText: {
     fontFamily: 'Poppins-SemiBold',
     color: '#7a9b57',
-    fontSize: 16,
+    fontSize: wp('4%'),
   },
   resendContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 10,
-    height: 48,
+    marginBottom: wp('3%'),
+    height: wp('10%'),
   },
   timerText: {
     fontFamily: 'Poppins-Regular',
     color: '#455e14',
-    width: '30%'
   },
   highlightedTimer: {
     color: '#83951c',
@@ -323,8 +319,8 @@ const styles = StyleSheet.create({
   resendText: {
     fontFamily: 'Poppins-Bold',
     color: '#455e14',
-    marginLeft: 5,
-    width: '50'
+    marginLeft: wp('2%'),
+    
   },
   disabledText: {
     color: '#83951c80',
@@ -334,27 +330,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1.5,
     borderColor: '#455e14',
-    padding: 8,
-    marginVertical: 8,
+    padding: wp('2%'),
+    marginVertical: wp('2%'),
     borderRadius: 5,
-    height: 48,
+    height: wp('12%'),
   },
   input: {
     flex: 1,
     color: '#455e14',
     fontFamily: 'Poppins-Regular',
-    fontSize: 14,
+    fontSize: wp('4%'),
   },
   eyeIcon: {
-    marginLeft: 10,
+    marginLeft: wp('1.5%'),
   },
   icon: {
-    marginRight: 10,
+    marginRight: wp('2%'),
   },
   button: {
-    padding: 12,
+    padding: wp('3%'),
     borderRadius: 5,
-    marginTop: 16,
+    marginTop: wp('2%'),
   },
   buttonText: {
     color: '#fff',
@@ -364,23 +360,19 @@ const styles = StyleSheet.create({
   disabledInput: {
     opacity: 0.5,
   },
-  disabledButton: {
-    backgroundColor: '#83951c80',
-  },
   passwordHintContainer: {
-    marginTop: 5,
-    marginBottom:5,
+    marginTop: wp('1%'),
+    marginBottom: wp('1%'),
   },
   passwordHintItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 5,
+    marginBottom: wp('1%'),
   },
   passwordHintText: {
-    marginLeft: 6,
+    marginLeft: wp('1.5%'),
     color: '#455e14',
     fontFamily: 'Poppins-Regular',
-    fontSize: 14,
+    fontSize: wp('3.5%'),
   },
-
 });

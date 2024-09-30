@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Checkbox from 'expo-checkbox';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-
-const { width, height } = Dimensions.get('window');
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -33,98 +32,98 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <SafeAreaProvider>
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={styles.container}
-    >
-      <View style={styles.imageContainer}>
-        <Image
-          style={styles.image}
-          source={require('../assets/images/small-logo.png')}
-        />
-      </View>
-
-      <View style={styles.formContainer}>
-        <Text style={styles.label}>Email</Text>
-        <View style={[styles.inputContainer, emailError && styles.errorInput, emailFocused && styles.focusedInput]}>
-          <MaterialCommunityIcons name="email-outline" size={24} color="#455e14" style={styles.icon} />
-          <TextInput
-            style={styles.input}
-            placeholder="Enter Email"
-            value={email}
-            onChangeText={(text) => {
-              setEmail(text);
-              setEmailError(!validateEmail(text));
-            }}
-            keyboardType="email-address"
-            onFocus={() => setEmailFocused(true)}
-            onBlur={() => setEmailFocused(false)}
-            caretColor="#455e14"
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.container}
+      >
+        <View style={styles.imageContainer}>
+          <Image
+            style={styles.image}
+            source={require('../assets/images/small-logo.png')}
           />
         </View>
 
-        <Text style={styles.label}>Password</Text>
-        <View style={[styles.inputContainer, passwordError && styles.errorInput, passwordFocused && styles.focusedInput]}>
-          <MaterialCommunityIcons name="key-outline" size={24} color="#455e14" style={styles.icon} />
-          <TextInput
-            style={styles.input}
-            placeholder="Enter Password"
-            value={password}
-            onChangeText={(text) => {
-              setPassword(text);
-              setPasswordError(!text);
-            }}
-            secureTextEntry={!showPassword}
-            onFocus={() => setPasswordFocused(true)}
-            onBlur={() => setPasswordFocused(false)}
-          />
-          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-            <MaterialCommunityIcons
-              name={showPassword ? 'eye-off' : 'eye'}
-              size={24}
-              style={styles.eyeIcon}
+        <View style={styles.formContainer}>
+          <Text style={styles.label}>Email</Text>
+          <View style={[styles.inputContainer, emailError && styles.errorInput, emailFocused && styles.focusedInput]}>
+            <MaterialCommunityIcons name="email-outline" size={wp('5%')} color="#455e14" style={styles.icon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Enter Email"
+              value={email}
+              onChangeText={(text) => {
+                setEmail(text);
+                setEmailError(!validateEmail(text));
+              }}
+              keyboardType="email-address"
+              onFocus={() => setEmailFocused(true)}
+              onBlur={() => setEmailFocused(false)}
+              caretColor="#455e14"
             />
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.row}>
-          <View style={styles.rememberMeContainer}>
-            <Checkbox
-              value={isChecked}
-              onValueChange={setChecked}
-              color={isChecked ? "#455e14" : undefined}
-              style={{ borderColor: '#455e14', width: 17, height: 17, marginBottom: 3, marginLeft: 3 }}
-            />
-            <Text style={styles.rememberMeText}>Remember Me</Text>
           </View>
-          <Text style={styles.forgotPasswordText} onPress={() => navigation.navigate('ForgotPass')}>
-            Forgot Password?
+
+          <Text style={styles.label}>Password</Text>
+          <View style={[styles.inputContainer, passwordError && styles.errorInput, passwordFocused && styles.focusedInput]}>
+            <MaterialCommunityIcons name="key-outline" size={wp('5%')} color="#455e14" style={styles.icon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Enter Password"
+              value={password}
+              onChangeText={(text) => {
+                setPassword(text);
+                setPasswordError(!text);
+              }}
+              secureTextEntry={!showPassword}
+              onFocus={() => setPasswordFocused(true)}
+              onBlur={() => setPasswordFocused(false)}
+            />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+              <MaterialCommunityIcons
+                name={showPassword ? 'eye-off' : 'eye'}
+                size={wp('5%')}
+                style={styles.eyeIcon}
+              />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.row}>
+            <View style={styles.rememberMeContainer}>
+              <Checkbox
+                value={isChecked}
+                onValueChange={setChecked}
+                color={isChecked ? "#455e14" : undefined}
+                style={{ borderColor: '#455e14', width: wp('4%'), height: hp('2%'), marginBottom: 3, marginLeft: 3 }}
+              />
+              <Text style={styles.rememberMeText}>Remember Me</Text>
+            </View>
+            <Text style={styles.forgotPasswordText} onPress={() => navigation.navigate('ForgotPass')}>
+              Forgot Password?
+            </Text>
+          </View>
+
+          <TouchableOpacity
+            style={[styles.button, (!email || !password || emailError) && styles.disabledButton]}
+            onPress={handleLogin}
+            disabled={!email || !password || emailError}
+          >
+            <Text style={styles.buttonText}>Login</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.googleButton} onPress={() => console.log("Google Login")}>
+            <Text style={styles.buttonText}>Continue with Google</Text>
+          </TouchableOpacity>
+
+          <Text style={styles.switchText}>
+            Don't have an account?{" "}
+            <Text
+              style={{ fontFamily: 'Poppins-Black', fontSize: wp('3.5%'), color: '#455e14' }}
+              onPress={() => navigation.navigate('EmailInput')}
+            >
+              Sign up
+            </Text>
           </Text>
         </View>
-
-        <TouchableOpacity
-          style={[styles.button, (!email || !password || emailError) && styles.disabledButton]}
-          onPress={handleLogin}
-          disabled={!email || !password || emailError}
-        >
-          <Text style={styles.buttonText}>Login</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.googleButton} onPress={() => console.log("Google Login")}>
-          <Text style={styles.buttonText}>Continue with Google</Text>
-        </TouchableOpacity>
-
-        <Text style={styles.switchText}>
-          Don't have an account?{" "}
-          <Text
-            style={{ fontFamily: 'Poppins-Black', fontSize: 14, color: '#455e14' }}
-            onPress={() => navigation.navigate('EmailInput')}
-          >
-            Sign up
-          </Text>
-        </Text>
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
     </SafeAreaProvider>
   );
 }
@@ -132,17 +131,17 @@ export default function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: width * 0.08,
+    paddingHorizontal: wp('7%'),
     backgroundColor: 'white'
   },
   imageContainer: {
     alignItems: 'center',
-    marginTop: height * 0.08,
-    marginBottom: height * 0.04
+    marginTop: hp('7%'),
+    marginBottom: hp('3.5%')
   },
   image: {
-    width: width * 0.4,
-    height: width * 0.4,
+    width: wp('35%'),
+    height: wp('35%'),
     resizeMode: 'contain'
   },
   formContainer: {
@@ -152,7 +151,7 @@ const styles = StyleSheet.create({
     color: '#455e14',
     fontFamily: 'Poppins-Bold',
     marginBottom: 2,
-    fontSize: 14
+    fontSize: wp('3.5%')
   },
   inputContainer: {
     flexDirection: 'row',
@@ -160,23 +159,23 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#455e14',
     borderRadius: 5,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
+    paddingVertical: hp('0.9%'),
+    paddingHorizontal: wp('2%'),
     marginBottom: 10,
-    height: 48
+    height: hp('5.5%'),
   },
   input: {
     flex: 1,
     fontFamily: 'Poppins-Regular',
     color: '#455e14',
-    fontSize: 14,
-    paddingLeft: 5
+    fontSize: wp('3.5%'),
+    paddingLeft: wp('1%')
   },
   icon: {
-    marginRight: 5,
+    marginRight: wp('1%'),
   },
   eyeIcon: {
-    marginLeft: 8,
+    marginLeft: wp('1.5%'),
     color: '#455e14'
   },
   row: {
@@ -190,37 +189,37 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   rememberMeText: {
-    marginLeft: 4,
+    marginLeft: wp('1%'),
     color: '#455e14',
     fontFamily: 'Poppins-Regular',
-    fontSize: 13,
+    fontSize: wp('3%'),
   },
   forgotPasswordText: {
     fontFamily: 'Poppins-Regular',
     color: '#455e14',
     textDecorationLine: 'underline',
-    fontSize: 13,
-    marginRight: 3
+    fontSize: wp('3%'),
+    marginRight: wp('1.5%')
   },
   button: {
     backgroundColor: '#83951c',
-    padding: 12,
+    padding: wp('2.5%'),
     borderRadius: 5,
     marginTop: 16
   },
   disabledButton: {
-    backgroundColor: '#83951c80', // Lightened when disabled
+    backgroundColor: '#83951c80', 
   },
   buttonText: {
     color: '#fff',
     textAlign: 'center',
     fontFamily: 'Poppins-Bold',
-    fontSize: 16,
+    fontSize: wp('4%'),
     letterSpacing: 1.5
   },
   googleButton: {
     backgroundColor: '#db4437',
-    padding: 12,
+    padding: wp('2.5%'),
     borderRadius: 5,
     marginTop: 16
   },
@@ -229,12 +228,12 @@ const styles = StyleSheet.create({
     color: '#7a9b57',
     marginTop: 16,
     fontFamily: 'Poppins-Regular',
-    fontSize: 13
+    fontSize: wp('3%')
   },
   errorInput: {
     borderColor: '#f66',
   },
   focusedInput: {
-    borderWidth: 1.5, // Thicker border when focused
+    borderWidth: 1.5,
   },
 });
