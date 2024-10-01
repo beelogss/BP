@@ -119,6 +119,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     color: '#455e14',
     fontSize: wp('3.5%'),
+    paddingLeft: wp('1%') 
   },
   icon: {
     marginRight: wp('2%'),

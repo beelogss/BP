@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, ImageBackground, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Checkbox from 'expo-checkbox';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -93,7 +93,9 @@ export default function LoginScreen({ navigation }) {
                 color={isChecked ? "#455e14" : undefined}
                 style={{ borderColor: '#455e14', width: wp('4%'), height: hp('2%'), marginBottom: 3, marginLeft: 3 }}
               />
+              <TouchableOpacity  onPress={() => setChecked(! isChecked)}>
               <Text style={styles.rememberMeText}>Remember Me</Text>
+              </TouchableOpacity>
             </View>
             <Text style={styles.forgotPasswordText} onPress={() => navigation.navigate('ForgotPass')}>
               Forgot Password?

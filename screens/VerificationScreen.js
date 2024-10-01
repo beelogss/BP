@@ -239,6 +239,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontFamily: 'Poppins-Regular',
     color: '#83951c',
+    fontSize: wp('3%'),
     marginTop: hp('2%'),
   },
   highlightedTimer: {

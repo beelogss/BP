@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons'; // Using MaterialCommunityIcons for icons
+import { MaterialCommunityIcons, AntDesign } from '@expo/vector-icons'; // Using MaterialCommunityIcons for icons
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 export default function SignupScreen({ navigation }) {
@@ -81,7 +81,13 @@ export default function SignupScreen({ navigation }) {
       style={styles.container}
     >
       <View style={styles.formContainer}>
-        <Text style={styles.title}>Sign Up</Text>
+      <TouchableOpacity>
+        <AntDesign name="arrowleft" size={wp('10%')} color="#83951c" style={styles.backIcon} 
+          onPress={() => navigation.navigate('Login')}
+        />
+       </TouchableOpacity>
+        <Text style={styles.title}>Sign up</Text>
+        <Text style={styles.instructions}>Create account to continue</Text>
 
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
@@ -218,27 +224,37 @@ export default function SignupScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: wp('7%'),
+    paddingHorizontal: wp('8%'),
     backgroundColor: '#fff',
+    paddingTop: wp('20%'),
+  },
+  backIcon: {
+    marginBottom: wp('3.5%'),
   },
   title: {
     color: '#455e14',
     fontSize: wp('7%'),
-    textAlign: 'center',
-    marginBottom: wp('2.5%'),
-    marginTop:  wp('2.5%'),
+    textAlign: 'left',
+    marginTop:  wp('1.5%'),
     fontFamily: 'Poppins-Bold',
+  },
+  instructions: {
+    fontFamily: 'Poppins-Regular',
+    color: '#7a9b57',
+    textAlign: 'left',
+    fontSize: wp('3.5%'),
+    marginBottom: wp('4%'),
+    letterSpacing: -.6,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#455e14',
-    borderRadius: 5,
-    paddingVertical: hp('0.9%'),
-    paddingHorizontal: wp('2%'),
-    marginBottom: 10,
-    height: hp('5.5%'),
+    borderRadius: 10,
+    padding: wp('2%'),
+    marginBottom: wp('3%'),
+    height: hp('6%'),
   },
   input: {
     flex: 1,
@@ -255,31 +271,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#455e14',
-    borderRadius: 5,
-    paddingVertical: hp('0.9%'),
-    paddingHorizontal: wp('2%'),
-    height: hp('5.5%'),
+    borderRadius: 10,
+    padding: wp('2%'),
+    height: hp('6%'),
   },
   passwordInput: {
     flex: 1,
     fontFamily: 'Poppins-Regular',
     color: '#455e14',
     fontSize: wp('3.5%'),
-    paddingLeft: wp('1%')
+    paddingLeft: wp('1%') 
   },
   eyeIcon: {
     marginLeft: wp('2%'),
   },
   button: {
-    padding: wp('2.5%'),
-    borderRadius: 5,
+    padding: wp('3%'),
+    borderRadius: 10,
     marginTop: hp('1.3%'),
   },
   buttonText: {
-    color: '#fff', 
-    textAlign: 'center', 
-    fontFamily: 'Poppins-Bold', 
-    fontSize: wp('4.5%'),
+    color: '#fff',
+    textAlign: 'center',
+    fontFamily: 'Poppins-Bold',
+    fontSize: wp('4%'),
+    letterSpacing: .1,
   },
   switchText: {
     textAlign: 'center',
