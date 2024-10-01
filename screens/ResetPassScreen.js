@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
-import { MaterialCommunityIcons } from 'react-native-vector-icons';
+import { MaterialCommunityIcons, AntDesign } from 'react-native-vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
-export default function ResetPassScreen({ navigation }) {
+export default function ResetPassScreen({ route, navigation }) {
+  const { email } = route.params;
   const [code, setCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
@@ -87,12 +88,18 @@ export default function ResetPassScreen({ navigation }) {
       style={styles.container}
     >
       <View style={styles.formContainer}>
+      <TouchableOpacity>
+        <AntDesign name="arrowleft" size={wp('10%')} color="#83951c" style={styles.backIcon} 
+          onPress={() => navigation.navigate('ForgotPass')}
+        />
+       </TouchableOpacity>
         <Text style={styles.title}>Reset Password</Text>
 
         {/* Instructions Label */}
         <Text style={styles.instructions}>
-          Please enter the verification code sent to your email, and then set your new password.
+          Enter the verification code sent to:
         </Text>
+        <Text style={styles.highlightedText}>{email}</Text>
 
         {/* Verification Code Input */}
         <View style={styles.codeContainer}>
@@ -161,7 +168,7 @@ export default function ResetPassScreen({ navigation }) {
 
         {/* Password Validation Hints */}
         <View style={[styles.passwordHintContainer, !isCodeVerified && styles.disabledInput]}>
-          <Text style={{ fontFamily: 'Poppins-Regular', fontSize: wp('3.5%'), color: '#455e14' }}>Password must contain:</Text>
+          <Text style={{ fontFamily: 'Poppins-Regular', fontSize: wp('3.2%'), color: '#455e14' }}>Password must contain:</Text>
           <View style={styles.passwordHintItem}>
             <MaterialCommunityIcons 
               name={passwordValidation.length ? 'check' : 'close'}
@@ -245,46 +252,58 @@ export default function ResetPassScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: wp('7%'),
+    paddingHorizontal: wp('8%'),
     backgroundColor: '#fff',
+    paddingTop: wp('20%'),
   },
   formContainer: {
     paddingBottom: 20,
   },
+  backIcon: {
+    marginBottom: wp('3%'),
+  },
   title: {
     color: '#455e14',
     fontSize: wp('7%'),
-    textAlign: 'center',
-    marginBottom: wp('2.5%'),
-    marginTop:  wp('2.5%'),
+    textAlign: 'left',
+    marginTop:  wp('1.5%'),
     fontFamily: 'Poppins-Bold',
   },
   instructions: {
     fontFamily: 'Poppins-Regular',
-    color: '#455e14',
-    textAlign: 'center',
-    marginBottom: wp('2.5%'),
+    color: '#7a9b57',
+    textAlign: 'left',
     fontSize: wp('3.5%'),
+    letterSpacing: -.6,
+  },
+  highlightedText: {
+    fontSize: wp('3.5%'),
+    textAlign: 'left',
+    fontFamily: 'Poppins-Bold',
+    color: '#455e14',
+    marginBottom: wp('2.5%'), // Extra space after email
   },
   codeContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: wp('5%'),
+    marginBottom: wp('3%'),
   },
   codeInput: {
     flex: 1,
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: '#455e14',
     padding: wp('2%'),
-    borderRadius: 5,
+    borderRadius: 10,
     fontFamily: 'Poppins-Regular',
     color: '#455e14',
-    fontSize: wp('4%'),
+    fontSize: wp('3.5%'),
+    height: hp('6%'),
+    textAlign: 'center'
   },
   verifyButton: {
     backgroundColor: '#83951c',
     padding: wp('2.5%'),
-    borderRadius: 5,
+    borderRadius: 10,
     marginLeft: wp('2%'),
     width: wp('25%'),
   },
@@ -292,7 +311,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#e5eeda',
     paddingVertical: wp('0.5%'),
     paddingHorizontal: wp('2%'),
-    borderRadius: 5,
+    borderRadius: 10,
     height: wp('10%'),
     justifyContent: 'center',
   },
@@ -320,7 +339,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Bold',
     color: '#455e14',
     marginLeft: wp('2%'),
-    
   },
   disabledText: {
     color: '#83951c80',
@@ -328,18 +346,19 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: '#455e14',
-    padding: wp('2%'),
-    marginVertical: wp('2%'),
-    borderRadius: 5,
-    height: wp('12%'),
+    borderRadius: 10,
+    paddingVertical: hp('0.9%'),
+    paddingHorizontal: wp('2%'),
+    height: hp('6%'),
   },
   input: {
     flex: 1,
-    color: '#455e14',
     fontFamily: 'Poppins-Regular',
-    fontSize: wp('4%'),
+    color: '#455e14',
+    fontSize: wp('3.5%'),
+    paddingLeft: wp('1%') 
   },
   eyeIcon: {
     marginLeft: wp('1.5%'),
@@ -349,13 +368,14 @@ const styles = StyleSheet.create({
   },
   button: {
     padding: wp('3%'),
-    borderRadius: 5,
-    marginTop: wp('2%'),
+    borderRadius: 10,
+    marginTop: wp('3.7%'),
   },
   buttonText: {
-    color: '#fff',
-    textAlign: 'center',
-    fontFamily: 'Poppins-Bold',
+    color: '#fff', 
+    textAlign: 'center', 
+    fontFamily: 'Poppins-Bold', 
+    fontSize: wp('4.5%'),
   },
   disabledInput: {
     opacity: 0.5,
@@ -373,6 +393,6 @@ const styles = StyleSheet.create({
     marginLeft: wp('1.5%'),
     color: '#455e14',
     fontFamily: 'Poppins-Regular',
-    fontSize: wp('3.5%'),
+    fontSize: wp('3%'),
   },
 });

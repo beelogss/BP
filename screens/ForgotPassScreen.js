@@ -1,20 +1,24 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Alert } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons'; // Importing MaterialCommunityIcons
+import { MaterialCommunityIcons, AntDesign } from '@expo/vector-icons'; // Importing MaterialCommunityIcons
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 export default function ForgotPasswordScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [emailFocused, setEmailFocused] = useState(false);
+  const [emailError, setEmailError] = useState(false);
 
   // Email validation function
-  const isValidEmail = (email) => {
+  const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
+
   const handleForgotPassword = async () => {
-    if (!email || !isValidEmail(email)) {
+    if (!email || !validateEmail(email)) {
+      setEmailError(true)
       Alert.alert('Error', 'Please enter a valid email address');
       return;
     }
@@ -23,7 +27,7 @@ export default function ForgotPasswordScreen({ navigation }) {
       setIsLoading(true);
       // Placeholder for future backend implementation
       Alert.alert('Success', 'A password reset link has been sent to your email');
-      navigation.navigate('ResetPass');
+      navigation.navigate('ResetPass' , { email });
     } catch (error) {
       console.error('Error:', error);
       Alert.alert('Error', 'An error occurred while requesting password reset');
@@ -33,7 +37,7 @@ export default function ForgotPasswordScreen({ navigation }) {
   };
 
   // Disable button if email is invalid or empty
-  const isFormValid = email && isValidEmail(email);
+  const isFormValid = email && validateEmail(email);
 
   return (
     <KeyboardAvoidingView
@@ -41,18 +45,31 @@ export default function ForgotPasswordScreen({ navigation }) {
       style={styles.container}
     >
       <View style={styles.formContainer}>
+      <TouchableOpacity>
+        <AntDesign name="arrowleft" size={wp('10%')} color="#83951c" style={styles.backIcon} 
+          onPress={() => navigation.navigate('Login')}
+        />
+       </TouchableOpacity>
         <Text style={styles.title}>Forgot Password</Text>
+        <Text style={styles.instructions}>
+          Please enter your email to reset the password
+        </Text>
+        <Text style={styles.label}>Email</Text>
 
         {/* Email Input with Icon */}
-        <View style={styles.inputContainer}>
+        <View style={[styles.inputContainer, emailError && styles.errorInput, emailFocused && styles.focusedInput]}>
           <MaterialCommunityIcons name="email-outline" size={wp('5%')} color="#455e14" style={styles.icon} />
           <TextInput
             style={styles.input}
             placeholder="Enter your email"
             value={email}
-            onChangeText={setEmail}
+            onChangeText={(text) => {
+              setEmail(text);
+              setEmailError(!validateEmail(text));
+            }}
             keyboardType="email-address"
-            autoCapitalize="none"
+            onFocus={() => setEmailFocused(true)}
+              onBlur={() => setEmailFocused(false)}
           />
         </View>
 
@@ -85,26 +102,43 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: wp('8%'),
     backgroundColor: '#fff',
+    paddingTop: wp('20%'),
   },
   formContainer: {
     paddingBottom: hp('2%'),
   },
+  backIcon: {
+    marginBottom: wp('3.5%'),
+  },
   title: {
     color: '#455e14',
-    fontSize: wp('8%'),
-    textAlign: 'center',
-    marginTop: hp('2.5%'),
-    marginBottom: hp('2.3%'),
+    fontSize: wp('7%'),
+    textAlign: 'left',
+    marginBottom: wp('.5%'),
+    marginTop:  wp('2.5%'),
     fontFamily: 'Poppins-Bold',
+  },
+  instructions: {
+    fontFamily: 'Poppins-Regular',
+    color: '#7a9b57',
+    textAlign: 'left',
+    marginBottom: wp('4%'),
+    fontSize: wp('3.5%'),
+    letterSpacing: -.6,
+  },
+  label: {
+    color: '#455e14',
+    fontFamily: 'Poppins-Bold',
+    fontSize: wp('3.5%')
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: '#455e14',
     padding: wp('2%'),
-    marginVertical: hp('1%'),
-    borderRadius: 5,
+    borderRadius: 10,
+    marginBottom: wp('3.7%'),
     height: hp('6%'),
   },
   input: {
@@ -118,21 +152,26 @@ const styles = StyleSheet.create({
   },
   button: {
     padding: wp('3%'),
-    borderRadius: 5,
-    marginTop: hp('1%'),
+    borderRadius: 10,
   },
   buttonText: {
     color: '#fff',
     textAlign: 'center',
     fontFamily: 'Poppins-Bold',
-    fontSize: wp('4.5%'),
-    letterSpacing: 1,
+    fontSize: wp('4%'),
+    letterSpacing: .1,
   },
   switchText: {
     textAlign: 'center',
     color: '#7a9b57',
-    marginTop: hp('3%'),
+    marginTop: wp('4%'),
     fontFamily: 'Poppins-Regular',
-    fontSize: wp('3.3%'),
+    fontSize: wp('3%')
+  },
+  errorInput: {
+    borderColor: '#f66',
+  },
+  focusedInput: {
+    borderWidth: 1.5,
   },
 });

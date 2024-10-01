@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons'; // Using MaterialCommunityIcons for icons
-
-const { width, height } = Dimensions.get('window');
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 export default function SignupScreen({ navigation }) {
   const [name, setName] = useState('');
@@ -27,7 +26,6 @@ export default function SignupScreen({ navigation }) {
     specialChar: false,
   });
 
-
   const handleSignup = async () => {
     if (!name || !studentNumber || !password || !confirmPassword) {
       setError('Please fill out all fields');
@@ -36,39 +34,14 @@ export default function SignupScreen({ navigation }) {
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
-    }
-    else if (!isPasswordValid) {
+    } else if (!isPasswordValid) {
       alert('Password does not meet the requirements.');
       return;
     }
 
-    setError('');  // Clear error if validations pass
+    setError(''); // Clear error if validations pass
 
-    try {
-      const response = await fetch('http://192.168.1.2:3000/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: name,
-          studentNumber: studentNumber,
-          password: password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        // If the signup was successful, navigate to the EmailInput screen
-        navigation.navigate('EmailInput');
-      } else {
-        setError(data.message || 'Signup failed');
-      }
-    } catch (error) {
-      console.error(error);
-      setError('Error connecting to server');
-    }
+    // Add signup logic here
   };
 
   const handleStudentNumberChange = (text) => {
@@ -84,7 +57,7 @@ export default function SignupScreen({ navigation }) {
 
   const handlePassword = (password) => {
     setPassword(password);
-    
+
     const length = password.length >= 8;
     const uppercase = /[A-Z]/.test(password);
     const lowercase = /[a-z]/.test(password);
@@ -112,22 +85,9 @@ export default function SignupScreen({ navigation }) {
 
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-        {/* Name Input with Icon */}
-        <View style={[styles.inputContainer, nameFocused && styles.focusedInput]}>
-          <MaterialCommunityIcons name="account-outline" size={20} color="#455e14" style={styles.icon} />
-          <TextInput
-            style={styles.input}
-            placeholder="Name"
-            value={name}
-            onChangeText={setName}
-            onFocus={() => setNameFocused(true)}
-            onBlur={() => setNameFocused(false)}
-          />
-        </View>
-
-        {/* Student Number Input with Icon */}
-        <View style={[styles.inputContainer, studentNumberFocused && styles.focusedInput]}>
-          <MaterialCommunityIcons name="school-outline" size={20} color="#455e14" style={styles.icon} />
+         {/* Student Number Input with Icon */}
+         <View style={[styles.inputContainer, studentNumberFocused && styles.focusedInput]}>
+          <MaterialCommunityIcons name="school-outline" size={wp('5%')} color="#455e14" style={styles.icon} />
           <TextInput
             style={styles.input}
             placeholder="Student Number (00-00000)"
@@ -140,9 +100,22 @@ export default function SignupScreen({ navigation }) {
           />
         </View>
 
+        {/* Name Input with Icon */}
+        <View style={[styles.inputContainer, nameFocused && styles.focusedInput]}>
+          <MaterialCommunityIcons name="account-outline" size={wp('5%')} color="#455e14" style={styles.icon} />
+          <TextInput
+            style={styles.input}
+            placeholder="Name"
+            value={name}
+            onChangeText={setName}
+            onFocus={() => setNameFocused(true)}
+            onBlur={() => setNameFocused(false)}
+          />
+        </View>
+
         {/* Password Input with Icon */}
         <View style={[styles.passwordContainer, passwordFocused && styles.focusedInput]}>
-          <MaterialCommunityIcons name="lock-outline" size={20} color="#455e14" style={styles.icon} />
+          <MaterialCommunityIcons name="lock-outline" size={wp('5%')} color="#455e14" style={styles.icon} />
           <TextInput
             style={styles.passwordInput}
             placeholder="Password"
@@ -155,52 +128,53 @@ export default function SignupScreen({ navigation }) {
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
             <MaterialCommunityIcons
               name={showPassword ? 'eye-off' : 'eye'}
-              size={20}
+              size={wp('5%')}
               color="#455e14"
               style={styles.eyeIcon}
             />
           </TouchableOpacity>
         </View>
 
+        {/* Password Validation Hints */}
         <View style={styles.passwordHintContainer}>
-        <Text style={{ fontFamily: 'Poppins-Regular', fontSize: 14, color: '#455e14' }}>Password must contain:</Text>
+          <Text style={{ fontFamily: 'Poppins-Regular', fontSize: wp('3.2%'), color: '#455e14' }}>Password must contain:</Text>
           <View style={styles.passwordHintItem}>
-            <MaterialCommunityIcons 
+            <MaterialCommunityIcons
               name={passwordValidation.length ? 'check' : 'close'}
-              size={20} 
-              color={passwordValidation.length ? '#7a9b57' : '#ed3e3e'} 
+              size={wp('4%')}
+              color={passwordValidation.length ? '#7a9b57' : '#ed3e3e'}
             />
             <Text style={styles.passwordHintText}>At least 8 characters</Text>
           </View>
           <View style={styles.passwordHintItem}>
-            <MaterialCommunityIcons 
+            <MaterialCommunityIcons
               name={passwordValidation.uppercase ? 'check' : 'close'}
-              size={20} 
-              color={passwordValidation.uppercase ? '#7a9b57' : '#ed3e3e'} 
+              size={wp('4%')}
+              color={passwordValidation.uppercase ? '#7a9b57' : '#ed3e3e'}
             />
             <Text style={styles.passwordHintText}>Contains uppercase letter</Text>
           </View>
           <View style={styles.passwordHintItem}>
-            <MaterialCommunityIcons 
+            <MaterialCommunityIcons
               name={passwordValidation.lowercase ? 'check' : 'close'}
-              size={20} 
-              color={passwordValidation.lowercase ? '#7a9b57' : '#ed3e3e'} 
+              size={wp('4%')}
+              color={passwordValidation.lowercase ? '#7a9b57' : '#ed3e3e'}
             />
             <Text style={styles.passwordHintText}>Contains lowercase letter</Text>
           </View>
           <View style={styles.passwordHintItem}>
-            <MaterialCommunityIcons 
+            <MaterialCommunityIcons
               name={passwordValidation.number ? 'check' : 'close'}
-              size={20} 
-              color={passwordValidation.number ? '#7a9b57' : '#ed3e3e'} 
+              size={wp('4%')}
+              color={passwordValidation.number ? '#7a9b57' : '#ed3e3e'}
             />
             <Text style={styles.passwordHintText}>Contains number</Text>
           </View>
           <View style={styles.passwordHintItem}>
-            <MaterialCommunityIcons 
+            <MaterialCommunityIcons
               name={passwordValidation.specialChar ? 'check' : 'close'}
-              size={20} 
-              color={passwordValidation.specialChar ? '#7a9b57' : '#ed3e3e'} 
+              size={wp('4%')}
+              color={passwordValidation.specialChar ? '#7a9b57' : '#ed3e3e'}
             />
             <Text style={styles.passwordHintText}>Contains special character</Text>
           </View>
@@ -208,7 +182,7 @@ export default function SignupScreen({ navigation }) {
 
         {/* Confirm Password Input with Icon */}
         <View style={[styles.passwordContainer, confirmPasswordFocused && styles.focusedInput]}>
-          <MaterialCommunityIcons name="lock-check-outline" size={20} color="#455e14" style={styles.icon} />
+          <MaterialCommunityIcons name="lock-check-outline" size={wp('5%')} color="#455e14" style={styles.icon} />
           <TextInput
             style={styles.passwordInput}
             placeholder="Confirm Password"
@@ -221,7 +195,7 @@ export default function SignupScreen({ navigation }) {
           <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
             <MaterialCommunityIcons
               name={showConfirmPassword ? 'eye-off' : 'eye'}
-              size={20}
+              size={wp('5%')}
               color="#455e14"
               style={styles.eyeIcon}
             />
@@ -232,20 +206,10 @@ export default function SignupScreen({ navigation }) {
         <TouchableOpacity
           style={[styles.button, { backgroundColor: isFormValid ? '#83951c' : '#83951c80' }]}
           onPress={handleSignup}
-          disabled={!isFormValid} // Disable button if form is invalid
+          disabled={!isFormValid}
         >
           <Text style={styles.buttonText}>Sign Up</Text>
         </TouchableOpacity>
-
-        <Text style={styles.switchText}>
-          Already have an account?{" "}
-          <Text 
-            style={{ fontFamily: 'Poppins-Bold', fontSize: 14, color: '#455e14' }}
-            onPress={() => navigation.navigate('Login')}
-          >
-            Login
-          </Text>
-        </Text>
       </View>
     </KeyboardAvoidingView>
   );
@@ -254,17 +218,15 @@ export default function SignupScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: width * 0.08,
+    paddingHorizontal: wp('7%'),
     backgroundColor: '#fff',
-  },
-  formContainer: {
-    paddingBottom: 20,
   },
   title: {
     color: '#455e14',
-    fontSize: 28,
+    fontSize: wp('7%'),
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: wp('2.5%'),
+    marginTop:  wp('2.5%'),
     fontFamily: 'Poppins-Bold',
   },
   inputContainer: {
@@ -272,57 +234,59 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#455e14',
-    padding: 8,
-    marginVertical: 8,
     borderRadius: 5,
-    height: 48,
+    paddingVertical: hp('0.9%'),
+    paddingHorizontal: wp('2%'),
+    marginBottom: 10,
+    height: hp('5.5%'),
   },
   input: {
     flex: 1,
-    color: '#455e14',
     fontFamily: 'Poppins-Regular',
-    fontSize: 14,
+    color: '#455e14',
+    fontSize: wp('3.5%'),
+    paddingLeft: wp('1%') 
   },
   icon: {
-    marginRight: 10,
+    marginRight: wp('2%'),
   },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#455e14',
-    padding: 8,
     borderRadius: 5,
-    marginVertical: 8,
-    height: 48,
+    paddingVertical: hp('0.9%'),
+    paddingHorizontal: wp('2%'),
+    height: hp('5.5%'),
   },
   passwordInput: {
     flex: 1,
-    color: '#455e14',
     fontFamily: 'Poppins-Regular',
-    fontSize: 14,
+    color: '#455e14',
+    fontSize: wp('3.5%'),
+    paddingLeft: wp('1%')
   },
   eyeIcon: {
-    marginLeft: 10,
+    marginLeft: wp('2%'),
   },
   button: {
-    padding: 12,
+    padding: wp('2.5%'),
     borderRadius: 5,
-    marginTop: 16,
+    marginTop: hp('1.3%'),
   },
   buttonText: {
-    color: '#fff',
-    textAlign: 'center',
-    fontFamily: 'Poppins-Bold',
-    fontSize: 16,
-    letterSpacing: 1.5,
+    color: '#fff', 
+    textAlign: 'center', 
+    fontFamily: 'Poppins-Bold', 
+    fontSize: wp('4.5%'),
   },
   switchText: {
     textAlign: 'center',
     color: '#7a9b57',
-    marginTop: 16,
+    marginTop: hp('2%'),
     fontFamily: 'Poppins-Regular',
-    fontSize: 14,
+    fontSize: wp('4%'),
   },
   errorText: {
     color: 'red',
@@ -334,18 +298,18 @@ const styles = StyleSheet.create({
     borderWidth: 1.5, // Thicker border when focused
   },
   passwordHintContainer: {
-    marginTop: 5,
-    marginBottom:5,
+    marginTop: wp('1%'),
+    marginBottom: wp('1%'),
   },
   passwordHintItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 5,
+    marginBottom: wp('1%'),
   },
   passwordHintText: {
-    marginLeft: 6,
+    marginLeft: wp('1.5%'),
     color: '#455e14',
     fontFamily: 'Poppins-Regular',
-    fontSize: 14,
+    fontSize: wp('3%'),
   },
 });

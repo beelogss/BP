@@ -58,7 +58,6 @@ export default function LoginScreen({ navigation }) {
               keyboardType="email-address"
               onFocus={() => setEmailFocused(true)}
               onBlur={() => setEmailFocused(false)}
-              caretColor="#455e14"
             />
           </View>
 
@@ -109,10 +108,6 @@ export default function LoginScreen({ navigation }) {
             <Text style={styles.buttonText}>Login</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.googleButton} onPress={() => console.log("Google Login")}>
-            <Text style={styles.buttonText}>Continue with Google</Text>
-          </TouchableOpacity>
-
           <Text style={styles.switchText}>
             Don't have an account?{" "}
             <Text
@@ -158,11 +153,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#455e14',
-    borderRadius: 5,
-    paddingVertical: hp('0.9%'),
+    borderRadius: 10,
+    paddingVertical: hp('0.7%'),
     paddingHorizontal: wp('2%'),
-    marginBottom: 10,
-    height: hp('5.5%'),
+    marginBottom: wp('3.2%'),
+    height: hp('6%'),
   },
   input: {
     flex: 1,
@@ -182,7 +177,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingBottom: 10,
-    alignItems: 'center'
+    marginBottom: wp('3.7%'),
   },
   rememberMeContainer: {
     flexDirection: 'row',
@@ -203,9 +198,8 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#83951c',
-    padding: wp('2.5%'),
-    borderRadius: 5,
-    marginTop: 16
+    padding: wp('3%'),
+    borderRadius: 10,
   },
   disabledButton: {
     backgroundColor: '#83951c80', 
@@ -215,13 +209,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontFamily: 'Poppins-Bold',
     fontSize: wp('4%'),
-    letterSpacing: 1.5
-  },
-  googleButton: {
-    backgroundColor: '#db4437',
-    padding: wp('2.5%'),
-    borderRadius: 5,
-    marginTop: 16
+    letterSpacing: .1,
   },
   switchText: {
     textAlign: 'center',

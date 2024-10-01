@@ -55,11 +55,11 @@ export default function AuthStack() {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="EmailInput" component={EmailInputScreen} />
-        <Stack.Screen name="Verification" component={VerificationScreen} />
-        <Stack.Screen name="ForgotPass" component={ForgotPassScreen} />
-        <Stack.Screen name="ResetPass" component={ResetPassScreen} />
-        <Stack.Screen name="Signup" component={SignupDetailsScreen} />
+        <Stack.Screen name="EmailInput" component={EmailInputScreen} options={{ headerShown: false }}/>
+        <Stack.Screen name="Verification" component={VerificationScreen} options={{ headerShown: false }}/>
+        <Stack.Screen name="ForgotPass" component={ForgotPassScreen} options={{ headerShown: false }}/>
+        <Stack.Screen name="ResetPass" component={ResetPassScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Signup" component={SignupDetailsScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="MHome" component={HomeTabs} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
