@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Alert, Platform } from 'react-native';
 import { MaterialCommunityIcons, AntDesign } from '@expo/vector-icons'; // Using MaterialCommunityIcons for icons
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
-export default function SignupScreen({ navigation }) {
+export default function SignupScreen({ route, navigation }) {
+  const { email } = route.params; 
   const [name, setName] = useState('');
   const [studentNumber, setStudentNumber] = useState('');
   const [password, setPassword] = useState('');
@@ -34,15 +35,37 @@ export default function SignupScreen({ navigation }) {
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
-    } else if (!isPasswordValid) {
-      alert('Password does not meet the requirements.');
-      return;
     }
 
-    setError(''); // Clear error if validations pass
+    try {
+      // Call the backend API to create the user
+      const response = await fetch('http://192.168.1.5:3000/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,  // Include the verified email
+          name,
+          studentNumber,
+          password,
+        }),
+      });
 
-    // Add signup logic here
+      const data = await response.json();
+
+      if (data.success) {
+        Alert.alert('Success', 'Account created successfully');
+        navigation.navigate('Login');  // Redirect to login screen
+      } else {
+        Alert.alert('Error', data.message);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to create account');
+    }
   };
+
+  
 
   const handleStudentNumberChange = (text) => {
     let formattedText = text.replace(/[^0-9]/g, '');

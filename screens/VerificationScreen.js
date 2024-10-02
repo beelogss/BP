@@ -89,17 +89,59 @@ export default function VerificationCodeScreen({ route, navigation }) {
     }
   };
 
-  const handleSendVerification = async () => {
+  const handleSendVerification = () => {
     const code = verificationCode.join('');
-    Alert.alert('Verification Code', `Your code is: ${code}`);
-    navigation.navigate('Signup', { email });
+  
+    fetch('http://192.168.1.5:3000/verifyCode', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, code }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          Alert.alert('Success', 'Email verified');
+          // Navigate to Signup Screen with the verified email
+          navigation.navigate('Signup', { email });
+        } else {
+          Alert.alert('Error', 'Invalid verification code');
+        }
+      })
+      .catch((error) => {
+        Alert.alert('Error', 'Failed to verify code');
+      });
   };
+  
+  
+  
 
   const resendVerificationCode = () => {
-    Alert.alert('Code Resent', `A new code has been sent to ${email}`);
-    setTimer(30); 
-    setIsResendClickable(false); 
+    fetch('http://192.168.1.5:3000/sendVerificationCode', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          Alert.alert('Success', 'New verification code sent');
+          setTimer(30);  // Reset the timer for resend
+          setIsResendClickable(false);  // Disable resend button again
+        } else {
+          Alert.alert('Error', data.message);
+        }
+      })
+      .catch((error) => {
+        Alert.alert('Error', 'Failed to resend code');
+      });
   };
+  
+  
+  
 
   const isCodeFilled = verificationCode.every((digit) => digit !== '');
 

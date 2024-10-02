@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, ImageBackground, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, KeyboardAvoidingView, Alert, Platform } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Checkbox from 'expo-checkbox';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -20,15 +20,37 @@ export default function LoginScreen({ navigation }) {
     return emailRegex.test(email);
   };
 
-  const handleLogin = () => {
-    if (validateEmail(email) && password) {
-      console.log("Login with: ", email, password);
-      navigation.navigate('MHome');
-    } else {
+  const handleLogin = async () => {
+    if (!validateEmail(email) || !password) {
       if (!email) setEmailError(true);
       if (!password) setPasswordError(true);
+      return;
+    }
+  
+    // Call backend API to login the user
+    try {
+      const response = await fetch('http://192.168.1.5:3000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+  
+      const data = await response.json();
+  
+      if (data.success) {
+        Alert.alert('Success', 'Logged in successfully');
+        navigation.navigate('MHome');  // Redirect to the home screen
+      } else {
+        Alert.alert('Error', data.message);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to log in');
     }
   };
+  
+  
 
   return (
     <SafeAreaProvider>
@@ -58,6 +80,7 @@ export default function LoginScreen({ navigation }) {
               keyboardType="email-address"
               onFocus={() => setEmailFocused(true)}
               onBlur={() => setEmailFocused(false)}
+              selectionColor={"#bdd299"}       
             />
           </View>
 
@@ -75,6 +98,7 @@ export default function LoginScreen({ navigation }) {
               secureTextEntry={!showPassword}
               onFocus={() => setPasswordFocused(true)}
               onBlur={() => setPasswordFocused(false)}
+              selectionColor={"#bdd299"}
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
               <MaterialCommunityIcons
@@ -129,7 +153,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: wp('7%'),
-    backgroundColor: 'white'
+    backgroundColor: 'white',
   },
   imageContainer: {
     alignItems: 'center',
