@@ -126,6 +126,7 @@ export default function SignupScreen({ route, navigation }) {
             maxLength={8}
             onFocus={() => setStudentNumberFocused(true)}
             onBlur={() => setStudentNumberFocused(false)}
+            selectionColor={"#bdd299"}
           />
         </View>
 
@@ -139,6 +140,7 @@ export default function SignupScreen({ route, navigation }) {
             onChangeText={setName}
             onFocus={() => setNameFocused(true)}
             onBlur={() => setNameFocused(false)}
+            selectionColor={"#bdd299"}
           />
         </View>
 
@@ -153,6 +155,7 @@ export default function SignupScreen({ route, navigation }) {
             secureTextEntry={!showPassword}
             onFocus={() => setPasswordFocused(true)}
             onBlur={() => setPasswordFocused(false)}
+            selectionColor={"#bdd299"}
           />
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
             <MaterialCommunityIcons
@@ -220,6 +223,7 @@ export default function SignupScreen({ route, navigation }) {
             secureTextEntry={!showConfirmPassword}
             onFocus={() => setConfirmPasswordFocused(true)}
             onBlur={() => setConfirmPasswordFocused(false)}
+            selectionColor={"#bdd299"}
           />
           <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
             <MaterialCommunityIcons

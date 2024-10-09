@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TextInput, Alert } from 'react-native';
-
+import AlertPro from "react-native-alert-pro";
 export default function ProfileScreen({ navigation }) {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState('John Doe');
@@ -12,10 +12,10 @@ export default function ProfileScreen({ navigation }) {
     Alert.alert('Profile Updated', 'Your profile has been updated successfully.');
   };
 
-  const handleLogout = () => {
-    Alert.alert('Logged Out', 'You have been logged out.');
-    navigation.navigate('Login');
-  };
+  // const handleLogout = () => {
+  //   Alert.alert('Logged Out', 'You have been logged out.');
+  //   navigation.navigate('Login');
+  // };
 
   return (
     <View style={styles.container}>
@@ -70,9 +70,41 @@ export default function ProfileScreen({ navigation }) {
         </TouchableOpacity>
       )}
 
-      <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={handleLogout}>
+      <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={() => this.AlertPro.open()}>
         <Text style={styles.buttonText}>Logout</Text>
       </TouchableOpacity>
+      <AlertPro
+          ref={ref => {
+            this.AlertPro = ref;
+          }}
+          onConfirm={() => {
+            this.AlertPro.close();
+            navigation.navigate('Login');;
+          }}
+          onCancel={() => this.AlertPro.close()}
+          title="Confirmation"
+          message="Are you sure you want to logout?"
+          textCancel="Cancel"
+          textConfirm="Yes"
+          customStyles={{
+            mask: {
+              backgroundColor: "transparent"
+            },
+            container: {
+              borderWidth: 1,
+              borderColor: "#455e14",
+              shadowColor: "#000000",
+              shadowOpacity: 0.1,
+              shadowRadius: 10
+            },
+            buttonCancel: {
+              backgroundColor: "#f66"
+            },
+            buttonConfirm: {
+            backgroundColor: "#83951c"
+            }
+          }}
+        />
     </View>
   );
 }
@@ -81,7 +113,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#e5eeda',
+    backgroundColor: 'white',
   },
   title: {
     fontSize: 24,

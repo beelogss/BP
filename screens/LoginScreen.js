@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, KeyboardAvoidingView, Alert, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, KeyboardAvoidingView, Platform} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Checkbox from 'expo-checkbox';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-
+import { useSnackbar } from '@/components/SnackbarContext'
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,6 +14,7 @@ export default function LoginScreen({ navigation }) {
   const [emailError, setEmailError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
   const [isChecked, setChecked] = useState(false);
+  const { showSnackbar } = useSnackbar(); 
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -28,28 +29,31 @@ export default function LoginScreen({ navigation }) {
     }
   
     // Call backend API to login the user
-    try {
-      const response = await fetch('http://192.168.1.5:3000/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-  
-      const data = await response.json();
-  
-      if (data.success) {
-        Alert.alert('Success', 'Logged in successfully');
-        navigation.navigate('MHome');  // Redirect to the home screen
-      } else {
-        Alert.alert('Error', data.message);
-      }
-    } catch (error) {
-      Alert.alert('Error', 'Failed to log in');
-    }
+    // try {
+    //   const response = await fetch('http://192.168.1.5:3000/login', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({ email, password }),
+    //   });
+
+    //   const data = await response.json();
+
+    //   if (data.success) {
+    //     // Show success snackbar
+        showSnackbar('Logged in successfully!', 'green'); // green for success
+
+        // Navigate to another screen after showing snackbar
+       
+          navigation.navigate('Hometabs');
+  //     } else {
+  //       showSnackbar(data.message, '#F44336'); // red for error
+  //     }
+  //   } catch (error) {
+  //     showSnackbar('Failed to log in', '#F44336'); // red for error
+  //   }
   };
-  
   
 
   return (

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
@@ -8,6 +8,8 @@ export default function EmailInputScreen({ navigation }) {
   const [emailError, setEmailError] = useState('');
   const [emailFocused, setEmailFocused] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [text, setText] = React.useState('');
+  
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -42,7 +44,7 @@ export default function EmailInputScreen({ navigation }) {
       })
       .catch((error) => {
         setLoading(false);
-        setEmailError('Failed to send code. Please try again.');
+        setEmailError('Failed to load. Please try again.');
       });
   };
 
@@ -56,7 +58,7 @@ export default function EmailInputScreen({ navigation }) {
 
       {/* Error Message Between Instructions and Email */}
       <View style={styles.errorContainer}>
-      {emailError ? <AntDesign name="exclamationcircleo" size={wp('3%')} color="#f66" style={{alignSelf: "center"}}/>: null}
+      {emailError ? <AntDesign name="exclamationcircle" size={wp('3%')} color="#f66" style={{alignSelf: "center"}}/>: null}
       {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
       </View>
 
@@ -70,6 +72,7 @@ export default function EmailInputScreen({ navigation }) {
           onChangeText={(text) => {
             setEmail(text);
             setEmailError('');
+            setText(text);
           }}
           keyboardType="email-address"
           onFocus={() => setEmailFocused(true)}
@@ -87,8 +90,6 @@ export default function EmailInputScreen({ navigation }) {
           <Text style={styles.buttonText}>Send Code</Text>
         </TouchableOpacity>
 
-        {/* Loading Indicator (when loading) */}
-        {loading && <ActivityIndicator style={styles.loadingIndicator} size="small" color="#83951c" />}
       </View>
 
       <Text style={styles.switchText}>
@@ -97,6 +98,8 @@ export default function EmailInputScreen({ navigation }) {
           Login
         </Text>
       </Text>
+      {/* Loading Indicator (when loading) */}
+      {loading && <ActivityIndicator style={styles.loadingIndicator} size="medium" color="#83951c" />}
     </View>
   );
 }
@@ -129,7 +132,7 @@ const styles = StyleSheet.create({
   errorContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    height: hp('2.3%'),
+    height: hp('3%'),
   },
   errorText: {
     color: '#f66',

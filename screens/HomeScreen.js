@@ -1,15 +1,38 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, ProgressBarAndroid } from 'react-native';
-
+import React, {useEffect} from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, BackHandler, Alert} from 'react-native';
+import { useSnackbar } from '../components/SnackbarContext'
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 export default function HomeScreen({ navigation }) {
   const userName = 'John Doe'; // Replace with actual user's name
   const points = 120;
   const co2Reduction = 18;
   const bottleGoal = 100;
   const recycledBottles = 60;
-  const progress = recycledBottles / bottleGoal;
-
+  const { showSnackbar } = useSnackbar();
+    useEffect(() => {
+      const backAction = () => {
+        Alert.alert('Sandali lang!', 'Sure ka you want to exit this app?', [
+          {
+            text: 'Charot lang',
+            onPress: () => null,
+            style: 'cancel',
+          },
+          {text: 'Yes, of course!', onPress: () => BackHandler.exitApp()},
+        ]);
+        return true;
+      };
+  
+      const backHandler = BackHandler.addEventListener(
+        'hardwareBackPress',
+        backAction,
+      );
+  
+      return () => backHandler.remove();
+    }, []);
+  
+  
   return (
+    <SafeAreaProvider>
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.greeting}>Hi, {userName}</Text>
@@ -29,16 +52,6 @@ export default function HomeScreen({ navigation }) {
         </View>
       </View>
 
-      <View style={styles.progressContainer}>
-        <Text style={styles.progressText}>Recycled Bottles: {recycledBottles}/{bottleGoal}</Text>
-        <ProgressBarAndroid styleAttr="Horizontal" indeterminate={false} progress={progress} color="#83951c" />
-      </View>
-
-      {/* <Image style={styles.image} source={require('../assets/images/cards.png')} />
-      <Text style={styles.description}>
-        Help protect the environment by recycling your bottles! Track your recycling efforts and contribute to a cleaner planet.
-      </Text> */}
-
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('RecyclingInfo')}>
         <Text style={styles.buttonText}>Learn More About Recycling</Text>
       </TouchableOpacity>
@@ -46,6 +59,7 @@ export default function HomeScreen({ navigation }) {
         <Text style={styles.buttonText}>Track Your Recycling</Text>
       </TouchableOpacity>
     </View>
+    </SafeAreaProvider>
   );
 }
 
@@ -53,7 +67,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 20,
-    backgroundColor: '#e5eeda',
+    backgroundColor: 'white',
     paddingVertical: 40,
   },
   header: {
@@ -101,16 +115,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontFamily: 'Poppins-Bold',
   },
-  progressContainer: {
-    marginBottom: 20,
-    alignItems: 'center',
-  },
-  progressText: {
-    fontSize: 16,
-    color: '#455e14',
-    fontFamily: 'Poppins-Regular',
-    marginBottom: 10,
-  },
+  
   image: {
     width: 200,
     height: 200,

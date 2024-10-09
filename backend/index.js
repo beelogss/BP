@@ -15,7 +15,7 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// Nodemailer Transporter setup
+// Nodemailer Transporter setup    
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
