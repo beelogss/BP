@@ -2,17 +2,17 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import React, { useEffect } from 'react';
 import Animated, { interpolate, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { icons } from '../assets/icons';
-
-const TabBarButton = ({ isFocused, label, routeName, color, onPress }) => {
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+const TabBarButton = ({ isFocused, label, routeName, color, onPress, backgroundColor }) => {
   const scale = useSharedValue(0);
 
   useEffect(() => {
-    scale.value = withSpring(isFocused ? 1 : 0, { duration: 350 });
+    scale.value = withSpring(isFocused ? 1 : 0, { duration: 250 });
   }, [isFocused]);
 
   // Animate the icon
   const animatedIconStyle = useAnimatedStyle(() => {
-    const scaleValue = interpolate(scale.value, [0, 1], [1, 1.4]);
+    const scaleValue = interpolate(scale.value, [0, 1], [1, 1.3]);
     const top = interpolate(scale.value, [0, 1], [0, 5]); // Moves up when focused
     return {
       transform: [{ scale: scaleValue }],
@@ -29,7 +29,14 @@ const TabBarButton = ({ isFocused, label, routeName, color, onPress }) => {
   });
 
   return (
-    <Pressable onPress={onPress} style={styles.container} android_ripple={{ color: '#e5eeda', borderless: true, radius: 50}}>
+    <Pressable
+      onPress={onPress}
+      style={styles.container}
+      android_ripple={{ color: '#e5eeda', borderless: true, radius: hp('3.5%') }}
+    >
+      {isFocused && (
+        <View style={[styles.circularBackground, { backgroundColor }]} />
+      )}
       {/* Animated Icon */}
       <Animated.View style={[animatedIconStyle]}>
         {
@@ -41,7 +48,7 @@ const TabBarButton = ({ isFocused, label, routeName, color, onPress }) => {
       </Animated.View>
 
       {/* Animated Text Label */}
-      <Animated.Text style={[{ color, fontSize: 11 }, animatedTextStyle]}>
+      <Animated.Text style={[{ color, fontSize: wp('2.6%') }, animatedTextStyle]}>
         {label}
       </Animated.Text>
     </Pressable>
@@ -53,7 +60,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 1,
+    borderRadius: hp('10%'),
+  },
+  circularBackground: {
+    position: 'absolute',
+    width: wp('13%'),
+    height: hp('6.4%'),
+    borderRadius: wp('7%'),
   },
 });
 

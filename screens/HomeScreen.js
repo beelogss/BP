@@ -1,7 +1,8 @@
 import React, {useEffect} from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, BackHandler, Alert} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, BackHandler, Alert, Dimensions} from 'react-native';
 import { useSnackbar } from '../components/SnackbarContext'
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import Carousel from 'react-native-reanimated-carousel';
 export default function HomeScreen({ navigation }) {
   const userName = 'John Doe'; // Replace with actual user's name
   const points = 120;
@@ -9,6 +10,7 @@ export default function HomeScreen({ navigation }) {
   const bottleGoal = 100;
   const recycledBottles = 60;
   const { showSnackbar } = useSnackbar();
+  const width = Dimensions.get('window').width;
     useEffect(() => {
       const backAction = () => {
         Alert.alert('Sandali lang!', 'Sure ka you want to exit this app?', [
@@ -59,6 +61,38 @@ export default function HomeScreen({ navigation }) {
         <Text style={styles.buttonText}>Track Your Recycling</Text>
       </TouchableOpacity>
     </View>
+    <View style={{ flex: 1 }}>
+            <Carousel
+                loop
+                width={width}
+                height={width / 2}
+                autoPlay={true}
+                mode= "parallax"
+                autoPlayInterval={5000}
+                data={[...new Array(2).keys()]}
+                scrollAnimationDuration={1000}
+                modeConfig={{
+                  parallaxScrollingScale: 0.89,
+                  parallaxScrollingOffset: 55,
+                }}
+                // onSnapToItem={(index) => console.log('current index:', index)}
+                renderItem={({ index }) => (
+                    <View
+                        style={{
+                            flex: 1,
+                            borderWidth: 1,
+                            justifyContent: 'center',
+                            borderRadius: 20,
+                            borderColor: '#455e14',
+                        }}
+                    >
+                        <Text style={{ textAlign: 'center', fontSize: 30 }}>
+                            {index}
+                        </Text>
+                    </View>
+                )}
+            />
+        </View>
     </SafeAreaProvider>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Pressable } from 'react-native';
 import { MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
@@ -50,9 +50,9 @@ export default function EmailInputScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity>
+      <Pressable delayLongPress={200} android_ripple={{ color: '#f9f9f9', borderless: true, radius: 50}}>
         <AntDesign name="arrowleft" size={wp('10%')} color="#83951c" style={styles.backIcon} onPress={() => navigation.navigate('Login')} />
-      </TouchableOpacity>
+      </Pressable>
       <Text style={styles.title}>Sign Up</Text>
       <Text style={styles.instructions}>Enter your email to get started</Text>
 
