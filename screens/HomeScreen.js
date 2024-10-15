@@ -1,6 +1,7 @@
-import React, {useEffect} from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, BackHandler, Alert, Dimensions} from 'react-native';
+import React, {useEffect, useState, useCallback, useRef} from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, BackHandler, Alert,Platform, Dimensions, ToastAndroid, AppState, RefreshControl, ScrollView} from 'react-native';
 import { useSnackbar } from '../components/SnackbarContext'
+import { useNavigationState, useNavigation, useFocusEffect } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Carousel from 'react-native-reanimated-carousel';
 export default function HomeScreen({ navigation }) {
@@ -11,30 +12,88 @@ export default function HomeScreen({ navigation }) {
   const recycledBottles = 60;
   const { showSnackbar } = useSnackbar();
   const width = Dimensions.get('window').width;
-    useEffect(() => {
-      const backAction = () => {
-        Alert.alert('Sandali lang!', 'Sure ka you want to exit this app?', [
-          {
-            text: 'Charot lang',
-            onPress: () => null,
-            style: 'cancel',
-          },
-          {text: 'Yes, of course!', onPress: () => BackHandler.exitApp()},
-        ]);
-        return true;
-      };
-  
-      const backHandler = BackHandler.addEventListener(
+
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
+  // const navigations = useNavigation();
+  const navIndex = useNavigationState(s => s.index);
+  const [backPressCount, setBackPressCount] = useState(0);
+  const timeoutRef = useRef(null); // Ref to store the timeout ID
+
+  const handleBackPress = useCallback(() => {
+    if (backPressCount === 0) {
+      setBackPressCount(prevCount => prevCount + 1);
+      timeoutRef.current = setTimeout(() => setBackPressCount(0), 3000);
+      ToastAndroid.show('Press again to exit the app', ToastAndroid.SHORT);
+    } else if (backPressCount === 1) {
+      BackHandler.exitApp();
+    }
+    return true;
+  }, [backPressCount]);
+
+  useEffect(() => {
+    if (Platform.OS === 'android' && navIndex === 0) {
+      const backListener = BackHandler.addEventListener(
         'hardwareBackPress',
-        backAction,
+        handleBackPress
       );
-  
-      return () => backHandler.remove();
-    }, []);
-  
+
+      return () => {
+        backListener.remove();
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current); // Clear the timeout on unmount
+        }
+      };
+    }
+  }, [handleBackPress, navIndex]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (nextAppState === 'active') {
+        setBackPressCount(0); // Reset backPressCount when app comes to foreground
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current); // Clear any existing timeout
+        }
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      // Reset backPressCount when the screen gains focus
+      setBackPressCount(0);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current); // Clear any existing timeout
+      }
+
+      return () => {
+        // Reset backPressCount when the screen loses focus
+        setBackPressCount(0);
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current); // Clear any existing timeout
+        }
+      };
+    }, [])
+  );
+
   
   return (
     <SafeAreaProvider>
+      <ScrollView
+        contentContainerStyle={styles.scrollView}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }>
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.greeting}>Hi, {userName}</Text>
@@ -93,6 +152,7 @@ export default function HomeScreen({ navigation }) {
                 )}
             />
         </View>
+        </ScrollView>
     </SafeAreaProvider>
   );
 }

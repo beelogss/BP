@@ -10,6 +10,8 @@ import SignupDetailsScreen from '../screens/SignupDetailsScreen';
 import { SnackbarProvider } from '../components/SnackbarContext'; 
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import HomeTabs from './_layout';
+import RewardDetailsScreen from '../screens/RewardDetailsScreen'
+import RewardsScreen from '../screens/RewardsScreen'
 const Stack = createStackNavigator();
 
 export default function AuthStack() {
@@ -27,6 +29,10 @@ export default function AuthStack() {
         <Stack.Screen name="ResetPass" component={ResetPassScreen}/>
         <Stack.Screen name="Signup" component={SignupDetailsScreen} />
         <Stack.Screen name="Hometabs" component={HomeTabs}/>
+        <Stack.Screen name="Rewards" component={RewardsScreen} />
+        <Stack.Screen name="RewardDetails" component={RewardDetailsScreen} />
+        {/* <Stack.Screen name="ProductList" component={ProductListScreen} options={{ title: 'Products' }} />
+        <Stack.Screen name="ProductDetail" component={ProductDetailScreen} options={{ title: 'Product Detail' }} /> */}
       </Stack.Navigator>
     </NavigationContainer>
     </SnackbarProvider>

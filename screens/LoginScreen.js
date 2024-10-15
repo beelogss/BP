@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, KeyboardAvoidingView, Platform} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, KeyboardAvoidingView, Platform, ToastAndroid} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Checkbox from 'expo-checkbox';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { useSnackbar } from '@/components/SnackbarContext'
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,7 +13,6 @@ export default function LoginScreen({ navigation }) {
   const [emailError, setEmailError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
   const [isChecked, setChecked] = useState(false);
-  const { showSnackbar } = useSnackbar(); 
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -40,18 +38,17 @@ export default function LoginScreen({ navigation }) {
 
     //   const data = await response.json();
 
-    //   if (data.success) {
-    //     // Show success snackbar
-        showSnackbar('Logged in successfully!', 'green'); // green for success
+    //   if (data.success) 
+        ToastAndroid.show('Logged in successfully!', ToastAndroid.LONG);
 
-        // Navigate to another screen after showing snackbar
+        // Navigate to another screen after 
        
           navigation.navigate('Hometabs');
   //     } else {
-  //       showSnackbar(data.message, '#F44336'); // red for error
+              //  ToastAndroid.show(data.message, ToastAndroid.LONG);
   //     }
   //   } catch (error) {
-  //     showSnackbar('Failed to log in', '#F44336'); // red for error
+            //  ToastAndroid.show('Failed to log in', ToastAndroid.LONG);
   //   }
   };
   

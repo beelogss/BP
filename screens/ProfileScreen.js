@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView, Dimensions, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView, Dimensions, Image, BackHandler } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons, Octicons, Entypo, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import { Avatar } from 'react-native-paper';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import AlertPro from "react-native-alert-pro";
+import { useNavigation } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get('window');
 export default function ProfileScreen ({navigation}) {
@@ -16,6 +17,21 @@ export default function ProfileScreen ({navigation}) {
     { name: 'Tree/s Planted', icon: 'tree', value: '0.00', iconType: 'Entypo' },
     { name: 'Transportation', icon: 'car-side', value: '0.00', iconType: 'FontAwesome5' },
   ];
+
+  const navigations = useNavigation();
+
+  useEffect(() => {
+    const handleBackPress = () => {
+      navigations.goBack(); // Navigate to Home screen
+      return true; // Prevent default behavior (exit app)
+    };
+
+    BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
+    };
+  }, [navigations]);
 
   return (
     <View style={[styles.container, {  }]}>
