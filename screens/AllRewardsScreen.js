@@ -6,7 +6,7 @@ import { FontAwesome6 } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { SheetManager } from 'react-native-actions-sheet';
 
-const RewardsScreen = ({ navigation }) => {
+const AllRewardsScreen = ({ navigation }) => {
   const [rewards, setRewards] = useState([]);
   const [points, setPoints] = useState(0);
   const [selectedReward, setSelectedReward] = useState(null);
@@ -18,7 +18,7 @@ const RewardsScreen = ({ navigation }) => {
 
   const fetchRewards = async () => {
     const availableRewards = await getAvailableRewards();
-    setRewards(availableRewards.slice(0, 3)); // Show only 3 rewards for this screen
+    setRewards(availableRewards);
   };
 
   const fetchUserPoints = () => {
@@ -28,7 +28,7 @@ const RewardsScreen = ({ navigation }) => {
 
   const handleRewardPress = (reward) => {
     setSelectedReward(reward);
-    SheetManager.show('reward-details-rewards-screen');
+    SheetManager.show('reward-details-all-rewards-screen');
   };
 
   const renderRewardItem = ({ item }) => (
@@ -44,30 +44,21 @@ const RewardsScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.header}>Rewards</Text>
-        <Text style={{ fontSize: hp('1.2%'), fontFamily: 'Poppins-SemiBold', color: '#7a9b57' }}>Available Points:</Text>
+        <Text style={styles.header}>All Rewards</Text>
+        <Text style={styles.points}>Available Points:</Text>
         <View style={styles.pointsContainer}>
           <FontAwesome6 name="coins" size={wp('5%')} color="#7a9b57" style={styles.icon} />
           <Text style={{ fontSize: hp('2%'), fontFamily: 'Poppins-Regular', color: '#7a9b57' }}>{points}</Text>
         </View>
       </View>
-      <Text style={styles.popularRewards}>Popular Rewards</Text>
-      <TouchableOpacity
-        style={styles.seeAllButton}
-        onPress={() => navigation.navigate('AllRewards')}
-      >
-        <Text style={styles.seeAllText}>See All</Text>
-      </TouchableOpacity>
       <FlatList
         data={rewards}
         renderItem={renderRewardItem}
         keyExtractor={(item) => item.id.toString()}
-        horizontal={true}
-        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
       />
-      
 
-      <RewardActionSheet selectedReward={selectedReward} points={points} sheetId="reward-details-rewards-screen" />
+      <RewardActionSheet selectedReward={selectedReward} points={points} sheetId="reward-details-all-rewards-screen" />
     </View>
   );
 };
@@ -85,6 +76,8 @@ const styles = StyleSheet.create({
     padding: wp('3%'),
     borderRadius: wp('5%'),
     justifyContent: 'space-between',
+    paddingHorizontal: wp('4%'),
+    paddingVertical: hp('3%'),
   },
   header: {
     fontSize: hp('3%'),
@@ -109,11 +102,12 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     backgroundColor: 'white',
     borderRadius: wp('8%'),
-    width: wp('42%'),
-    height: hp('24%'),
-    marginRight: hp('2%'),
+    width: wp('80%'),
+    height: hp('25%'),
+    marginBottom: hp('2%'),
     borderWidth: 1,
     borderColor: '#7a9b57',
+    alignSelf: 'center',
   },
   rewardImage: {
     width: wp('35%'),
@@ -122,23 +116,12 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     alignSelf: 'center',
     backgroundColor: 'white',
-    borderBottomWidth: 5,
-    borderColor: '#455e14',
   },
   rewardInfo: {
-    backgroundColor: '#f1f1f1',
-    width: wp('42%'),
-    height: hp('7.1%'),
-    borderBottomRightRadius: wp('8%'),
-    borderBottomLeftRadius: wp('8%'),
-    alignSelf: 'center',
-    paddingLeft: wp('3%'),
-    borderWidth: 1,
-    borderColor: '#7a9b57',
-    justifyContent: 'center',
+    marginLeft: hp('1%'),
   },
   rewardName: {
-    fontSize: hp('1.6%'),
+    fontSize: hp('1.7%'),
     fontFamily: 'Poppins-Bold',
     color: '#455e14',
   },
@@ -147,20 +130,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-SemiBold',
     color: '#83951c',
   },
-  popularRewards: {
-    fontSize: hp('2.8%'),
-    fontFamily: 'Poppins-Bold',
-    color: '#455e14',
-  },
-  seeAllButton: {
-    // alignItems: 'center',
-  },
-  seeAllText: {
-    fontSize: hp('2%'),
-    color: '#83951c',
-    fontFamily: 'Poppins-Bold',
-    textAlign: 'right',
-  },
 });
 
-export default RewardsScreen;
+export default AllRewardsScreen;

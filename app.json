@@ -26,7 +26,8 @@
     },
     "plugins": [
       "expo-font",
-      "expo-router"
+      "expo-router",
+      "@react-native-firebase/app"
     ],
     "extra": {
       "eas": {
