@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, BackHandler } from 'react-native';
 import { getAvailableRewards } from './rewardsService'; // Fetch from Firestore
 import RewardActionSheet from '../components/RewardActionSheet'; // Import the centralized ActionSheet
 import { FontAwesome6 } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { SheetManager } from 'react-native-actions-sheet';
-
+import { useFocusEffect } from '@react-navigation/native';
 const AllRewardsScreen = ({ navigation }) => {
   const [rewards, setRewards] = useState([]);
   const [points, setPoints] = useState(0);
@@ -39,6 +39,19 @@ const AllRewardsScreen = ({ navigation }) => {
         <Text style={styles.rewardPoints}>BP: {item.points}</Text>
       </View>
     </TouchableOpacity>
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        navigation.goBack();
+        return true;
+      };
+
+      BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+      return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+    }, [navigation])
   );
 
   return (

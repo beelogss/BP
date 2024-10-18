@@ -66,6 +66,13 @@ const RewardsScreen = ({ navigation }) => {
         showsHorizontalScrollIndicator={false}
       />
       
+      {/* Button to navigate to ClaimedRewardsScreen */}
+      <TouchableOpacity
+        style={styles.claimedRewardsButton}
+        onPress={() => navigation.navigate('ClaimedRewards')}
+      >
+        <Text style={styles.claimedRewardsButtonText}>View Claimed Rewards</Text>
+      </TouchableOpacity>
 
       <RewardActionSheet selectedReward={selectedReward} points={points} sheetId="reward-details-rewards-screen" />
     </View>
@@ -110,7 +117,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: wp('8%'),
     width: wp('42%'),
-    height: hp('24%'),
+    height: hp('23.5%'),
     marginRight: hp('2%'),
     borderWidth: 1,
     borderColor: '#7a9b57',
@@ -160,6 +167,18 @@ const styles = StyleSheet.create({
     color: '#83951c',
     fontFamily: 'Poppins-Bold',
     textAlign: 'right',
+  },
+  claimedRewardsButton: {
+    bottom: hp('10%'),
+    padding: hp('1.5%'),
+    backgroundColor: '#83951c',
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  claimedRewardsButtonText: {
+    color: 'white',
+    fontSize: hp('2%'),
+    fontFamily: 'Poppins-SemiBold',
   },
 });
 
