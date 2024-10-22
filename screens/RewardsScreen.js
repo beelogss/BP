@@ -51,20 +51,22 @@ const RewardsScreen = ({ navigation }) => {
           <Text style={{ fontSize: hp('2%'), fontFamily: 'Poppins-Regular', color: '#7a9b57' }}>{points}</Text>
         </View>
       </View>
-      <Text style={styles.popularRewards}>Popular Rewards</Text>
-      <TouchableOpacity
-        style={styles.seeAllButton}
-        onPress={() => navigation.navigate('AllRewards')}
-      >
-        <Text style={styles.seeAllText}>See All</Text>
-      </TouchableOpacity>
-      <FlatList
-        data={rewards}
-        renderItem={renderRewardItem}
-        keyExtractor={(item) => item.id.toString()}
-        horizontal={true}
-        showsHorizontalScrollIndicator={false}
-      />
+        <Text style={styles.popularRewards}>Popular Rewards</Text>
+        <View  style={styles.rewardContainer}>
+        <TouchableOpacity
+          style={styles.seeAllButton}
+          onPress={() => navigation.navigate('AllRewards')}
+        >
+          <Text style={styles.seeAllText}>See All</Text>
+        </TouchableOpacity>
+        <FlatList
+          data={rewards}
+          renderItem={renderRewardItem}
+          keyExtractor={(item) => item.id.toString()}
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+        />
+        </View>
       
       {/* Button to navigate to ClaimedRewardsScreen */}
       <TouchableOpacity
@@ -83,11 +85,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: 'white',
+    backgroundColor: '#f6f6f6',
     paddingTop: hp('5%'),
   },
   headerContainer: {
-    marginBottom: hp('2%'),
+    marginBottom: hp('1%'),
     backgroundColor: '#e5eeda',
     padding: wp('3%'),
     borderRadius: wp('5%'),
@@ -109,6 +111,12 @@ const styles = StyleSheet.create({
   },
   icon: {
     marginRight: hp('1%'),
+  },
+  rewardContainer: {
+    justifyContent: 'center',
+    backgroundColor: 'white',
+    height: hp('30%'),
+    borderRadius: wp('3%'),
   },
   rewardItem: {
     flexDirection: 'column',
@@ -167,10 +175,11 @@ const styles = StyleSheet.create({
     color: '#83951c',
     fontFamily: 'Poppins-Bold',
     textAlign: 'right',
+    marginRight: hp('1.5%'),
   },
   claimedRewardsButton: {
-    bottom: hp('10%'),
     padding: hp('1.5%'),
+    top: hp('3%'),
     backgroundColor: '#83951c',
     borderRadius: 5,
     alignItems: 'center',

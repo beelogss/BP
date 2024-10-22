@@ -82,6 +82,7 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: 'white',
     paddingTop: hp('5%'),
+    flexDirection: 'column',
   },
   headerContainer: {
     marginBottom: hp('2%'),

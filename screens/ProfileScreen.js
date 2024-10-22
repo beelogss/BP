@@ -71,7 +71,8 @@ export default function ProfileScreen ({navigation}) {
             <Ionicons name="menu" size={wp('6%')} color="black" style={styles.headerIcon} />
           </View>
         </View>
-        <ScrollView contentContainerStyle={styles.contentContainer}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.contentContainer}>
+          
 
         {/* Statistics */}
         <View style={styles.statsBoxContainer}>

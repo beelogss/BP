@@ -102,7 +102,8 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, barcodeFormat = 'e
     if (barcodeFormat === 'ean13' || barcodeFormat === 'upca') {
       // Ensure the barcode data is numeric and has the correct length
       const numericId = selectedReward.id.replace(/\D/g, '').padStart(12, '0').slice(0, 12);
-      newBarcode = numericId;
+      const checkDigit = calculateCheckDigit(numericId);
+      newBarcode = numericId + checkDigit;
     } else {
       newBarcode = `REWARD-${selectedReward.id}-${selectedReward.name}-${selectedReward.points}-${Date.now()}`;
     }
@@ -122,7 +123,6 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, barcodeFormat = 'e
 
     // Add claimed reward to Firestore and get the document ID
     const docRef = await addClaimedReward({
-      id: selectedReward.id,
       name: selectedReward.name,
       points: selectedReward.points,
       barcode: newBarcode,
@@ -133,7 +133,19 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, barcodeFormat = 'e
 
     // Store the document ID for future updates
     selectedReward.claimedRewardDocId = docRef.id;
+    console.log(`Claimed reward added with document ID: ${docRef.id}`);
   };
+
+  // Function to calculate the check digit for EAN-13 and UPC-A barcodes
+const calculateCheckDigit = (numericId) => {
+  let sum = 0;
+  for (let i = 0; i < numericId.length; i++) {
+    const digit = parseInt(numericId[i], 10);
+    sum += (i % 2 === 0) ? digit : digit * 3;
+  }
+  const checkDigit = (10 - (sum % 10)) % 10;
+  return checkDigit.toString();
+};
 
   return (
     <ActionSheet id={sheetId}>
