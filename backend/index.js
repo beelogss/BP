@@ -8,6 +8,7 @@ const cors = require('cors');
 const serviceAccount = require('./serviceAccountKey.json');  // Ensure correct path
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://bpts-34c54-default-rtdb.firebaseio.com"
 });
 const db = admin.firestore();
 
@@ -173,12 +174,21 @@ app.post('/signup', async (req, res) => {
 
   try {
     // Check if the email is already registered
-    const snapshot = await db.collection('users')
+    let snapshot = await db.collection('users')
       .where('email', '==', email)
       .get();
 
     if (!snapshot.empty) {
       return res.status(400).json({ success: false, message: 'Email already registered' });
+    }
+
+    // Check if the studentNumber is already registered
+    snapshot = await db.collection('users')
+      .where('studentNumber', '==', studentNumber)
+      .get();
+
+    if (!snapshot.empty) {
+      return res.status(400).json({ success: false, message: 'Student number already registered' });
     }
 
     // Hash the password

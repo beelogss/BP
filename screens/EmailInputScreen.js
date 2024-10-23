@@ -26,7 +26,7 @@ export default function EmailInputScreen({ navigation }) {
     setLoading(true);
 
     // Simulate sending email code
-    fetch('http://192.168.1.5:3000/sendVerificationCode', {
+    fetch('http://192.168.1.9:3000/sendVerificationCode', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

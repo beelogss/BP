@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, KeyboardAvoidingView, Platform, ToastAndroid} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, KeyboardAvoidingView, Platform, ToastAndroid, Alert} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Checkbox from 'expo-checkbox';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -19,38 +19,35 @@ export default function LoginScreen({ navigation }) {
     return emailRegex.test(email);
   };
 
-  const handleLogin = async () => {
-    if (!validateEmail(email) || !password) {
-      if (!email) setEmailError(true);
-      if (!password) setPasswordError(true);
-      return;
-    }
-  
-    // Call backend API to login the user
-    // try {
-    //   const response = await fetch('http://192.168.1.5:3000/login', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({ email, password }),
-    //   });
-
-    //   const data = await response.json();
-
-    //   if (data.success) 
-        ToastAndroid.show('Logged in successfully!', ToastAndroid.LONG);
-
-        // Navigate to another screen after 
-       
-          navigation.navigate('Hometabs');
-  //     } else {
-              //  ToastAndroid.show(data.message, ToastAndroid.LONG);
-  //     }
-  //   } catch (error) {
-            //  ToastAndroid.show('Failed to log in', ToastAndroid.LONG);
-  //   }
-  };
+    const handleLogin = async () => {
+      if (!validateEmail(email) || !password) {
+        if (!email) setEmailError(true);
+        if (!password) setPasswordError(true);
+        return;
+      }
+    
+      // Call backend API to login the user
+      try {
+        const response = await fetch('http://192.168.1.9:3000/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        });
+    
+        const data = await response.json();
+    
+        if (data.success) {
+          ToastAndroid.show('Logged in successfully!', ToastAndroid.LONG);
+          navigation.navigate('Hometabs');  // Redirect to the home screen
+        } else {
+          Alert.alert('Error', data.message);
+        }
+      } catch (error) {
+        Alert.alert('Error', 'Failed to log in');
+      }
+    };
   
 
   return (

@@ -445,7 +445,7 @@ const styles = StyleSheet.create({
     marginTop: wp('4%'),
   },
   title: {
-    color: 'black',
+    color: '#455e14',
     fontSize: wp('6%'),
     marginLeft: wp('5%'),
     marginTop: wp('6%'),
@@ -465,7 +465,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp('4%'),
   },
   filterButtonText: {
-    color: 'black',
+    color: '#455e14',
     fontSize: hp('1.5%'),
     fontFamily: 'Poppins-SemiBold',
   },
@@ -490,7 +490,7 @@ const styles = StyleSheet.create({
   rewardName: {
     fontSize: hp('2%'),
     fontFamily: 'Poppins-Bold',
-    color: 'black',
+    color: '#455e14',
   },
   rewardPoints: {
     fontSize: hp('1.7%'),

@@ -39,7 +39,7 @@ export default function SignupScreen({ route, navigation }) {
 
     try {
       // Call the backend API to create the user
-      const response = await fetch('http://192.168.1.5:3000/signup', {
+      const response = await fetch('http://192.168.1.9:3000/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
