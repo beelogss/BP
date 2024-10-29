@@ -59,11 +59,16 @@ export default function LoginScreen({ navigation }) {
         <View style={styles.imageContainer}>
           <Image
             style={styles.image}
-            source={require('../assets/images/small-logoss.png')}
+            source={require('../assets/images/small-logo.png')}
           />
+          <Text style={styles.bottleText}>Bottle{" "}
+            <Text style={{color: '#83951c', fontFamily: 'Poppins-Black', fontSize: hp('4%'),textAlign: 'center',}}>Points
+            </Text>
+            </Text>
         </View>
 
         <View style={styles.formContainer}>
+        <Text style={styles.title}>Login to your account</Text>
           <Text style={styles.label}>Email</Text>
           <View style={[styles.inputContainer, emailError && styles.errorInput, emailFocused && styles.focusedInput]}>
             <MaterialCommunityIcons name="email-outline" size={wp('5%')} color="#455e14" style={styles.icon} />
@@ -132,7 +137,9 @@ export default function LoginScreen({ navigation }) {
             <Text style={styles.buttonText}>Login</Text>
           </TouchableOpacity>
 
-          <Text style={styles.switchText}>
+          
+        </View >
+        <Text style={styles.switchText}>
             Don't have an account?{" "}
             <Text
               style={{ fontFamily: 'Poppins-Black', fontSize: wp('3.5%'), color: '#455e14' }}
@@ -141,7 +148,6 @@ export default function LoginScreen({ navigation }) {
               Sign up
             </Text>
           </Text>
-        </View>
       </KeyboardAvoidingView>
     </SafeAreaProvider>
   );
@@ -150,26 +156,42 @@ export default function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: wp('7%'),
-    backgroundColor: 'white',
+    backgroundColor:'white',
   },
   imageContainer: {
     alignItems: 'center',
-    marginTop: hp('7%'),
-    marginBottom: hp('3.5%')
+    marginTop: hp('10%'),
   },
   image: {
     width: wp('35%'),
     height: wp('35%'),
     resizeMode: 'contain'
   },
+  bottleText: {
+    color: '#455e14', 
+    fontFamily: 'Poppins-Black', 
+    fontSize: hp('4%'),
+    textAlign: 'center',
+    bottom: hp('2%'),
+  },
+  title: {
+    color: '#455e14',
+    fontFamily: 'Poppins-Bold',
+    fontSize: wp('5%'),
+    textAlign: 'center',
+    bottom: hp('1%'),
+  },
   formContainer: {
-    paddingBottom: 15
+    padding: hp('2%'),
+    width: wp('90%'),
+    justifyContent: 'center',
+    alignSelf: 'center',
+    bottom: hp('3%'),
   },
   label: {
     color: '#455e14',
     fontFamily: 'Poppins-Bold',
-    marginBottom: 2,
+    marginBottom: hp('.2%'),
     fontSize: wp('3.5%')
   },
   inputContainer: {
@@ -238,9 +260,9 @@ const styles = StyleSheet.create({
   switchText: {
     textAlign: 'center',
     color: '#7a9b57',
-    marginTop: 16,
     fontFamily: 'Poppins-Regular',
-    fontSize: wp('3%')
+    fontSize: wp('3%'),
+    bottom: hp('3%'),
   },
   errorInput: {
     borderColor: '#f66',

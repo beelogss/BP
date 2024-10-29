@@ -60,7 +60,7 @@ export default function ProfileScreen ({navigation}) {
           <Avatar.Image size={wp('16%')} label="G" source={require('../assets/images/small-logoss.png')} style={styles.avatar} />
         </TouchableOpacity>
 
-            <Text style={styles.userName}>Gerard Lopez</Text>
+            <Text style={styles.userName}>Juan Dela Cruz</Text>
           </View>
           <View style={styles.pointsContainer}>
               <FontAwesome5 name="star" size={wp('6%')} color="#83951c" style={styles.pointsIcon} />

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
 import { getAvailableRewards } from './rewardsService'; // Fetch from Firestore
 import RewardActionSheet from '../components/RewardActionSheet'; // Import the centralized ActionSheet
-import { FontAwesome6 } from '@expo/vector-icons';
+import { FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { SheetManager } from 'react-native-actions-sheet';
 
@@ -51,7 +51,7 @@ const RewardsScreen = ({ navigation }) => {
           <Text style={{ fontSize: hp('2%'), fontFamily: 'Poppins-Regular', color: '#7a9b57' }}>{points}</Text>
         </View>
       </View>
-        <Text style={styles.popularRewards}>Popular Rewards</Text>
+        <Text style={styles.popularRewards}>Rewards</Text>
         <View  style={styles.rewardContainer}>
         <TouchableOpacity
           style={styles.seeAllButton}
@@ -69,12 +69,13 @@ const RewardsScreen = ({ navigation }) => {
         </View>
       
       {/* Button to navigate to ClaimedRewardsScreen */}
-      <TouchableOpacity
+      <Pressable
         style={styles.claimedRewardsButton}
         onPress={() => navigation.navigate('ClaimedRewards')}
       >
-        <Text style={styles.claimedRewardsButtonText}>View Claimed Rewards</Text>
-      </TouchableOpacity>
+        <MaterialCommunityIcons name="gift-open-outline" size={wp('6%')} color="#7a9b57" style={{justifyContent: 'center'}} />
+        <Text style={styles.claimedRewardsButtonText}>View Rewards</Text>
+      </Pressable>
 
       <RewardActionSheet selectedReward={selectedReward} points={points} sheetId="reward-details-rewards-screen" />
     </View>
@@ -85,7 +86,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f6f6f6',
+    backgroundColor: '#f5f3f8',
     paddingTop: hp('5%'),
   },
   headerContainer: {
@@ -178,16 +179,22 @@ const styles = StyleSheet.create({
     marginRight: hp('1.5%'),
   },
   claimedRewardsButton: {
-    padding: hp('1.5%'),
-    top: hp('3%'),
-    backgroundColor: '#83951c',
-    borderRadius: 5,
+    top: hp('2%'),
+    backgroundColor: 'white',
+    borderRadius: wp('4%'),
     alignItems: 'center',
+    width: wp('45%'),
+    height: hp('11%'),
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
   claimedRewardsButtonText: {
-    color: 'white',
-    fontSize: hp('2%'),
+    color: '#455e14',
+    fontSize: hp('1.8%'),
     fontFamily: 'Poppins-SemiBold',
+    marginLeft: hp('0.5%'),
+    paddingTop: hp('0.7%'),
+    textAlign: 'center',
   },
 });
 

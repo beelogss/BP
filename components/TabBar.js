@@ -53,11 +53,11 @@ const TabBar = ({ state, descriptors, navigation }) => {
 const styles = StyleSheet.create({
   shadowContainer: {
     shadowColor: 'black',
-    elevation: hp('1.2%'),
+    elevation: hp('1%'),
     position: 'absolute',
     bottom: hp('2.2%'),
-    left: hp('7%'),
-    right: hp('7%'),
+    left: hp('5%'),
+    right: hp('5%'),
     borderRadius: wp('15%'),
   },
   tabbar: {
