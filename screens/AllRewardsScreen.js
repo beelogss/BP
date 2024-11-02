@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, BackHandler } from 'react-native';
 import { getAvailableRewards } from './rewardsService'; // Fetch from Firestore
 import RewardActionSheet from '../components/RewardActionSheet'; // Import the centralized ActionSheet
@@ -6,7 +6,9 @@ import { FontAwesome6 } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { SheetManager } from 'react-native-actions-sheet';
 import { useFocusEffect } from '@react-navigation/native';
+import { UserContext } from '../context/UserContext'; // Import UserContext
 const AllRewardsScreen = ({ navigation }) => {
+  const { user } = useContext(UserContext); // Use user data from context
   const [rewards, setRewards] = useState([]);
   const [points, setPoints] = useState(0);
   const [selectedReward, setSelectedReward] = useState(null);
@@ -71,7 +73,7 @@ const AllRewardsScreen = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
       />
 
-      <RewardActionSheet selectedReward={selectedReward} points={points} sheetId="reward-details-all-rewards-screen" />
+      <RewardActionSheet selectedReward={selectedReward} points={points} sheetId="reward-details-all-rewards-screen" user={user}/>
     </View>
   );
 };

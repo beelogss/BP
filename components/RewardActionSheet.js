@@ -1,84 +1,3 @@
-// import React from 'react';
-// import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
-// import ActionSheet, { SheetManager } from 'react-native-actions-sheet';
-// import { Feather } from '@expo/vector-icons';
-// import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-
-// const RewardActionSheet = ({ selectedReward, points, sheetId }) => {
-//   return (
-//     <ActionSheet id={sheetId}>
-//       <View style={styles.actionSheetContent}>
-//         {selectedReward && (
-//           <>
-//             <View style={styles.actionSheetHeader}>
-//               <TouchableOpacity onPress={() => SheetManager.hide(sheetId)}>
-//                 <Feather name="x" size={wp('10%')} color="#455e14" />
-//               </TouchableOpacity>
-//             </View>
-//             <Image source={selectedReward.image} style={styles.actionSheetImage} />
-//             <Text style={styles.actionSheetTitle}>{selectedReward.name}</Text>
-//             <Text style={styles.actionSheetPoints}>BP: {selectedReward.points}</Text>
-//             <Text style={styles.actionSheetPoints}>Available Stock: {selectedReward.stock}</Text>
-//             <TouchableOpacity
-//               style={[styles.actionSheetButton, selectedReward.points > points && styles.disabledButton]}
-//               onPress={() => alert('Claim Reward functionality')} // Placeholder for claiming
-//               disabled={selectedReward.points > points}
-//             >
-//               <Text style={styles.sheetButtonText}>Claim</Text>
-//             </TouchableOpacity>
-//           </>
-//         )}
-//       </View>
-//     </ActionSheet>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   actionSheetContent: {
-//     padding: hp('2%'),
-//   },
-//   actionSheetImage: {
-//     width: wp('80%'),
-//     height: hp('30%'),
-//     borderRadius: 10,
-//     marginBottom: wp('4%'),
-//     resizeMode: 'contain',
-//     borderColor: '#455e14',
-//     borderWidth: 1,
-//     alignSelf: 'center',
-//   },
-//   actionSheetTitle: {
-//     fontSize: hp('3.5%'),
-//     fontFamily: 'Poppins-Bold',
-//     color: '#455e14',
-//   },
-//   actionSheetPoints: {
-//     fontSize: hp('2.5%'),
-//     fontFamily: 'Poppins-Regular',
-//     marginBottom: hp('10%'),
-//   },
-//   actionSheetButton: {
-//     backgroundColor: '#83951c',
-//     padding: hp('2%'),
-//     borderRadius: 5,
-//     alignItems: 'center',
-//     marginVertical: hp('1%'),
-//   },
-//   disabledButton: {
-//     backgroundColor: '#a9a9a9',
-//   },
-//   sheetButtonText: {
-//     color: 'white',
-//     fontSize: hp('2%'),
-//     fontFamily: 'Poppins-SemiBold',
-//   },
-//   actionSheetHeader: {
-//     flexDirection: 'row',
-//     justifyContent: 'flex-end',
-//   },
-// });
-
-// export default RewardActionSheet;
 // import React, { useState } from 'react';
 // import { View, Text, Image, TouchableOpacity, StyleSheet, Modal, ActivityIndicator } from 'react-native';
 // import ActionSheet, { SheetManager } from 'react-native-actions-sheet';
@@ -99,28 +18,37 @@
 
 //   const handleConfirmClaim = async () => {
 //     let newBarcode;
-//     if (barcodeFormat === 'ean13' || barcodeFormat === 'upca') {
-//       // Ensure the barcode data is numeric and has the correct length
-//       const numericId = selectedReward.id.replace(/\D/g, '').padStart(12, '0').slice(0, 12);
-//       const checkDigit = calculateCheckDigit(numericId);
-//       newBarcode = numericId + checkDigit;
-//     } else {
-//       newBarcode = `REWARD-${selectedReward.id}-${selectedReward.name}-${selectedReward.points}-${Date.now()}`;
+//   if (barcodeFormat === 'ean13' || barcodeFormat === 'upca') {
+//     // Generate a unique ID by appending a timestamp
+//     let uniqueId = `${selectedReward.id}${Date.now()}`;
+//     // Ensure it's numeric and length is correct
+//     let numericId = uniqueId.replace(/\D/g, '').padStart(12, '0').slice(0, 12);
+    
+//     // Ensure the first digit is not 0
+//     if (numericId.startsWith('0')) {
+//       numericId = '1' + numericId.slice(1); // Replace first 0 with 1
 //     }
 
+//     const checkDigit = calculateCheckDigit(numericId);
+//     newBarcode = numericId + checkDigit;
+//   } else {
+//     newBarcode = `REWARD-${selectedReward.id}-${selectedReward.name}-${selectedReward.points}-${Date.now()}`;
+//   }
+  
+  
 //     setLoading(true);
-
+  
 //     // Generate the barcode image URL using bwip-js API
 //     const barcodeApiUrl = `https://bwipjs-api.metafloor.com/?bcid=${barcodeFormat}&text=${encodeURIComponent(newBarcode)}&scale=3&includetext`;
-
+  
 //     setBarcodeUrl(barcodeApiUrl);
 //     setLoading(false);
 //     setShowConfirmModal(false);
 //     setShowBarcodeModal(true);
-
+  
 //     // Update stock in Firestore
 //     await updateRewardStock(selectedReward.id, selectedReward.stock - 1);
-
+  
 //     // Add claimed reward to Firestore and get the document ID
 //     const docRef = await addClaimedReward({
 //       name: selectedReward.name,
@@ -130,13 +58,13 @@
 //       claimedAt: new Date().toISOString(),
 //       status: 'toBeClaimed',
 //     });
-
+  
 //     // Store the document ID for future updates
 //     selectedReward.claimedRewardDocId = docRef.id;
 //     console.log(`Claimed reward added with document ID: ${docRef.id}`);
 //   };
 
-//   // Function to calculate the check digit for EAN-13 and UPC-A barcodes
+//    // Function to calculate the check digit for EAN-13 and UPC-A barcodes
 // const calculateCheckDigit = (numericId) => {
 //   let sum = 0;
 //   for (let i = 0; i < numericId.length; i++) {
@@ -227,16 +155,18 @@
 // const styles = StyleSheet.create({
 //   actionSheetContent: {
 //     padding: hp('2%'),
+//     backgroundColor: '#f6f6f6',
 //   },
 //   actionSheetImage: {
 //     width: wp('80%'),
 //     height: hp('30%'),
-//     borderRadius: 10,
+//     borderRadius: 5,
 //     marginBottom: wp('4%'),
 //     resizeMode: 'contain',
 //     borderColor: '#455e14',
 //     borderWidth: 1,
 //     alignSelf: 'center',
+//     backgroundColor: 'white',
 //   },
 //   actionSheetTitle: {
 //     fontSize: hp('3.5%'),
@@ -345,7 +275,7 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-nat
 import { updateRewardStock } from '../screens/rewardsService';
 import { addClaimedReward } from '../screens/claimedRewardsService'; // Import the function to add claimed rewards
 
-const RewardActionSheet = ({ selectedReward, points, sheetId, barcodeFormat = 'ean13' }) => {
+const RewardActionSheet = ({ selectedReward, points, sheetId, barcodeFormat = 'ean13', user }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showBarcodeModal, setShowBarcodeModal] = useState(false);
   const [barcodeUrl, setBarcodeUrl] = useState('');
@@ -357,24 +287,23 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, barcodeFormat = 'e
 
   const handleConfirmClaim = async () => {
     let newBarcode;
-  if (barcodeFormat === 'ean13' || barcodeFormat === 'upca') {
-    // Generate a unique ID by appending a timestamp
-    let uniqueId = `${selectedReward.id}${Date.now()}`;
-    // Ensure it's numeric and length is correct
-    let numericId = uniqueId.replace(/\D/g, '').padStart(12, '0').slice(0, 12);
-    
-    // Ensure the first digit is not 0
-    if (numericId.startsWith('0')) {
-      numericId = '1' + numericId.slice(1); // Replace first 0 with 1
-    }
+    if (barcodeFormat === 'ean13' || barcodeFormat === 'upca') {
+      // Generate a unique ID by appending a timestamp
+      let uniqueId = `${selectedReward.id}${Date.now()}`;
+      // Ensure it's numeric and length is correct
+      let numericId = uniqueId.replace(/\D/g, '').padStart(12, '0').slice(0, 12);
+      
+      // Ensure the first digit is not 0
+      if (numericId.startsWith('0')) {
+        numericId = '1' + numericId.slice(1); // Replace first 0 with 1
+      }
 
-    const checkDigit = calculateCheckDigit(numericId);
-    newBarcode = numericId + checkDigit;
-  } else {
-    newBarcode = `REWARD-${selectedReward.id}-${selectedReward.name}-${selectedReward.points}-${Date.now()}`;
-  }
-  
-  
+      const checkDigit = calculateCheckDigit(numericId);
+      newBarcode = numericId + checkDigit;
+    } else {
+      newBarcode = `REWARD-${selectedReward.id}-${selectedReward.name}-${selectedReward.points}-${Date.now()}`;
+    }
+    
     setLoading(true);
   
     // Generate the barcode image URL using bwip-js API
@@ -396,6 +325,9 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, barcodeFormat = 'e
       barcodeUrl: barcodeApiUrl, // Store the barcode URL
       claimedAt: new Date().toISOString(),
       status: 'toBeClaimed',
+      imageUrl: selectedReward.image.uri, // Store the image URL
+      userName: user?.name || 'Unknown', // Add user name with default value
+      studentNumber: user?.studentNumber || 'Unknown', // Add student number with default value
     });
   
     // Store the document ID for future updates
@@ -403,16 +335,16 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, barcodeFormat = 'e
     console.log(`Claimed reward added with document ID: ${docRef.id}`);
   };
 
-   // Function to calculate the check digit for EAN-13 and UPC-A barcodes
-const calculateCheckDigit = (numericId) => {
-  let sum = 0;
-  for (let i = 0; i < numericId.length; i++) {
-    const digit = parseInt(numericId[i], 10);
-    sum += (i % 2 === 0) ? digit : digit * 3;
-  }
-  const checkDigit = (10 - (sum % 10)) % 10;
-  return checkDigit.toString();
-};
+  // Function to calculate the check digit for EAN-13 and UPC-A barcodes
+  const calculateCheckDigit = (numericId) => {
+    let sum = 0;
+    for (let i = 0; i < numericId.length; i++) {
+      const digit = parseInt(numericId[i], 10);
+      sum += (i % 2 === 0) ? digit : digit * 3;
+    }
+    const checkDigit = (10 - (sum % 10)) % 10;
+    return checkDigit.toString();
+  };
 
   return (
     <ActionSheet id={sheetId}>
@@ -428,10 +360,16 @@ const calculateCheckDigit = (numericId) => {
             <Text style={styles.actionSheetTitle}>{selectedReward.name}</Text>
             <Text style={styles.actionSheetPoints}>BP: {selectedReward.points}</Text>
             <Text style={styles.actionSheetPoints}>Available Stock: {selectedReward.stock}</Text>
+            {/* {user && (
+              <>
+                <Text style={styles.actionSheetPoints}>User: {user.name}</Text>
+                <Text style={styles.actionSheetPoints}>Student Number: {user.studentNumber}</Text>
+              </>
+            )} */}
             <TouchableOpacity
-              style={[styles.actionSheetButton, selectedReward.points > points && styles.disabledButton]}
+              style={[styles.actionSheetButton, selectedReward.points > points | selectedReward.stock <= 0 &&  styles.disabledButton]}
               onPress={handleClaimPress}
-              disabled={selectedReward.points > points}
+              disabled={selectedReward.points > points || selectedReward.stock <= 0}
             >
               <Text style={styles.sheetButtonText}>Claim</Text>
             </TouchableOpacity>
@@ -603,5 +541,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-SemiBold',
   },
 });
+
 
 export default RewardActionSheet;

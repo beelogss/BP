@@ -23,6 +23,7 @@
     "@react-navigation/bottom-tabs": "^6.6.1",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/stack": "^6.4.1",
+    "@shopify/react-native-skia": "1.2.3",
     "@types/react": "~18.2.79",
     "axios": "^1.7.7",
     "babel-plugin-module-resolver": "^5.0.2",
@@ -43,10 +44,12 @@
     "expo-splash-screen": "~0.27.5",
     "expo-status-bar": "~1.12.1",
     "expo-system-ui": "^3.0.7",
+    "expo-updates": "~0.25.27",
     "express": "^4.21.0",
     "firebase": "^10.14.1",
     "inline-style-prefixer": "^7.0.1",
     "install": "^0.13.0",
+    "jest-expo": "~51.0.4",
     "jsbarcode": "^3.11.6",
     "mingcute_icon": "^2.9.5",
     "mysql": "^2.18.1",
@@ -81,10 +84,7 @@
     "react-native-vision-camera": "^4.5.3",
     "react-native-web": "~0.19.10",
     "tailwindcss": "^3.4.13",
-    "typescript": "~5.3.3",
-    "expo-updates": "~0.25.27",
-    "jest-expo": "~51.0.4",
-    "@shopify/react-native-skia": "1.2.3"
+    "typescript": "~5.3.3"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

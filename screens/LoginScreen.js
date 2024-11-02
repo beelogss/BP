@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, KeyboardAvoidingView, Platform, ToastAndroid, Alert} from 'react-native';
+import React, { useState, useContext } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, KeyboardAvoidingView, Platform, ToastAndroid, Alert } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Checkbox from 'expo-checkbox';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { UserContext } from '../context/UserContext';  // Import UserContext
+
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -13,42 +15,42 @@ export default function LoginScreen({ navigation }) {
   const [emailError, setEmailError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
   const [isChecked, setChecked] = useState(false);
+  const { setUser } = useContext(UserContext);  // Use setUser from context
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-    const handleLogin = async () => {
-      if (!validateEmail(email) || !password) {
-        if (!email) setEmailError(true);
-        if (!password) setPasswordError(true);
-        return;
+  const handleLogin = async () => {
+    if (!validateEmail(email) || !password) {
+      if (!email) setEmailError(true);
+      if (!password) setPasswordError(true);
+      return;
+    }
+
+    try {
+      const response = await fetch('http://192.168.1.9:3000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        ToastAndroid.show('Logged in successfully!', ToastAndroid.LONG);
+        setUser(data.user);  // Store user data in context
+        navigation.navigate('Hometabs');
+      } else {
+        Alert.alert('Error', data.message);
       }
-    
-      // Call backend API to login the user
-      try {
-        const response = await fetch('http://192.168.1.9:3000/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email, password }),
-        });
-    
-        const data = await response.json();
-    
-        if (data.success) {
-          ToastAndroid.show('Logged in successfully!', ToastAndroid.LONG);
-          navigation.navigate('Hometabs');  // Redirect to the home screen
-        } else {
-          Alert.alert('Error', data.message);
-        }
-      } catch (error) {
-        Alert.alert('Error', 'Failed to log in');
-      }
-    };
-  
+    } catch (error) {
+      Alert.alert('Error', 'Failed to log in');
+    }
+  };
 
   return (
     <SafeAreaProvider>

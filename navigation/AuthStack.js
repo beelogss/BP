@@ -10,6 +10,7 @@ import ForgotPassScreen from '../screens/ForgotPassScreen';
 import ResetPassScreen from '../screens/ResetPassScreen';
 import SignupDetailsScreen from '../screens/SignupDetailsScreen';
 import HomeTabs from './_layout';
+import LeaderboardScreen from '../screens/LeaderboardScreen'
 import RewardDetailsScreen from '../screens/RewardDetailsScreen'
 import RewardsScreen from '../screens/RewardsScreen'
 import AllRewardsScreen from '../screens/AllRewardsScreen'
@@ -32,6 +33,7 @@ export default function AuthStack() {
         <Stack.Screen name="ResetPass" component={ResetPassScreen}/>
         <Stack.Screen name="Signup" component={SignupDetailsScreen} />
         <Stack.Screen name="Hometabs" component={HomeTabs}/>
+        <Stack.Screen name="Leaderboard" component={LeaderboardScreen}/>
         <Stack.Screen name="Rewards" component={RewardsScreen} />
         <Stack.Screen name="RewardDetails" component={RewardDetailsScreen} />
         <Stack.Screen name="AllRewards" component={AllRewardsScreen} options={{cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,}}/> 

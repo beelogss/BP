@@ -41,8 +41,7 @@
 //     throw error; // Rethrow the error to handle it in the calling function
 //   }
 // };
-
-import { collection, addDoc, getDocs, updateDoc, doc, getDoc } from 'firebase/firestore';
+import { collection, query, where, addDoc, getDocs, updateDoc, doc, getDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../backend/firebaseConfig';
 
 // Function to add a claimed reward to Firestore
@@ -57,16 +56,21 @@ export const addClaimedReward = async (reward) => {
   }
 };
 
-// Function to get all claimed rewards from Firestore
-export const getClaimedRewards = async () => {
+// Function to get all claimed rewards for a specific user from Firestore
+export const getClaimedRewards = async (studentNumber) => {
   try {
     const claimedRewardsCollection = collection(db, 'claimedRewards');
-    const claimedRewardsSnapshot = await getDocs(claimedRewardsCollection);
+    const q = query(claimedRewardsCollection, where('studentNumber', '==', studentNumber));
+    const claimedRewardsSnapshot = await getDocs(q);
 
-    const claimedRewards = claimedRewardsSnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const claimedRewards = claimedRewardsSnapshot.docs.map((doc) => {
+      const rewardData = doc.data();
+      return {
+        id: doc.id,
+        image: { uri: rewardData.imageUrl },
+        ...rewardData,
+      };
+    });
 
     return claimedRewards;
   } catch (error) {
@@ -90,6 +94,18 @@ export const updateClaimedRewardStatus = async (rewardId, status) => {
     console.log(`Document ${rewardDocRef.path} updated successfully`);
   } catch (error) {
     console.error('Error updating claimed reward status:', error);
+    throw error; // Rethrow the error to handle it in the calling function
+  }
+};
+
+// Function to delete a claimed reward from Firestore
+export const deleteClaimedReward = async (rewardId) => {
+  try {
+    const rewardDocRef = doc(db, 'claimedRewards', rewardId);
+    await deleteDoc(rewardDocRef);
+    console.log(`Document ${rewardDocRef.path} deleted successfully`);
+  } catch (error) {
+    console.error('Error deleting claimed reward:', error);
     throw error; // Rethrow the error to handle it in the calling function
   }
 };

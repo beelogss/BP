@@ -211,34 +211,47 @@ app.post('/signup', async (req, res) => {
 });
 
 app.post('/login', async (req, res) => {
-    const { email, password } = req.body;
-  
-    try {
-      // Fetch the user by email
-      const snapshot = await db.collection('users')
-        .where('email', '==', email)
-        .get();
-  
-      if (snapshot.empty) {
-        return res.status(400).json({ success: false, message: 'Invalid email or password' });
-      }
-  
-      // Get the user data from Firestore
-      const user = snapshot.docs[0].data();
-  
-      // Compare the entered password with the stored hashed password
-      const isPasswordMatch = await bcrypt.compare(password, user.password);
-  
-      if (!isPasswordMatch) {
-        return res.status(400).json({ success: false, message: 'Invalid email or password' });
-      }
-  
-      res.status(200).json({ success: true, message: 'Login successful' });
-    } catch (error) {
-      console.error('Error logging in user:', error);
-      res.status(500).json({ success: false, message: 'Failed to login' });
+  const { email, password } = req.body;
+
+  try {
+    // Fetch the user by email
+    const snapshot = await db.collection('users')
+      .where('email', '==', email)
+      .get();
+
+    if (snapshot.empty) {
+      return res.status(400).json({ success: false, message: 'Invalid email or password' });
     }
-  });
+
+    // Get the user data from Firestore
+    const user = snapshot.docs[0].data();
+
+    // Compare the entered password with the stored hashed password
+    const isPasswordMatch = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordMatch) {
+      return res.status(400).json({ success: false, message: 'Invalid email or password' });
+    }
+
+    // Return user data on successful login
+    res.status(200).json({ 
+      success: true, 
+      message: 'Login successful', 
+      user: {
+        name: user.name,
+        email: user.email,
+        studentNumber: user.studentNumber,
+        points: user.points || 0,
+        co2Reduction: user.co2Reduction || 0,
+        bottleGoal: user.bottleGoal || 0,
+        recycledBottles: user.recycledBottles || 0
+      }
+    });
+  } catch (error) {
+    console.error('Error logging in user:', error);
+    res.status(500).json({ success: false, message: 'Failed to login' });
+  }
+});
   
   
   

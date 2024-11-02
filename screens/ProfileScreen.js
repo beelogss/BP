@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView, Dimensions, Image, BackHandler } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons, Octicons, Entypo, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
-import { Avatar } from 'react-native-paper';
+import { Avatar, Divider } from 'react-native-paper';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import AlertPro from "react-native-alert-pro";
 import { useNavigation } from '@react-navigation/native';
-
+import { UserContext } from '../context/UserContext'; // Import UserContext
 const { width, height } = Dimensions.get('window');
-export default function ProfileScreen ({navigation}) {
+export default function ProfileScreen({ navigation }) {
+  const { user } = useContext(UserContext); // Use user data from context
+  const userName = user ? user.name : 'Guest'; // Replace with actual user's name
+  const userStudentNumber = user ? user.studentNumber : ''; // Replace with actual user's email
   const insets = useSafeAreaInsets();
   const [modalVisible, setModalVisible] = useState(false);  // Modal visibility state
 
@@ -34,9 +37,9 @@ export default function ProfileScreen ({navigation}) {
   }, [navigations]);
 
   return (
-    <View style={[styles.container, {  }]}>
-        {/* Header */}
-        <Modal
+    <View style={[styles.container, {}]}>
+      {/* Header */}
+      <Modal
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
@@ -45,7 +48,7 @@ export default function ProfileScreen ({navigation}) {
           <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.modalBackground} />
           <View style={styles.modalContent}>
             <Image
-              source={require('../assets/images/small-logoss.png')}  // Replace with actual avatar image
+              source={require('../assets/images/small-logo.png')}  // Replace with actual avatar image
               style={styles.largeAvatar}
             />
             <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>
@@ -54,25 +57,34 @@ export default function ProfileScreen ({navigation}) {
           </View>
         </View>
       </Modal>
-        <View style={styles.headerContainer}>
-          <View style={styles.headerLeft}>
-          <TouchableOpacity onPress={() => setModalVisible(true)}>
-          <Avatar.Image size={wp('16%')} label="G" source={require('../assets/images/small-logoss.png')} style={styles.avatar} />
-        </TouchableOpacity>
-
-            <Text style={styles.userName}>Juan Dela Cruz</Text>
-          </View>
-          <View style={styles.pointsContainer}>
+      <View style={styles.headerContainer}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', }}>
+          
+          <View style={styles.headerItem}>
+            <Ionicons name="menu" size={wp('6%')} color="black" style={styles.headerIcon} />
+            <Text style={styles.userName}>{userName}</Text>
+            <Text style={styles.userStudentNumber}>{userStudentNumber}</Text>
+            <View style={styles.pointsContainer}>
               <FontAwesome5 name="star" size={wp('6%')} color="#83951c" style={styles.pointsIcon} />
               <Text style={styles.pointsValue}>1200</Text>
             </View>
-          <View style={styles.headerRight}>
-            <Octicons name="history" size={wp('6%')} color="black" style={styles.headerIcon} />
-            <Ionicons name="menu" size={wp('6%')} color="black" style={styles.headerIcon} />
           </View>
+          <TouchableOpacity onPress={() => setModalVisible(true)}>
+            <Avatar.Image size={wp('20%')} label="G" source={require('../assets/images/small-logoss.png')} style={styles.avatar} />
+          </TouchableOpacity>
         </View>
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.contentContainer}>
-          
+        <View style={styles.editSContainer}>
+          <TouchableOpacity style={styles.editButton} onPress={() => setModalVisible(true)}>
+            <Text style={styles.editSText}>Edit Profile</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.shareButton} onPress={() => setModalVisible(true)}>
+            <Text style={styles.editSText}>Share Contribution</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+      <Divider style={{ backgroundColor: '#83951c', height: 1 }} />
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.contentContainer}>
+
 
         {/* Statistics */}
         <View style={styles.statsBoxContainer}>
@@ -81,7 +93,7 @@ export default function ProfileScreen ({navigation}) {
           </View>
           <View style={styles.savedAmountContainer}>
             <Text style={styles.savedAmount}>0.00</Text>
-            <Text style={styles.savedUnit}>kg of <Text style={{fontFamily: 'Poppins-SemiBold', color: '#83951c', fontSize: wp('4%')}}>CO₂</Text></Text> 
+            <Text style={styles.savedUnit}>kg of <Text style={{ fontFamily: 'Poppins-SemiBold', color: '#83951c', fontSize: wp('4%') }}>CO₂</Text></Text>
           </View>
         </View>
 
@@ -111,9 +123,9 @@ export default function ProfileScreen ({navigation}) {
           </View>
         </View>
         <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={() => this.AlertPro.open()}>
-        <Text style={styles.buttonText}>Logout</Text>
-      </TouchableOpacity>
-      <AlertPro
+          <Text style={styles.buttonText}>Logout</Text>
+        </TouchableOpacity>
+        <AlertPro
           ref={ref => {
             this.AlertPro = ref;
           }}
@@ -139,7 +151,7 @@ export default function ProfileScreen ({navigation}) {
               backgroundColor: "#f66"
             },
             buttonConfirm: {
-            backgroundColor: "#83951c"
+              backgroundColor: "#83951c"
             }
           }}
         />
@@ -151,23 +163,20 @@ export default function ProfileScreen ({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: '#f5f3f8',
   },
   contentContainer: {
     paddingBottom: hp('10%'),
   },
   headerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: wp('4%'),
-    paddingVertical: hp('3%'),
-    backgroundColor: '#f1f8e9',
-    borderBottomLeftRadius: wp('8%'),
-    borderBottomRightRadius: wp('8%'),
+    width: '100%',
+    height: hp('25%'),
+    backgroundColor: '#f5f3f8',
+    top: hp('5%'),
   },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  headerItem: {
+    flexDirection: 'column',
+    marginLeft: wp('4%'),
   },
   avatar: {
     backgroundColor: '#7a9b57',
@@ -177,31 +186,55 @@ const styles = StyleSheet.create({
     fontSize: wp('5%'),
     fontFamily: 'Poppins-Bold',
     color: '#455e14',
-    bottom: hp('1.3%'),
-    marginLeft: wp('2%'),
   },
-  headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  userStudentNumber: {
+    fontSize: wp('3.5%'),
+    fontFamily: 'Poppins-SemiBold',
+    color: '#455e14',
   },
   headerIcon: {
-    marginLeft: wp('2%'),
+    flexDirection: 'column',
+    marginRight: wp('8%'),
+    alignItems: 'flex-end',
   },
   pointsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   pointsIcon: {
-    marginRight: wp('1.5%'),
+    marginRight: wp('1%'),
   },
   pointsValue: {
     fontSize: wp('4%'),
     fontWeight: 'bold',
     color: '#455e14',
   },
-
-   // Modal styles
-   modalContainer: {
+  editSText: {
+    fontSize: wp('3.3%'),
+    fontFamily: 'Poppins-SemiBold',
+    color: '#455e14',
+  },
+  editSContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    marginTop: hp('1.5%'),
+  },
+  editButton: {
+    padding: hp('.6%'),
+    borderRadius: wp('2.3%'),
+    borderWidth: hp('0.1%'),
+    paddingHorizontal: wp('15%'),
+    borderColor: '#455e14',
+  },
+  shareButton: {
+    padding: hp('.6%'),
+    borderRadius: wp('2.3%'),
+    borderWidth: hp('0.1%'),
+    paddingHorizontal: wp('7%'),
+    borderColor: '#455e14'
+  },
+  // Modal styles
+  modalContainer: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.7)',  // Semi-transparent background
     justifyContent: 'center',

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
-import AuthStack from './navigation/AuthStack';  // Your navigation file
+import AuthStack from './navigation/AuthStack';
 import { useFonts } from 'expo-font';
-import * as SplashScreen from 'expo-splash-screen';  // Import SplashScreen
+import * as SplashScreen from 'expo-splash-screen';
+import { UserProvider } from './context/UserContext';  // Import UserProvider
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -17,7 +18,6 @@ export default function App() {
     'Poppins-Thin': require('./assets/fonts/Poppins-Thin.ttf'),
   });
 
-  // Keep the splash screen visible while fonts are loading
   useEffect(() => {
     async function prepare() {
       await SplashScreen.preventAutoHideAsync();
@@ -25,7 +25,6 @@ export default function App() {
     prepare();
   }, []);
 
-  // Hide splash screen once fonts are loaded
   useEffect(() => {
     if (fontsLoaded) {
       SplashScreen.hideAsync();
@@ -37,13 +36,15 @@ export default function App() {
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#ffffff" />
       </View>
-    ); // Show loading indicator while fonts are loading
+    );
   }
 
   return (
-    <View style={styles.container}>
-      <AuthStack />
-    </View>
+    <UserProvider>
+      <View style={styles.container}>
+        <AuthStack />
+      </View>
+    </UserProvider>
   );
 }
 
@@ -56,6 +57,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#000', // Match background color with app
+    backgroundColor: '#000',
   },
 });

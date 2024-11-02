@@ -1,11 +1,13 @@
-// import React, { useState, useEffect, useCallback } from 'react';
-// import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image, Modal, ActivityIndicator, BackHandler, Pressable, RefreshControl } from 'react-native';
+// import React, { useState, useEffect, useCallback, useContext } from 'react';
+// import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image, Modal, ActivityIndicator, BackHandler, Pressable, RefreshControl, ToastAndroid } from 'react-native';
 // import { getClaimedRewards, updateClaimedRewardStatus } from './claimedRewardsService';
 // import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-// import { AntDesign } from '@expo/vector-icons';
+// import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
 // import { useFocusEffect } from '@react-navigation/native';
+// import { UserContext } from '../context/UserContext'; // Import UserContext
 
 // const ClaimedRewardsScreen = ({ navigation }) => {
+//   const { user } = useContext(UserContext); // Use user data from context
 //   const [claimedRewards, setClaimedRewards] = useState([]);
 //   const [filter, setFilter] = useState('toBeClaimed'); // 'toBeClaimed' or 'claimed'
 //   const [selectedReward, setSelectedReward] = useState(null);
@@ -15,19 +17,29 @@
 
 //   useEffect(() => {
 //     fetchClaimedRewards();
-//   }, []);
+//   }, [user]);
 
 //   const fetchClaimedRewards = async () => {
-//     const rewards = await getClaimedRewards();
-//     setClaimedRewards(rewards);
+//     if (user && user.studentNumber) {
+//       const rewards = await getClaimedRewards(user.studentNumber);
+//       setClaimedRewards(rewards);
+//     }
 //   };
 
 //   const handleClaimed = async (rewardId) => {
+//     if (!rewardId) {
+//       console.error('Invalid rewardId:', rewardId);
+//       return;
+//     }
+
 //     try {
 //       setLoading(true);
+//       console.log(`Updating reward status for document ID: ${rewardId}`);
 //       await updateClaimedRewardStatus(rewardId, 'claimed');
 //       fetchClaimedRewards();
 //       setLoading(false);
+//       setShowModal(false);
+//       ToastAndroid.show('Reward claimed successfully', ToastAndroid.SHORT);
 //     } catch (error) {
 //       console.error('Error updating claimed reward status:', error);
 //       setLoading(false);
@@ -86,22 +98,43 @@
 //           </TouchableOpacity>
 //         </View>
 //       </View>
-//       <FlatList
-//         style={{ padding: wp('3%') }}
-//         data={filteredRewards}
-//         keyExtractor={(item, index) => item.id + index.toString()}
-//         showsVerticalScrollIndicator={false}
-//         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-//         renderItem={({ item }) => (
-//           <Pressable onPress={() => handleRewardPress(item)}>
-//             <View style={styles.rewardItem}>
-//               <Text style={styles.rewardName}>{item.name}</Text>
-//               <Text style={styles.rewardPoints}>Points: {item.points}</Text>
-//               <Text style={styles.rewardDate}>Claimed At: {new Date(item.claimedAt).toLocaleString()}</Text>
-//             </View>
-//           </Pressable>
-//         )}
-//       />
+//       {filteredRewards.length === 0 ? (
+//         <View style={styles.emptyContainer}>
+//           <MaterialCommunityIcons name="delete-empty-outline" size={wp('20%')} color="#83951c" borderRadius={20} />
+//           <Text style={styles.emptyText}>
+//             {filter === 'toBeClaimed' ? (
+//               <>
+//                 <Text>Your <Text
+//                   style={{ fontFamily: 'Poppins-Bold', fontSize: hp('1.8%'), color: '#455e14' }}
+//                 >to-be-claimed</Text> rewards {"\n"} will appear here.</Text>
+//               </>
+//             ) : (
+//               <Text>Your <Text
+//                 style={{ fontFamily: 'Poppins-Bold', fontSize: hp('1.8%'), color: '#455e14' }}
+//               >claimed</Text> rewards {"\n"} will appear here.</Text>
+//             )}
+//           </Text>
+//         </View>
+//       ) : (
+//         <FlatList
+//           style={{ padding: wp('3%') }}
+//           data={filteredRewards}
+//           keyExtractor={(item, index) => item.id + index.toString()}
+//           showsVerticalScrollIndicator={false}
+//           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+//           renderItem={({ item }) => (
+//             <Pressable onPress={() => handleRewardPress(item)}>
+//               <View style={styles.rewardItem}>
+//                 <Image source={item.image} style={styles.rewardImage} />
+//                 <View style={styles.rewardInfo}>
+//                   <Text style={styles.rewardName}>{item.name}</Text>
+//                   <Text style={styles.rewardPoints}>Points: {item.points}</Text>
+//                 </View>
+//               </View>
+//             </Pressable>
+//           )}
+//         />
+//       )}
 
 //       {/* Reward Details Modal */}
 //       {selectedReward && (
@@ -113,6 +146,8 @@
 //         >
 //           <View style={styles.modalContainer}>
 //             <View style={styles.modalContent}>
+//               <Text style={styles.modalTitle}>Reward Details</Text>
+//               <Image source={selectedReward.image} style={styles.modalImage} />
 //               <Text style={styles.modalTitle}>{selectedReward.name}</Text>
 //               <Text style={styles.modalText}>Points: {selectedReward.points}</Text>
 //               <Text style={styles.modalText}>Claimed At: {new Date(selectedReward.claimedAt).toLocaleString()}</Text>
@@ -153,7 +188,7 @@
 //     marginTop: wp('4%'),
 //   },
 //   title: {
-//     color: 'black',
+//     color: '#455e14',
 //     fontSize: wp('6%'),
 //     marginLeft: wp('5%'),
 //     marginTop: wp('6%'),
@@ -173,9 +208,20 @@
 //     paddingHorizontal: wp('4%'),
 //   },
 //   filterButtonText: {
-//     color: 'black',
+//     color: '#455e14',
 //     fontSize: hp('1.5%'),
 //     fontFamily: 'Poppins-SemiBold',
+//   },
+//   emptyContainer: {
+//     flex: 1,
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//   },
+//   emptyText: {
+//     fontSize: hp('2%'),
+//     fontFamily: 'Poppins-Regular',
+//     color: '#455e14',
+//     textAlign: 'center',
 //   },
 //   rewardItem: {
 //     padding: hp('2%'),
@@ -183,11 +229,22 @@
 //     backgroundColor: 'white',
 //     borderRadius: 10,
 //     elevation: 3,
+//     flexDirection: 'row',
+//   },
+//   rewardInfo: {
+//     marginLeft: hp('1%'),
+    
+//   },
+//   rewardImage: {
+//     width: wp('30%'), // Adjusted width
+//     height: hp('10%'), // Adjusted height
+//     resizeMode: 'contain',
+//     alignSelf: 'center',
 //   },
 //   rewardName: {
 //     fontSize: hp('2%'),
 //     fontFamily: 'Poppins-Bold',
-//     color: 'black',
+//     color: '#455e14',
 //   },
 //   rewardPoints: {
 //     fontSize: hp('1.7%'),
@@ -204,12 +261,17 @@
 //     fontFamily: 'Poppins-Regular',
 //     color: '#83951c',
 //   },
+//   modalImage: {
+//     width: wp('50%'), // Adjusted width
+//     height: hp('20%'), // Adjusted height
+//     resizeMode: 'contain',
+//     alignSelf: 'center',
+//   },
 //   barcodeImage: {
 //     width: wp('50%'), // Adjusted width
 //     height: hp('20%'), // Adjusted height
 //     resizeMode: 'contain',
 //     marginBottom: hp('2%'),
-//     backgroundColor: '#e5eeda',
 //     alignSelf: 'center',
 //   },
 //   claimButton: {
@@ -246,7 +308,6 @@
 //   modalText: {
 //     fontSize: hp('2%'),
 //     fontFamily: 'Poppins-Regular',
-//     marginBottom: hp('2%'),
 //   },
 //   closeButton: {
 //     marginTop: hp('2%'),
@@ -264,14 +325,16 @@
 
 // export default ClaimedRewardsScreen;
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image, Modal, ActivityIndicator, BackHandler, Pressable, RefreshControl, ToastAndroid } from 'react-native';
-import { getClaimedRewards, updateClaimedRewardStatus } from './claimedRewardsService';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image, Modal, ActivityIndicator, BackHandler, Pressable, RefreshControl, ToastAndroid, Alert } from 'react-native';
+import { getClaimedRewards, updateClaimedRewardStatus, deleteClaimedReward } from './claimedRewardsService';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
+import { UserContext } from '../context/UserContext'; // Import UserContext
 
 const ClaimedRewardsScreen = ({ navigation }) => {
+  const { user } = useContext(UserContext); // Use user data from context
   const [claimedRewards, setClaimedRewards] = useState([]);
   const [filter, setFilter] = useState('toBeClaimed'); // 'toBeClaimed' or 'claimed'
   const [selectedReward, setSelectedReward] = useState(null);
@@ -281,11 +344,13 @@ const ClaimedRewardsScreen = ({ navigation }) => {
 
   useEffect(() => {
     fetchClaimedRewards();
-  }, []);
+  }, [user]);
 
   const fetchClaimedRewards = async () => {
-    const rewards = await getClaimedRewards();
-    setClaimedRewards(rewards);
+    if (user && user.studentNumber) {
+      const rewards = await getClaimedRewards(user.studentNumber);
+      setClaimedRewards(rewards);
+    }
   };
 
   const handleClaimed = async (rewardId) => {
@@ -311,6 +376,33 @@ const ClaimedRewardsScreen = ({ navigation }) => {
   const handleRewardPress = (reward) => {
     setSelectedReward(reward);
     setShowModal(true);
+  };
+
+  const handleDeleteReward = async (rewardId) => {
+    Alert.alert(
+      'Delete Reward',
+      'Are you sure you want to delete this reward?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setLoading(true);
+              await deleteClaimedReward(rewardId);
+              fetchClaimedRewards();
+              setLoading(false);
+              ToastAndroid.show('Reward deleted successfully', ToastAndroid.SHORT);
+            } catch (error) {
+              console.error('Error deleting reward:', error);
+              setLoading(false);
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   const filteredRewards = claimedRewards.filter((reward) =>
@@ -367,13 +459,13 @@ const ClaimedRewardsScreen = ({ navigation }) => {
             {filter === 'toBeClaimed' ? (
               <>
                 <Text>Your <Text
-              style={{ fontFamily: 'Poppins-Bold', fontSize: hp('1.8%'), color: '#455e14' }}
-            >to be claimed</Text> rewards {"\n"} will appear here.</Text>
+                  style={{ fontFamily: 'Poppins-Bold', fontSize: hp('1.8%'), color: '#455e14' }}
+                >to-be-claimed</Text> rewards {"\n"} will appear here.</Text>
               </>
             ) : (
               <Text>Your <Text
-              style={{ fontFamily: 'Poppins-Bold', fontSize: hp('1.8%'), color: '#455e14' }}
-            >claimed</Text> rewards {"\n"} will appear here.</Text>
+                style={{ fontFamily: 'Poppins-Bold', fontSize: hp('1.8%'), color: '#455e14' }}
+              >claimed</Text> rewards {"\n"} will appear here.</Text>
             )}
           </Text>
         </View>
@@ -387,8 +479,16 @@ const ClaimedRewardsScreen = ({ navigation }) => {
           renderItem={({ item }) => (
             <Pressable onPress={() => handleRewardPress(item)}>
               <View style={styles.rewardItem}>
-                <Text style={styles.rewardName}>{item.name}</Text>
-                <Text style={styles.rewardPoints}>Points: {item.points}</Text>
+                <Image source={item.image} style={styles.rewardImage} />
+                <View style={styles.rewardInfo}>
+                  <Text style={styles.rewardName}>{item.name}</Text>
+                  <Text style={styles.rewardPoints}>Points: {item.points}</Text>
+                </View>
+                {filter === 'claimed' && (
+                  <TouchableOpacity onPress={() => handleDeleteReward(item.id)} style={styles.deleteIcon}>
+                    <MaterialCommunityIcons name="delete-outline" size={wp('10%')} color="#f66" />
+                  </TouchableOpacity>
+                )}
               </View>
             </Pressable>
           )}
@@ -405,7 +505,9 @@ const ClaimedRewardsScreen = ({ navigation }) => {
         >
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>{selectedReward.name}</Text>
+              <Text style={styles.modalTitle}>Reward Details</Text>
+              <Image source={selectedReward.image} style={styles.modalImage} />
+              <Text style={styles.modalTitles}>{selectedReward.name}</Text>
               <Text style={styles.modalText}>Points: {selectedReward.points}</Text>
               <Text style={styles.modalText}>Claimed At: {new Date(selectedReward.claimedAt).toLocaleString()}</Text>
               <Image source={{ uri: selectedReward.barcodeUrl }} style={styles.barcodeImage} />
@@ -481,11 +583,27 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   rewardItem: {
-    padding: hp('2%'),
     marginVertical: hp('1%'),
     backgroundColor: 'white',
-    borderRadius: 10,
+    borderRadius: hp('2%'),
     elevation: 3,
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: hp('11%'),
+  },
+  rewardInfo: {
+    marginLeft: hp('1%'),
+    flex: 1,
+  },
+  rewardImage: {
+    width: wp('30%'), // Adjusted width
+    height: hp('11%'), // Adjusted height
+    resizeMode: 'contain',
+    alignSelf: 'center',
+    borderRightWidth: 1,
+    borderRightColor: '#83951c',
+    borderRadius: hp('2%'),
+    borderColor: '#455e14',
   },
   rewardName: {
     fontSize: hp('2%'),
@@ -497,22 +615,30 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     color: '#83951c',
   },
-  rewardDate: {
-    fontSize: hp('1.7%'),
-    fontFamily: 'Poppins-Regular',
-    color: '#83951c',
+  deleteIcon: {
+    marginLeft: 'auto',
+    backgroundColor: '#f6f6f6',
+    borderTopRightRadius: hp('2%'),
+    borderBottomRightRadius: hp('2%'),
+    width: wp('22%'),
+    height: hp('11%'),
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  rewardBarcode: {
-    fontSize: hp('2%'),
-    fontFamily: 'Poppins-Regular',
-    color: '#83951c',
+  modalImage: {
+    height: hp('20%'), // Adjusted height
+    resizeMode: 'contain',
+    alignSelf: 'center',
+    borderWidth: hp('0.2%'),
+    borderColor: '#83951c',
+    borderRadius: hp('1%'),
+    paddingHorizontal: wp('35%'),
   },
   barcodeImage: {
     width: wp('50%'), // Adjusted width
     height: hp('20%'), // Adjusted height
     resizeMode: 'contain',
     marginBottom: hp('2%'),
-    backgroundColor: '#e5eeda',
     alignSelf: 'center',
   },
   claimButton: {
@@ -534,7 +660,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    width: wp('80%'),
+    width: wp('85%'),
     padding: hp('2%'),
     backgroundColor: 'white',
     borderRadius: 10,
@@ -542,14 +668,18 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: hp('3%'),
     fontFamily: 'Poppins-Bold',
-    marginBottom: hp('2%'),
+    color: '#455e14',
+    alignSelf: 'center',
+  },
+  modalTitles: {
+    fontSize: hp('3%'),
+    fontFamily: 'Poppins-SemiBold',
     color: '#455e14',
     alignSelf: 'center',
   },
   modalText: {
     fontSize: hp('2%'),
     fontFamily: 'Poppins-Regular',
-    marginBottom: hp('2%'),
   },
   closeButton: {
     marginTop: hp('2%'),
