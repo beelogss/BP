@@ -15,7 +15,8 @@ import RewardDetailsScreen from '../screens/RewardDetailsScreen'
 import RewardsScreen from '../screens/RewardsScreen'
 import AllRewardsScreen from '../screens/AllRewardsScreen'
 import ClaimedRewardsScreen from '../screens/ClaimedRewardsScreen'
-import ScannerScreen from '../screens/ScannerScreen'; // Import ScannerScreen
+import BottleList from '../screens/BottleList';
+import EditProfileScreen from '../screens/EditProfileScreen';
 const Stack = createStackNavigator();
 
 export default function AuthStack() {
@@ -37,8 +38,9 @@ export default function AuthStack() {
         <Stack.Screen name="Rewards" component={RewardsScreen} />
         <Stack.Screen name="RewardDetails" component={RewardDetailsScreen} />
         <Stack.Screen name="AllRewards" component={AllRewardsScreen} options={{cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,}}/> 
-        <Stack.Screen name="ClaimedRewards" component={ClaimedRewardsScreen} options={{cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,}}/> 
-        <Stack.Screen name="Scanner" component={ScannerScreen} />
+        <Stack.Screen name="ClaimedRewards" component={ClaimedRewardsScreen} options={{cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,}}/>
+        <Stack.Screen name="Bottles" component={BottleList} />
+        <Stack.Screen name="EditProfile" component={EditProfileScreen} />
       </Stack.Navigator>
     </NavigationContainer>
     </SnackbarProvider>

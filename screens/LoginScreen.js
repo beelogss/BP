@@ -1,10 +1,11 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, KeyboardAvoidingView, Platform, ToastAndroid, Alert } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Checkbox from 'expo-checkbox';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { UserContext } from '../context/UserContext';  // Import UserContext
+import AsyncStorage from '@react-native-async-storage/async-storage';  // Import AsyncStorage
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -17,15 +18,38 @@ export default function LoginScreen({ navigation }) {
   const [isChecked, setChecked] = useState(false);
   const { setUser } = useContext(UserContext);  // Use setUser from context
 
+  useEffect(() => {
+    // Retrieve stored credentials on component mount
+    const loadCredentials = async () => {
+      try {
+        const storedEmail = await AsyncStorage.getItem('email');
+        const storedPassword = await AsyncStorage.getItem('password');
+        if (storedEmail && storedPassword) {
+          setEmail(storedEmail);
+          setPassword(storedPassword);
+          setChecked(true);
+          handleLogin(storedEmail, storedPassword);
+        }
+      } catch (error) {
+        console.error('Failed to load credentials', error);
+      }
+    };
+
+    loadCredentials();
+  }, []);
+
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-  const handleLogin = async () => {
-    if (!validateEmail(email) || !password) {
-      if (!email) setEmailError(true);
-      if (!password) setPasswordError(true);
+  const handleLogin = async (emailParam, passwordParam) => {
+    const emailToUse = emailParam || email;
+    const passwordToUse = passwordParam || password;
+
+    if (!validateEmail(emailToUse) || !passwordToUse) {
+      if (!emailToUse) setEmailError(true);
+      if (!passwordToUse) setPasswordError(true);
       return;
     }
 
@@ -35,7 +59,7 @@ export default function LoginScreen({ navigation }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: emailToUse, password: passwordToUse }),
       });
 
       const data = await response.json();
@@ -43,6 +67,17 @@ export default function LoginScreen({ navigation }) {
       if (data.success) {
         ToastAndroid.show('Logged in successfully!', ToastAndroid.LONG);
         setUser(data.user);  // Store user data in context
+
+        if (isChecked) {
+          // Store credentials if "Remember Me" is checked
+          await AsyncStorage.setItem('email', emailToUse);
+          await AsyncStorage.setItem('password', passwordToUse);
+        } else {
+          // Clear stored credentials if "Remember Me" is unchecked
+          await AsyncStorage.removeItem('email');
+          await AsyncStorage.removeItem('password');
+        }
+
         navigation.navigate('Hometabs');
       } else {
         Alert.alert('Error', data.message);
@@ -133,7 +168,7 @@ export default function LoginScreen({ navigation }) {
 
           <TouchableOpacity
             style={[styles.button, (!email || !password || emailError) && styles.disabledButton]}
-            onPress={handleLogin}
+            onPress={() => handleLogin()}
             disabled={!email || !password || emailError}
           >
             <Text style={styles.buttonText}>Login</Text>

@@ -227,7 +227,7 @@
 // export default RewardsScreen;
 
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
+import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, Pressable} from 'react-native';
 import { getAvailableRewards } from './rewardsService'; // Fetch from Firestore
 import RewardActionSheet from '../components/RewardActionSheet'; // Import the centralized ActionSheet
 import { FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -266,7 +266,13 @@ const RewardsScreen = ({ navigation }) => {
       <Image source={item.image} style={styles.rewardImage} />
       <View style={styles.rewardInfo}>
         <Text style={styles.rewardName}>{item.name}</Text>
-        <Text style={styles.rewardPoints}>BP: {item.points}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', bottom: hp('0.5%'), marginLeft: hp('0.5%')}}>
+        <Image
+            style={{height: hp('1.5%'), width: wp('3%'), }}
+            source={require('../assets/images/points.png')}
+          />
+        <Text style={styles.rewardPoints}>: {item.points}</Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -278,14 +284,18 @@ const RewardsScreen = ({ navigation }) => {
           <Text style={styles.header}>Rewards</Text>
           <Text style={{ fontSize: hp('1.2%'), fontFamily: 'Poppins-SemiBold', color: '#7a9b57' }}>Available Points:</Text>
           <View style={styles.pointsContainer}>
-            <FontAwesome6 name="coins" size={wp('5%')} color="#7a9b57" style={styles.icon} />
-            <Text style={{ fontSize: hp('2%'), fontFamily: 'Poppins-Regular', color: '#7a9b57' }}>{points}</Text>
+          <Image
+            style={styles.pointsImage}
+            source={require('../assets/images/points.png')}
+          />
+            {/* <FontAwesome6 name="coins" size={wp('5%')} color="#7a9b57" style={styles.icon} /> */}
+            <Text style={{ fontSize: hp('2%'), fontFamily: 'Poppins-Bold', color: '#83951c' }}>: {points}</Text>
           </View>
         </View>
       </View>
       {/* Popular Rewards */}
       <View style={styles.RewardContainer}>
-        <Text style={styles.popularRewards}>Rewards</Text>
+        <Text style={styles.popularRewards}>Rewards Catalog</Text>
         <View style={styles.rewardContainer}>
           <TouchableOpacity
             style={styles.seeAllButton}
@@ -364,8 +374,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Medium',
     color: '#7a9b57',
   },
-  icon: {
-    marginRight: hp('1%'),
+  pointsImage: {
+    marginRight: wp('1%'),
+    marginLeft: wp('1%'),
+    marginTop: hp('0.5%'),
+    height: hp('2%'),
+    width: wp('4%'),
   },
   RewardContainer: {
     top: hp('16%'),
@@ -417,8 +431,10 @@ const styles = StyleSheet.create({
   },
   rewardPoints: {
     fontSize: hp('1.5%'),
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: 'Poppins-Bold',
     color: '#83951c',
+    marginTop: hp('0.5%'),
+    marginLeft: wp('.5%'),
   },
   popularRewards: {
     fontSize: hp('2.8%'),

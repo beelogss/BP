@@ -3,6 +3,9 @@ const nodemailer = require('nodemailer');
 const admin = require('firebase-admin');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const multer = require('multer');
+const path = require('path');
+const { Storage } = require('@google-cloud/storage');
 
 // Initialize Firebase Admin
 const serviceAccount = require('./serviceAccountKey.json');  // Ensure correct path
@@ -11,6 +14,8 @@ admin.initializeApp({
   databaseURL: "https://bpts-34c54-default-rtdb.firebaseio.com"
 });
 const db = admin.firestore();
+const storage = new Storage({ keyFilename: './serviceAccountKey.json' });
+const bucket = storage.bucket('bpts-34c54.appspot.com'); // Replace with your Firebase Storage bucket name
 
 const app = express();
 app.use(cors());
@@ -27,112 +32,163 @@ const transporter = nodemailer.createTransport({
 
 // API to send verification code
 app.post('/sendVerificationCode', async (req, res) => {
-    const { email } = req.body;
-  
-    try {
+  const { email, purpose } = req.body;
+
+  try {
+    if (purpose === 'signup') {
       // Check if the email is already registered in the users collection
       const snapshot = await db.collection('users').where('email', '==', email).get();
-  
+
       if (!snapshot.empty) {
         return res.status(400).json({ success: false, message: 'Email is already registered' });
       }
-  
-      // Generate a 6-digit verification code
-      const code = Math.floor(100000 + Math.random() * 900000);
-  
-      // Store the verification code in Firestore
-      await db.collection('verificationCodes').add({
-        email: email,
-        code: code,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-  
-      // Send email with Nodemailer
-      const mailOptions = {
-        from: '"BottlePoints" <Bottlepoints@gmail.com>',
-        to: email,
-        subject: 'BottlePoints Verification Code',
-        html: `
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>BottlePoints Verification Code</title>
-            <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-            <style>
-              body {
-                font-family: 'Poppins', Arial, sans-serif;
-                background-color: #e5eeda;
-                padding: 20px;
-              }
-              .email-container {
-                max-width: 36rem;
-                margin: auto;
-                background-color: #e5eeda;
-                padding: 20px;
-                border-radius: 8px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-              }
-              .header {
-                text-align: center;
-                margin-bottom: 18px;
-              }
-              .header h1 {
-                font-size: 1.5rem;
-                font-weight: 600;
-                font-weight: bold;
-              }
-              .body {
-                text-align: center;
-                font-size: 0.9rem;
-                line-height: 1.5;
-              }
-              .code {
-                font-size: 2.1rem;
-                font-weight: 600;
-                margin: 20px 0;
-                letter-spacing: 7px; 
-              }
-              .footer {
-                margin-top: 20px;
-                font-size: 0.6rem;
-                color: #888;
-                text-align: center;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="email-container">
-              <div class="header">
-                <h1 style="color: #455e14">BottlePoints</h1>
-              </div>
-              <div class="body">
-                <p style="color: #7a9b57">Thanks for signing up for <strong style="color: #455e14">BottlePoints</strong> <br>
-                Use the verification code below to complete your registration:</p>
-                <div class="code" style="color: #83951c; font-weight: bold;">${code}</div>
-                <p style="color: #7a9b57">If you did not request this code, please ignore this email.</p>
-                <p style="text-align: left; color: #7a9b57">Regards, <br> BottlePoints Team</p>
-              </div>
-              <div class="footer">
-                <p>© 2024 BottlePoints. All rights reserved.</p>
-              </div>
-            </div>
-          </body>
-          </html>
-        `,
-      };
-      
-      
-  
-      await transporter.sendMail(mailOptions);
-      return res.status(200).send({ success: true, message: 'Verification code sent' });
-    } catch (error) {
-      console.error('Error:', error);
-      return res.status(500).send({ success: false, message: 'Error storing verification code in Firestore' });
     }
-  });
-  
+
+    // Generate a 6-digit verification code
+    const code = Math.floor(100000 + Math.random() * 900000);
+
+    // Store the verification code in Firestore
+    await db.collection('verificationCodes').add({
+      email: email,
+      code: code,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // Determine email content based on purpose
+    let emailSubject, emailBody;
+    if (purpose === 'signup') {
+      emailSubject = 'BottlePoints Verification Code';
+      emailBody = `
+        <p style="color: #7a9b57">Thanks for signing up for <strong style="color: #455e14">BottlePoints</strong> <br>
+        Use the verification code below to complete your registration:</p>
+        <div class="code" style="color: #83951c; font-weight: bold;">${code}</div>
+        <p style="color: #7a9b57">If you did not request this code, please ignore this email.</p>
+        <p style="text-align: left; color: #7a9b57">Regards, <br> BottlePoints Team</p>
+      `;
+    } else if (purpose === 'reset') {
+      emailSubject = 'BottlePoints Password Reset Code';
+      emailBody = `
+        <p style="color: #7a9b57">You requested to reset your password for <strong style="color: #455e14">BottlePoints</strong> <br>
+        Use the verification code below to reset your password:</p>
+        <div class="code" style="color: #83951c; font-weight: bold;">${code}</div>
+        <p style="color: #7a9b57">If you did not request this code, please ignore this email.</p>
+        <p style="text-align: left; color: #7a9b57">Regards, <br> BottlePoints Team</p>
+      `;
+    }
+
+    // Send email with Nodemailer
+    const mailOptions = {
+      from: '"BottlePoints" <Bottlepoints@gmail.com>',
+      to: email,
+      subject: emailSubject,
+      html: `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>${emailSubject}</title>
+          <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+          <style>
+            body {
+              font-family: 'Poppins', Arial, sans-serif;
+              background-color: #e5eeda;
+              padding: 20px;
+            }
+            .email-container {
+              max-width: 36rem;
+              margin: auto;
+              background-color: #e5eeda;
+              padding: 20px;
+              border-radius: 8px;
+              box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+            .header {
+              text-align: center;
+              margin-bottom: 18px;
+            }
+            .header h1 {
+              font-size: 1.5rem;
+              font-weight: 600;
+              font-weight: bold;
+            }
+            .body {
+              text-align: center;
+              font-size: 0.9rem;
+              line-height: 1.5;
+            }
+            .code {
+              font-size: 2.1rem;
+              font-weight: 600;
+              margin: 20px 0;
+              letter-spacing: 7px; 
+            }
+            .footer {
+              margin-top: 20px;
+              font-size: 0.6rem;
+              color: #888;
+              text-align: center;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="email-container">
+            <div class="header">
+              <h1 style="color: #455e14">BottlePoints</h1>
+            </div>
+            <div class="body">
+              ${emailBody}
+            </div>
+            <div class="footer">
+              <p>© 2024 BottlePoints. All rights reserved.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    return res.status(200).send({ success: true, message: 'Verification code sent' });
+  } catch (error) {
+    console.error('Error:', error);
+    return res.status(500).send({ success: false, message: 'Error storing verification code in Firestore' });
+  }
+});
+
+app.post('/resetPassword', async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  try {
+    // Fetch the user by email
+    const snapshot = await db.collection('users').where('email', '==', email).get();
+
+    if (snapshot.empty) {
+      return res.status(400).json({ success: false, message: 'User not found' });
+    }
+
+    // Get the user data from Firestore
+    const user = snapshot.docs[0].data();
+
+    // Compare the new password with the current password
+    const isSamePassword = await bcrypt.compare(newPassword, user.password);
+    if (isSamePassword) {
+      return res.status(400).json({ success: false, message: 'New password cannot be the same as the old password' });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    // Update the user's password in the database
+    const userDoc = snapshot.docs[0].ref;
+    await userDoc.update({ password: hashedPassword });
+
+    return res.status(200).json({ success: true, message: 'Password has been reset successfully' });
+  } catch (error) {
+    console.error('Error resetting password:', error);
+    return res.status(500).json({ success: false, message: 'Failed to reset password' });
+  }
+});
 
 app.post('/verifyCode', async (req, res) => {
     const { email, code } = req.body;
@@ -241,6 +297,7 @@ app.post('/login', async (req, res) => {
         name: user.name,
         email: user.email,
         studentNumber: user.studentNumber,
+        avatar: user.avatar, // Include avatar URL
         points: user.points || 0,
         co2Reduction: user.co2Reduction || 0,
         bottleGoal: user.bottleGoal || 0,
@@ -253,8 +310,42 @@ app.post('/login', async (req, res) => {
   }
 });
   
-  
-  
+const fs = require('fs');
+
+
+// Configure multer for file uploads
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB file size limit
+  fileFilter: (req, file, cb) => {
+    const filetypes = /jpeg|jpg|png/;
+    const mimetype = filetypes.test(file.mimetype);
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    if (mimetype && extname) {
+      return cb(null, true);
+    }
+    cb(new Error('Only images are allowed'));
+  },
+});
+
+app.post('/updateProfile', async (req, res) => {
+  const { email, name, avatar } = req.body;
+
+  try {
+    const snapshot = await db.collection('users').where('email', '==', email).get();
+    if (snapshot.empty) {
+      return res.status(404).json({ success: false, message: 'User  not found' });
+    }
+
+    const userDoc = snapshot.docs[0].ref;
+    await userDoc.update({ name, avatar }); // Make sure to update avatar field
+
+    res.status(200).json({ success: true, message: 'Profile updated successfully' });
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    res.status(500).json({ success: false, message: 'Failed to update profile' });
+  }
+});
 
 app.listen(3000, () => {
   console.log('Server running on port 3000');

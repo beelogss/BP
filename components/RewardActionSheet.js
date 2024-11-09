@@ -23,7 +23,7 @@
 //     let uniqueId = `${selectedReward.id}${Date.now()}`;
 //     // Ensure it's numeric and length is correct
 //     let numericId = uniqueId.replace(/\D/g, '').padStart(12, '0').slice(0, 12);
-    
+
 //     // Ensure the first digit is not 0
 //     if (numericId.startsWith('0')) {
 //       numericId = '1' + numericId.slice(1); // Replace first 0 with 1
@@ -34,21 +34,21 @@
 //   } else {
 //     newBarcode = `REWARD-${selectedReward.id}-${selectedReward.name}-${selectedReward.points}-${Date.now()}`;
 //   }
-  
-  
+
+
 //     setLoading(true);
-  
+
 //     // Generate the barcode image URL using bwip-js API
 //     const barcodeApiUrl = `https://bwipjs-api.metafloor.com/?bcid=${barcodeFormat}&text=${encodeURIComponent(newBarcode)}&scale=3&includetext`;
-  
+
 //     setBarcodeUrl(barcodeApiUrl);
 //     setLoading(false);
 //     setShowConfirmModal(false);
 //     setShowBarcodeModal(true);
-  
+
 //     // Update stock in Firestore
 //     await updateRewardStock(selectedReward.id, selectedReward.stock - 1);
-  
+
 //     // Add claimed reward to Firestore and get the document ID
 //     const docRef = await addClaimedReward({
 //       name: selectedReward.name,
@@ -58,7 +58,7 @@
 //       claimedAt: new Date().toISOString(),
 //       status: 'toBeClaimed',
 //     });
-  
+
 //     // Store the document ID for future updates
 //     selectedReward.claimedRewardDocId = docRef.id;
 //     console.log(`Claimed reward added with document ID: ${docRef.id}`);
@@ -292,7 +292,7 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, barcodeFormat = 'e
       let uniqueId = `${selectedReward.id}${Date.now()}`;
       // Ensure it's numeric and length is correct
       let numericId = uniqueId.replace(/\D/g, '').padStart(12, '0').slice(0, 12);
-      
+
       // Ensure the first digit is not 0
       if (numericId.startsWith('0')) {
         numericId = '1' + numericId.slice(1); // Replace first 0 with 1
@@ -303,20 +303,20 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, barcodeFormat = 'e
     } else {
       newBarcode = `REWARD-${selectedReward.id}-${selectedReward.name}-${selectedReward.points}-${Date.now()}`;
     }
-    
+
     setLoading(true);
-  
+
     // Generate the barcode image URL using bwip-js API
     const barcodeApiUrl = `https://bwipjs-api.metafloor.com/?bcid=${barcodeFormat}&text=${encodeURIComponent(newBarcode)}&scale=3&includetext`;
-  
+
     setBarcodeUrl(barcodeApiUrl);
     setLoading(false);
     setShowConfirmModal(false);
     setShowBarcodeModal(true);
-  
+
     // Update stock in Firestore
     await updateRewardStock(selectedReward.id, selectedReward.stock - 1);
-  
+
     // Add claimed reward to Firestore and get the document ID
     const docRef = await addClaimedReward({
       name: selectedReward.name,
@@ -329,7 +329,7 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, barcodeFormat = 'e
       userName: user?.name || 'Unknown', // Add user name with default value
       studentNumber: user?.studentNumber || 'Unknown', // Add student number with default value
     });
-  
+
     // Store the document ID for future updates
     selectedReward.claimedRewardDocId = docRef.id;
     console.log(`Claimed reward added with document ID: ${docRef.id}`);
@@ -357,17 +357,20 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, barcodeFormat = 'e
               </TouchableOpacity>
             </View>
             <Image source={selectedReward.image} style={styles.actionSheetImage} />
+            <View >
             <Text style={styles.actionSheetTitle}>{selectedReward.name}</Text>
-            <Text style={styles.actionSheetPoints}>BP: {selectedReward.points}</Text>
-            <Text style={styles.actionSheetPoints}>Available Stock: {selectedReward.stock}</Text>
-            {/* {user && (
-              <>
-                <Text style={styles.actionSheetPoints}>User: {user.name}</Text>
-                <Text style={styles.actionSheetPoints}>Student Number: {user.studentNumber}</Text>
-              </>
-            )} */}
+            <Text style={styles.actionSheetStock}>Available Stock: <Text style={{ fontFamily: 'Poppins-Bold', color: '#83951c' }}> {selectedReward.stock} </Text></Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: hp('0.5%') }}>
+              <Image
+                style={{ height: hp('2.5%'), width: wp('5%'), }}
+                source={require('../assets/images/points.png')}
+              />
+              <Text style={styles.actionSheetPoints}>: {selectedReward.points}</Text>
+            </View>
+            
+            </View>
             <TouchableOpacity
-              style={[styles.actionSheetButton, selectedReward.points > points | selectedReward.stock <= 0 &&  styles.disabledButton]}
+              style={[styles.actionSheetButton, selectedReward.points > points | selectedReward.stock <= 0 && styles.disabledButton]}
               onPress={handleClaimPress}
               disabled={selectedReward.points > points || selectedReward.stock <= 0}
             >
@@ -433,6 +436,8 @@ const styles = StyleSheet.create({
   actionSheetContent: {
     padding: hp('2%'),
     backgroundColor: '#f6f6f6',
+    borderTopRightRadius: wp('3%'),
+    borderTopLeftRadius: wp('3%'),
   },
   actionSheetImage: {
     width: wp('80%'),
@@ -452,8 +457,16 @@ const styles = StyleSheet.create({
   },
   actionSheetPoints: {
     fontSize: hp('2.5%'),
-    fontFamily: 'Poppins-Regular',
-    marginBottom: hp('10%'),
+    fontFamily: 'Poppins-Bold',
+    color: '#83951c',
+    marginLeft: wp('.5%'),
+    top: hp('.5%'),
+  },
+  actionSheetStock: {
+    fontSize: hp('2%'),
+    fontFamily: 'Poppins-SemiBold',
+    color: '#455e14',
+    marginLeft: wp('.5%'),
   },
   actionSheetButton: {
     backgroundColor: '#83951c',
@@ -498,11 +511,12 @@ const styles = StyleSheet.create({
     fontSize: hp('3%'),
     fontFamily: 'Poppins-Bold',
     marginBottom: hp('2%'),
+    color: '#455e14',
   },
   modalText: {
     fontSize: hp('2%'),
-    fontFamily: 'Poppins-Regular',
-    marginBottom: hp('2%'),
+    fontFamily: 'Poppins-SemiBold',
+    color: '#455e14',
   },
   barcodeImage: {
     width: wp('70%'), // Adjusted width

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView, Dimensions, Image, BackHandler } from 'react-native';
+import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView, Dimensions, Image, BackHandler, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons, Octicons, Entypo, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import { Avatar, Divider } from 'react-native-paper';
@@ -8,11 +8,14 @@ import AlertPro from "react-native-alert-pro";
 import { useNavigation } from '@react-navigation/native';
 import { UserContext } from '../context/UserContext'; // Import UserContext
 const { width, height } = Dimensions.get('window');
+
 export default function ProfileScreen({ navigation }) {
   const { user } = useContext(UserContext); // Use user data from context
   const userName = user ? user.name : 'Guest'; // Replace with actual user's name
   const userStudentNumber = user ? user.studentNumber : ''; // Replace with actual user's email
+  const avatar = user ? user.avatar : null; // Replace with actual user's avatar
   const insets = useSafeAreaInsets();
+  const [points, setPoints] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);  // Modal visibility state
 
   const activityData = [
@@ -22,6 +25,15 @@ export default function ProfileScreen({ navigation }) {
   ];
 
   const navigations = useNavigation();
+
+  useEffect(() => {
+    fetchUserPoints();
+  }, []);
+
+  const fetchUserPoints = () => {
+    // Fetch user points logic here
+    setPoints(100);
+  };
 
   useEffect(() => {
     const handleBackPress = () => {
@@ -48,7 +60,7 @@ export default function ProfileScreen({ navigation }) {
           <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.modalBackground} />
           <View style={styles.modalContent}>
             <Image
-              source={require('../assets/images/small-logo.png')}  // Replace with actual avatar image
+              source={avatar ? { uri: avatar } : require('../assets/images/default-profile.png')}  // Replace with actual avatar image
               style={styles.largeAvatar}
             />
             <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>
@@ -57,24 +69,40 @@ export default function ProfileScreen({ navigation }) {
           </View>
         </View>
       </Modal>
+      <View style={styles.headerIconContainer}>
+        <Ionicons name="menu" size={wp('7%')} color="#83951c" style={styles.headerIcon} />
+      </View>
       <View style={styles.headerContainer}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', }}>
-          
+
+        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
+        <View style={styles.avatarContainer}>
+            <Pressable onPress={() => setModalVisible(true)}>
+              <Avatar.Image size={wp('27%')} source={avatar ? { uri: avatar } : require('../assets/images/default-profile.png')} style={styles.avatar} />
+            </Pressable>
+            <TouchableOpacity style={styles.editIconContainer} onPress={() => navigation.navigate('EditProfile')}>
+              <Ionicons name="pencil" size={wp('5%')} color="#fff" />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.verticalLine} />
           <View style={styles.headerItem}>
-            <Ionicons name="menu" size={wp('6%')} color="black" style={styles.headerIcon} />
+
             <Text style={styles.userName}>{userName}</Text>
             <Text style={styles.userStudentNumber}>{userStudentNumber}</Text>
             <View style={styles.pointsContainer}>
-              <FontAwesome5 name="star" size={wp('6%')} color="#83951c" style={styles.pointsIcon} />
-              <Text style={styles.pointsValue}>1200</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', bottom: hp('0.5%') }}>
+                <Image
+                  style={{ height: hp('2.5%'), width: wp('5%'), }}
+                  source={require('../assets/images/points.png')}
+                />
+                <Text style={styles.pointsValue}>: {points}</Text>
+              </View>
+
             </View>
           </View>
-          <TouchableOpacity onPress={() => setModalVisible(true)}>
-            <Avatar.Image size={wp('20%')} label="G" source={require('../assets/images/small-logoss.png')} style={styles.avatar} />
-          </TouchableOpacity>
+
         </View>
         <View style={styles.editSContainer}>
-          <TouchableOpacity style={styles.editButton} onPress={() => setModalVisible(true)}>
+          <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('EditProfile')}>
             <Text style={styles.editSText}>Edit Profile</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.shareButton} onPress={() => setModalVisible(true)}>
@@ -159,7 +187,6 @@ export default function ProfileScreen({ navigation }) {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -170,17 +197,34 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     width: '100%',
-    height: hp('25%'),
-    backgroundColor: '#f5f3f8',
-    top: hp('5%'),
+    paddingVertical: hp('1%'),
+    backgroundColor: 'white',
   },
   headerItem: {
     flexDirection: 'column',
-    marginLeft: wp('4%'),
+    marginLeft: wp('2%'),
+    top: hp('1%'),
+  },
+  avatarContainer: {
+    position: 'relative',
   },
   avatar: {
     backgroundColor: '#7a9b57',
-    margin: wp('4%'),
+    right: wp('6%'),
+  },
+  editIconContainer: {
+    position: 'absolute',
+    bottom: hp('1%'),
+    right: wp('5%'),
+    backgroundColor: '#83951c',
+    borderRadius: wp('2.5%'),
+    padding: wp('1%'),
+  },
+  verticalLine: {
+    width: 1,
+    height: '100%',
+    backgroundColor: '#7a9b57',
+    marginHorizontal: wp('3%'),
   },
   userName: {
     fontSize: wp('5%'),
@@ -193,21 +237,21 @@ const styles = StyleSheet.create({
     color: '#455e14',
   },
   headerIcon: {
-    flexDirection: 'column',
-    marginRight: wp('8%'),
-    alignItems: 'flex-end',
+    paddingTop: hp('3%'),
+    backgroundColor: 'white',
+    paddingLeft: wp('85%'),
   },
   pointsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  pointsIcon: {
-    marginRight: wp('1%'),
+    top: hp('.5%'),
   },
   pointsValue: {
     fontSize: wp('4%'),
-    fontWeight: 'bold',
-    color: '#455e14',
+    fontFamily: 'Poppins-Bold',
+    color: '#83951c',
+    marginTop: hp('0.5%'),
+    marginLeft: wp('.5%'),
   },
   editSText: {
     fontSize: wp('3.3%'),
@@ -217,7 +261,7 @@ const styles = StyleSheet.create({
   editSContainer: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
-    marginTop: hp('1.5%'),
+    marginTop: hp('.8%'),
   },
   editButton: {
     padding: hp('.6%'),
@@ -381,5 +425,3 @@ const styles = StyleSheet.create({
   },
 
 });
-
-

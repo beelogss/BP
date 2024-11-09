@@ -482,7 +482,13 @@ const ClaimedRewardsScreen = ({ navigation }) => {
                 <Image source={item.image} style={styles.rewardImage} />
                 <View style={styles.rewardInfo}>
                   <Text style={styles.rewardName}>{item.name}</Text>
-                  <Text style={styles.rewardPoints}>Points: {item.points}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', bottom: hp('0.5%'), marginLeft: hp('0.5%')}}>
+                  <Image
+            style={{height: hp('1.5%'), width: wp('3%'), }}
+            source={require('../assets/images/points.png')}
+          />
+                  <Text style={styles.rewardPoints}>: {item.points}</Text>
+                  </View>
                 </View>
                 {filter === 'claimed' && (
                   <TouchableOpacity onPress={() => handleDeleteReward(item.id)} style={styles.deleteIcon}>
@@ -611,9 +617,11 @@ const styles = StyleSheet.create({
     color: '#455e14',
   },
   rewardPoints: {
-    fontSize: hp('1.7%'),
-    fontFamily: 'Poppins-Regular',
+    fontSize: hp('1.5%'),
+    fontFamily: 'Poppins-Bold',
     color: '#83951c',
+    marginTop: hp('0.5%'),
+    marginLeft: wp('.5%'),
   },
   deleteIcon: {
     marginLeft: 'auto',

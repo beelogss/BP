@@ -442,18 +442,21 @@
 // });
 
 import React, { useEffect, useState, useCallback, useRef, useContext } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, BackHandler, Alert, Platform, Dimensions, ToastAndroid, AppState, RefreshControl, ScrollView, Pressable, Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, BackHandler, Alert, Platform, Dimensions, ToastAndroid, AppState, RefreshControl, ScrollView, Pressable, Image, Modal, Button } from 'react-native';
 import { useSnackbar } from '../components/SnackbarContext';
 import { useNavigationState, useNavigation, useFocusEffect } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Carousel from 'react-native-reanimated-carousel';
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp, heightPercentageToDP } from 'react-native-responsive-screen';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { UserContext } from '../context/UserContext'; // Import UserContext
+import QRCode from 'react-native-qrcode-svg';
+import { Divider } from 'react-native-paper';
 
 export default function HomeScreen({ navigation }) {
   const { user } = useContext(UserContext); // Use user data from context
   const userName = user ? user.name : 'Guest'; // Replace with actual user's name
+  const studentNumber = user ? user.studentNumber : '000000';
   const points = user ? user.points : 0;
   const co2Reduction = user ? user.co2Reduction : 0;
   const bottleGoal = user ? user.bottleGoal : 0;
@@ -462,6 +465,7 @@ export default function HomeScreen({ navigation }) {
   const width = Dimensions.get('window').width;
 
   const [refreshing, setRefreshing] = useState(false);
+  const [qrModalVisible, setQrModalVisible] = useState(false);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -581,19 +585,19 @@ export default function HomeScreen({ navigation }) {
           <View style={styles.scanContainer}>
             <View style={styles.scanText}>
               <View style={styles.scanButton}>
-                <Pressable onPress={() => navigation.navigate('Scanner')}>
-                  <MaterialCommunityIcons name="line-scan" size={wp('9%')} color="#83951c" style={styles.scanButtonIcon} />
+                <Pressable onPress={() => setQrModalVisible(true)}>
+                  <Ionicons name="qr-code-outline" size={wp('9%')} color="#83951c" style={styles.scanButtonIcon} />
                 </Pressable>
               </View>
               <Text style={styles.scanButtonText}>Scan Bottle</Text>
             </View>
             <View style={styles.scanText}>
               <View style={styles.scanButton}>
-                <Pressable onPress={() => navigation.navigate('Scanner')}>
-                  <Ionicons name="search" size={wp('9%')} color="#83951c" style={styles.scanButtonIcon} />
+                <Pressable onPress={() => navigation.navigate('Bottles')}>
+                  <MaterialCommunityIcons name="format-list-text" size={wp('9%')} color="#83951c" style={styles.scanButtonIcon} />
                 </Pressable>
               </View>
-              <Text style={styles.scanButtonText}>Manual Search</Text>
+              <Text style={styles.scanButtonText}>Bottles List</Text>
             </View>
             <View style={styles.scanText}>
               <View style={styles.scanButton}>
@@ -611,7 +615,7 @@ export default function HomeScreen({ navigation }) {
           <View style={{ marginBottom: hp('4%') }}>
             <View style={styles.infoContainer}>
               <View style={styles.infoBox}>
-                <Text style={styles.infoTitle}>Points</Text>
+                <Text style={styles.infoTitle}>Earned Points</Text>
                 <Text style={styles.infoValue}>{points}</Text>
               </View>
               <View style={styles.infoBox}>
@@ -621,7 +625,7 @@ export default function HomeScreen({ navigation }) {
             </View>
             <View style={styles.infoContainer}>
               <View style={styles.infoBox}>
-                <Text style={styles.infoTitle}>Points</Text>
+                <Text style={styles.infoTitle}>Bottle Contribution</Text>
                 <Text style={styles.infoValue}>{points}</Text>
               </View>
               <View style={styles.infoBox}>
@@ -691,6 +695,40 @@ export default function HomeScreen({ navigation }) {
             </View>
           </View>
         </ScrollView>
+
+        <Modal
+          visible={qrModalVisible}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setQrModalVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>My QR Code</Text>
+              <View style={styles.instructionContainer}>
+            <MaterialCommunityIcons name="information-outline" size={wp('5%')} color="#83951c" />
+            <Text style={styles.instructionText}>Use this QR code when {'\n'} recycling your bottles</Text>
+          </View>
+          <View style={styles.horizontalLine1} />
+              <QRCode
+                value={`Student Number: ${studentNumber}, Name: ${userName}`}
+                size={200}
+                logo={require('../assets/images/qr-logo.png')} // Replace with your logo path
+                logoSize={45}
+                logoBackgroundColor='rgba(0,0,0,0)'
+                logoBorderRadius={10}
+                color='#83951c'
+                enableLinearGradient={true} // Enable linear gradient
+                linearGradient={['#83951c', '#455e14']} // Linear gradient colors
+                ecl="Q"
+              />
+              <View style={styles.horizontalLine} />
+              <Pressable style={styles.closeButton} onPress={() => setQrModalVisible(false)}>
+                <Text style={{fontFamily: 'Poppins-Bold', color: '#fff', fontSize: hp('2%')}}>Close</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Modal>
       </View>
     </SafeAreaProvider>
   );
@@ -885,4 +923,57 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-SemiBold',
     fontSize: hp('1.6%'),
   },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: wp('80%'),
+    padding: hp('2%'),
+    backgroundColor: 'white',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: hp('3%'),
+    fontFamily: 'Poppins-Bold',
+    color: '#455e14',
+  },
+ horizontalLine: {
+  height: hp('.1%'), 
+  backgroundColor: '#7a9b57', 
+  marginVertical: wp('2%'),
+  top: hp('1.6%'),
+  width: '100%',
+  },
+  instructionContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: hp('1%'),
+    marginBottom: hp('2%'),
+  },
+  instructionText: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: hp('1.7%'),
+    color: '#455e14',
+    marginLeft: wp('2%'),
+  },
+  horizontalLine1: {
+    height: hp('.1%'), 
+    backgroundColor: '#7a9b57', 
+    marginVertical: wp('2%'),
+    bottom: hp('1.6%'),
+    width: '100%',
+    },
+  closeButton: {
+    marginTop: hp('3%'),
+    backgroundColor: '#83951c',
+    padding: hp('1%'),
+    borderRadius: wp('3%'),
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: wp('30%'),
+  }
 });

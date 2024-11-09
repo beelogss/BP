@@ -31,7 +31,7 @@ export default function EmailInputScreen({ navigation }) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, purpose: 'signup' }),
     })
       .then((response) => response.json())
       .then((data) => {

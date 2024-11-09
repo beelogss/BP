@@ -19,7 +19,8 @@
         "foregroundImage": "./assets/images/small-logo.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.bilogsss.BP"
+      "package": "com.bilogsss.BP",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -29,12 +30,11 @@
       "expo-router",
       "@react-native-firebase/app",
       [
-        "expo-barcode-scanner",
+        "expo-image-picker",
         {
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access camera."
+          "photosPermission": "The app accesses your photos to let you share them with your friends."
         }
-      ],
-      "react-native-vision-camera"
+      ]
     ],
     "extra": {
       "eas": {
