@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView, Dimensions, Image, BackHandler, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons, MaterialCommunityIcons, Octicons, Entypo, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons, Entypo, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import { Avatar, Divider } from 'react-native-paper';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import AlertPro from "react-native-alert-pro";
@@ -15,8 +15,9 @@ export default function ProfileScreen({ navigation }) {
   const userStudentNumber = user ? user.studentNumber : ''; // Replace with actual user's email
   const avatar = user ? user.avatar : null; // Replace with actual user's avatar
   const insets = useSafeAreaInsets();
-  const [points, setPoints] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);  // Modal visibility state
+  const points = user ? user.points : 0;
+  const bottleCount = user ? user.bottleCount : 0;
 
   const activityData = [
     { name: 'Energy Consumption', icon: 'energy-savings-leaf', value: '0.00', iconType: 'MaterialIcons' },
@@ -25,15 +26,6 @@ export default function ProfileScreen({ navigation }) {
   ];
 
   const navigations = useNavigation();
-
-  useEffect(() => {
-    fetchUserPoints();
-  }, []);
-
-  const fetchUserPoints = () => {
-    // Fetch user points logic here
-    setPoints(100);
-  };
 
   useEffect(() => {
     const handleBackPress = () => {
@@ -70,23 +62,25 @@ export default function ProfileScreen({ navigation }) {
         </View>
       </Modal>
       <View style={styles.headerIconContainer}>
-        <Ionicons name="menu" size={wp('7%')} color="#83951c" style={styles.headerIcon} />
+        <Entypo name="menu" size={wp('8%')} color="#83951c" style={styles.headerIcon} />
       </View>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.contentContainer}>
       <View style={styles.headerContainer}>
 
+
         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
-        <View style={styles.avatarContainer}>
+          <View style={styles.avatarContainer}>
             <Pressable onPress={() => setModalVisible(true)}>
               <Avatar.Image size={wp('27%')} source={avatar ? { uri: avatar } : require('../assets/images/default-profile.png')} style={styles.avatar} />
             </Pressable>
             <TouchableOpacity style={styles.editIconContainer} onPress={() => navigation.navigate('EditProfile')}>
-              <Ionicons name="pencil" size={wp('5%')} color="#fff" />
+              <MaterialCommunityIcons name="pencil-outline" size={wp('6%')} color="#455e14" />
             </TouchableOpacity>
           </View>
           <View style={styles.verticalLine} />
           <View style={styles.headerItem}>
 
-            <Text style={styles.userName}>{userName}</Text>
+          <Text style={styles.userName} numberOfLines={1} ellipsizeMode="tail">{userName}</Text>
             <Text style={styles.userStudentNumber}>{userStudentNumber}</Text>
             <View style={styles.pointsContainer}>
               <View style={{ flexDirection: 'row', alignItems: 'center', bottom: hp('0.5%') }}>
@@ -101,96 +95,96 @@ export default function ProfileScreen({ navigation }) {
           </View>
 
         </View>
-        <View style={styles.editSContainer}>
+        {/* <View style={styles.editSContainer}>
           <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('EditProfile')}>
             <Text style={styles.editSText}>Edit Profile</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.shareButton} onPress={() => setModalVisible(true)}>
             <Text style={styles.editSText}>Share Contribution</Text>
           </TouchableOpacity>
-        </View>
+        </View> */}
       </View>
       <Divider style={{ backgroundColor: '#83951c', height: 1 }} />
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.contentContainer}>
 
 
-        {/* Statistics */}
-        <View style={styles.statsBoxContainer}>
-          <View style={styles.tabContainer}>
-            <Text style={styles.tabTextActive}>Your Impactful Contribution Reduced</Text>
-          </View>
-          <View style={styles.savedAmountContainer}>
-            <Text style={styles.savedAmount}>0.00</Text>
-            <Text style={styles.savedUnit}>kg of <Text style={{ fontFamily: 'Poppins-SemiBold', color: '#83951c', fontSize: wp('4%') }}>CO₂</Text></Text>
-          </View>
+
+      {/* Statistics */}
+      <View style={styles.statsBoxContainer}>
+        <View style={styles.tabContainer}>
+          <Text style={styles.tabTextActive}>Total Bottle Contribution</Text>
         </View>
-
-        {/* Activity Overview */}
-        <View style={styles.activityContainer}>
-          <Text style={styles.activityHeader}>Your environmental awareness made an impact and have saved CO₂ equivalent of the following:</Text>
-          <View style={styles.activityGrid}>
-            {activityData.map((item, index) => (
-              <View key={index} style={styles.activityItem}>
-                {item.iconType === 'Entypo' && <Entypo name={item.icon} size={wp('10%')} color="#7a9b57" />}
-                {item.iconType === 'MaterialIcons' && <MaterialIcons name={item.icon} size={wp('10%')} color="#7a9b57" />}
-                {item.iconType === 'FontAwesome5' && <FontAwesome5 name={item.icon} size={wp('10%')} color="#7a9b57" />}
-                <Text style={styles.activityValue}>{item.value}</Text>
-                <Text style={styles.activityLabel}>{item.name}</Text>
-              </View>
-            ))}
-          </View>
+        <View style={styles.savedAmountContainer}>
+          <Text style={styles.savedAmount}>{bottleCount}</Text>
+          <Text style={styles.savedUnit}>kg of <Text style={{ fontFamily: 'Poppins-SemiBold', color: '#83951c', fontSize: wp('4%') }}>CO₂</Text></Text>
         </View>
+      </View>
 
-        {/* My Inventory */}
-        <View style={styles.inventoryContainer}>
-          <Text style={styles.inventoryHeader}>Lorem ipsum</Text>
-          <Text style={styles.inventorySubheader}>Lorem ipsum</Text>
-          <View style={styles.inventoryItem}>
-            <MaterialCommunityIcons name="leaf" size={wp('10%')} color="#83951c" />
-            <Text style={styles.inventoryText}>Lorem ipsum</Text>
-          </View>
+      {/* Activity Overview */}
+      <View style={styles.activityContainer}>
+        <Text style={styles.activityHeader}>Your environmental awareness made an impact and have saved CO₂ equivalent of the following:</Text>
+        <View style={styles.activityGrid}>
+          {activityData.map((item, index) => (
+            <View key={index} style={styles.activityItem}>
+              {item.iconType === 'Entypo' && <Entypo name={item.icon} size={wp('10%')} color="#7a9b57" />}
+              {item.iconType === 'MaterialIcons' && <MaterialIcons name={item.icon} size={wp('10%')} color="#7a9b57" />}
+              {item.iconType === 'FontAwesome5' && <FontAwesome5 name={item.icon} size={wp('10%')} color="#7a9b57" />}
+              <Text style={styles.activityValue}>{item.value}</Text>
+              <Text style={styles.activityLabel}>{item.name}</Text>
+            </View>
+          ))}
         </View>
-        <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={() => this.AlertPro.open()}>
-          <Text style={styles.buttonText}>Logout</Text>
-        </TouchableOpacity>
-        <AlertPro
-          ref={ref => {
-            this.AlertPro = ref;
-          }}
-          onConfirm={() => {
-            this.AlertPro.close();
-            navigation.navigate('Login');;
-          }}
-          onCancel={() => this.AlertPro.close()}
-          title="Confirmation"
-          message="Are you sure you want to logout?"
-          textCancel="Cancel"
-          textConfirm="Yes"
-          customStyles={{
-            mask: {
-              backgroundColor: "transparent"
-            },
-            container: {
-              borderWidth: 1,
-              borderColor: "#455e14",
-              borderRadius: 20
-            },
-            buttonCancel: {
-              backgroundColor: "#f66"
-            },
-            buttonConfirm: {
-              backgroundColor: "#83951c"
-            }
-          }}
-        />
-      </ScrollView>
-    </View>
+      </View>
+
+      {/* My Inventory */}
+      <View style={styles.inventoryContainer}>
+        <Text style={styles.inventoryHeader}>Lorem ipsum</Text>
+        <Text style={styles.inventorySubheader}>Lorem ipsum</Text>
+        <View style={styles.inventoryItem}>
+          <MaterialCommunityIcons name="leaf" size={wp('10%')} color="#83951c" />
+          <Text style={styles.inventoryText}>Lorem ipsum</Text>
+        </View>
+      </View>
+      <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={() => this.AlertPro.open()}>
+        <Text style={styles.buttonText}>Logout</Text>
+      </TouchableOpacity>
+      <AlertPro
+        ref={ref => {
+          this.AlertPro = ref;
+        }}
+        onConfirm={() => {
+          this.AlertPro.close();
+          navigation.navigate('Login');;
+        }}
+        onCancel={() => this.AlertPro.close()}
+        title="Confirmation"
+        message="Are you sure you want to logout?"
+        textCancel="Cancel"
+        textConfirm="Yes"
+        customStyles={{
+          mask: {
+            backgroundColor: "transparent"
+          },
+          container: {
+            borderWidth: 1,
+            borderColor: "#455e14",
+            borderRadius: 20
+          },
+          buttonCancel: {
+            backgroundColor: "#f66"
+          },
+          buttonConfirm: {
+            backgroundColor: "#83951c"
+          }
+        }}
+      />
+    </ScrollView>
+    </View >
   );
 };
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f3f8',
+    backgroundColor: 'whitesmoke',
   },
   contentContainer: {
     paddingBottom: hp('10%'),
@@ -199,11 +193,13 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingVertical: hp('1%'),
     backgroundColor: 'white',
+    paddingBottom: hp('2%'),
   },
   headerItem: {
     flexDirection: 'column',
     marginLeft: wp('2%'),
     top: hp('1%'),
+    maxWidth: wp('50%'), // Set a maximum width
   },
   avatarContainer: {
     position: 'relative',
@@ -216,7 +212,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: hp('1%'),
     right: wp('5%'),
-    backgroundColor: '#83951c',
+    backgroundColor: '#bdd299',
     borderRadius: wp('2.5%'),
     padding: wp('1%'),
   },
@@ -225,6 +221,7 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: '#7a9b57',
     marginHorizontal: wp('3%'),
+    position: 'fixed',
   },
   userName: {
     fontSize: wp('5%'),
@@ -237,9 +234,10 @@ const styles = StyleSheet.create({
     color: '#455e14',
   },
   headerIcon: {
-    paddingTop: hp('3%'),
+    paddingTop: hp('5%'),
+    paddingBottom: hp('.5%'),
     backgroundColor: 'white',
-    paddingLeft: wp('85%'),
+    paddingLeft: wp('88%'),
   },
   pointsContainer: {
     flexDirection: 'row',

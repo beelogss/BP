@@ -21,6 +21,19 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
+const { v4: uuidv4 } = require('uuid');
+function generateCustomID() {
+  const random5Letters = Array.from({ length: 5 }, () => 
+    String.fromCharCode(97 + Math.floor(Math.random() * 26))
+  ).join(''); // generates 5 random lowercase letters
+
+  const day = new Date().getDate().toString().padStart(2, '0'); // day of the month, 2 digits
+  const random6DigitCounter = Math.floor(100000 + Math.random() * 900000); // random 6-digit number
+  const currentYear = new Date().getUTCFullYear(); // current year
+
+  return `bp${random5Letters}${day}-${random6DigitCounter}-${currentYear}`;
+}
+
 // Nodemailer Transporter setup    
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -92,7 +105,7 @@ app.post('/sendVerificationCode', async (req, res) => {
           <style>
             body {
               font-family: 'Poppins', Arial, sans-serif;
-              background-color: #e5eeda;
+              background-color: white;
               padding: 20px;
             }
             .email-container {
@@ -250,8 +263,12 @@ app.post('/signup', async (req, res) => {
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Add the user to the users collection with the hashed password
+    // Generate a custom ID
+    const userId = generateCustomID();
+
+    // Add the user to the 'users' collection with the hashed password and custom ID
     await db.collection('users').add({
+      id: userId,
       email,
       name,
       studentNumber,
@@ -265,6 +282,52 @@ app.post('/signup', async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to create account' });
   }
 });
+
+// app.post('/login', async (req, res) => {
+//   const { email, password } = req.body;
+
+//   try {
+//     // Fetch the user by email
+//     const snapshot = await db.collection('users')
+//       .where('email', '==', email)
+//       .get();
+
+//     if (snapshot.empty) {
+//       return res.status(400).json({ success: false, message: 'Invalid email or password' });
+//     }
+
+//     // Get the user data from Firestore
+//     const user = snapshot.docs[0].data();
+
+//     // Compare the entered password with the stored hashed password
+//     const isPasswordMatch = await bcrypt.compare(password, user.password);
+
+//     if (!isPasswordMatch) {
+//       return res.status(400).json({ success: false, message: 'Invalid email or password' });
+//     }
+
+//     // Return user data on successful login
+//     res.status(200).json({ 
+//       success: true, 
+//       message: 'Login successful', 
+//       user: {
+//         id: user.id,
+//         name: user.name,
+//         email: user.email,
+//         studentNumber: user.studentNumber,
+//         avatar: user.avatar, // Include avatar URL
+//         points: user.points || 0,
+//         co2Reduction: user.co2Reduction || 0,
+//         bottleGoal: user.bottleGoal || 0,
+//         recycledBottles: user.recycledBottles || 0
+//       }
+//     });
+//   } catch (error) {
+//     console.error('Error logging in user:', error);
+//     res.status(500).json({ success: false, message: 'Failed to login' });
+//   }
+// });
+  
 
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
@@ -289,19 +352,31 @@ app.post('/login', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid email or password' });
     }
 
+    // Fetch the user's points and bottle count from the userPoints collection
+    const pointsSnapshot = await db.collection('userPoints')
+      .where('studentNumber', '==', user.studentNumber)
+      .get();
+
+    let totalPoints = 0;
+    let totalBottleCount = 0;
+    pointsSnapshot.forEach(doc => {
+      totalPoints += doc.data().totalPoints;
+      totalBottleCount += doc.data().bottleCount;
+    });
+
     // Return user data on successful login
     res.status(200).json({ 
       success: true, 
       message: 'Login successful', 
       user: {
+        id: user.id,
         name: user.name,
         email: user.email,
+        password: user.password,
         studentNumber: user.studentNumber,
         avatar: user.avatar, // Include avatar URL
-        points: user.points || 0,
-        co2Reduction: user.co2Reduction || 0,
-        bottleGoal: user.bottleGoal || 0,
-        recycledBottles: user.recycledBottles || 0
+        points: totalPoints || 0, // Include total points from userPoints collection
+        bottleCount: totalBottleCount || 0, // Include total bottle count from userPoints collection
       }
     });
   } catch (error) {
@@ -309,7 +384,7 @@ app.post('/login', async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to login' });
   }
 });
-  
+
 const fs = require('fs');
 
 
@@ -344,6 +419,64 @@ app.post('/updateProfile', async (req, res) => {
   } catch (error) {
     console.error('Error updating profile:', error);
     res.status(500).json({ success: false, message: 'Failed to update profile' });
+  }
+});
+
+app.post('/claim-reward', async (req, res) => {
+  const { userId, rewardId } = req.body;
+
+  try {
+    // Fetch the user by userId
+    const userSnapshot = await db.collection('users').where('id', '==', userId).get();
+
+    if (userSnapshot.empty) {
+      return res.status(400).json({ success: false, message: 'User not found' });
+    }
+
+    // Get the user data from Firestore
+    const userDoc = userSnapshot.docs[0].ref;
+    const user = userSnapshot.docs[0].data();
+
+    // Fetch the reward by rewardId
+    const rewardSnapshot = await db.collection('rewards').doc(rewardId).get();
+
+    if (!rewardSnapshot.exists) {
+      return res.status(400).json({ success: false, message: 'Reward not found' });
+    }
+
+    const reward = rewardSnapshot.data();
+
+    // Check if the user has enough points to claim the reward
+    if (user.points < reward.points) {
+      return res.status(400).json({ success: false, message: 'Not enough points to claim this reward' });
+    }
+
+    // Deduct the reward points from the user's points, ensuring it does not go below zero
+    const newPoints = Math.max(user.points - reward.points, 0);
+
+    // Update the user's points in the database
+    await userDoc.update({ points: newPoints });
+
+    // Update the points in the userPoints collection
+    const userPointsSnapshot = await db.collection('userPoints').where('studentNumber', '==', user.studentNumber).get();
+    userPointsSnapshot.forEach(async (doc) => {
+      const userPointsDoc = doc.ref;
+      const userPointsData = doc.data();
+      const updatedPoints = Math.max(userPointsData.totalPoints - reward.points, 0);
+      await userPointsDoc.update({ totalPoints: updatedPoints });
+    });
+
+    // Optionally, you can add the claimed reward to a claimedRewards collection
+    await db.collection('claimedRewards').add({
+      userId: userId,
+      rewardId: rewardId,
+      claimedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    return res.status(200).json({ success: true, message: 'Reward claimed successfully', newPoints });
+  } catch (error) {
+    console.error('Error claiming reward:', error);
+    return res.status(500).json({ success: false, message: 'Failed to claim reward' });
   }
 });
 

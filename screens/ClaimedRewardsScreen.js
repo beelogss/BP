@@ -540,7 +540,7 @@ const ClaimedRewardsScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f6f6f6',
+    backgroundColor: 'whitesmoke',
   },
   headerContainer: {
     backgroundColor: 'white',

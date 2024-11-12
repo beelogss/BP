@@ -11,22 +11,16 @@ import { UserContext } from '../context/UserContext'; // Import UserContext
 const AllRewardsScreen = ({ navigation }) => {
   const { user } = useContext(UserContext); // Use user data from context
   const [rewards, setRewards] = useState([]);
-  const [points, setPoints] = useState(0);
   const [selectedReward, setSelectedReward] = useState(null);
+  const points = user ? user.points : 0;
 
   useEffect(() => {
     fetchRewards();
-    fetchUserPoints();
   }, []);
 
   const fetchRewards = async () => {
     const availableRewards = await getAvailableRewards();
     setRewards(availableRewards);
-  };
-
-  const fetchUserPoints = () => {
-    // Fetch user points logic here
-    setPoints(100);
   };
 
   const handleRewardPress = (reward) => {
@@ -95,7 +89,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: 'white',
+    backgroundColor: 'whitesmoke',
     paddingTop: hp('5%'),
     flexDirection: 'column',
   },

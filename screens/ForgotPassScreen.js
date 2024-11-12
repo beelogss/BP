@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: wp('8%'),
-    backgroundColor: '#fff',
+    backgroundColor: 'whitesmoke',
     paddingTop: wp('20%'),
   },
   formContainer: {

@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: wp('5%'),
-    backgroundColor: '#e5eeda',
+    backgroundColor: 'whitesmoke',
   },
   rewardImage: {
     marginTop: hp('3%'),

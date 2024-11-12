@@ -4,7 +4,6 @@ import { getAvailableBottles } from './bottleService'; // Adjust the path to you
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { Divider } from 'react-native-paper';
 
 const BottleList = ({ navigation }) => {
   const [bottles, setBottles] = useState([]);
@@ -47,7 +46,9 @@ const BottleList = ({ navigation }) => {
         <View style={{ flexDirection: 'row' }}>
           <Text style={styles.bottleDescription}>{item.size} </Text>
           <Text style={styles.bottleDescription}>{item.size_unit}</Text>
+          
         </View>
+        <Text style={styles.bottlePoints}>Points: <Text style={{ fontFamily: 'Poppins-Bold' }}>{item.points}</Text></Text>
       </View>
     </TouchableOpacity>
   );
@@ -100,7 +101,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: 'white',
+    backgroundColor: 'whitesmoke',
     paddingTop: hp('5%'),
   },
   header: {
@@ -165,6 +166,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   bottleDescription: {
+    fontSize: hp('1.8%'),
+    fontFamily: 'Poppins-Regular',
+    color: '#83951c',
+    marginTop: hp('0.5%'),
+  },
+  bottlePoints: {
     fontSize: hp('1.8%'),
     fontFamily: 'Poppins-Regular',
     color: '#83951c',

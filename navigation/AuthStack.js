@@ -34,13 +34,13 @@ export default function AuthStack() {
         <Stack.Screen name="ResetPass" component={ResetPassScreen}/>
         <Stack.Screen name="Signup" component={SignupDetailsScreen} />
         <Stack.Screen name="Hometabs" component={HomeTabs}/>
-        <Stack.Screen name="Leaderboard" component={LeaderboardScreen}/>
+        <Stack.Screen name="Leaderboard" component={LeaderboardScreen} options={{cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,}}/>
         <Stack.Screen name="Rewards" component={RewardsScreen} />
         <Stack.Screen name="RewardDetails" component={RewardDetailsScreen} />
         <Stack.Screen name="AllRewards" component={AllRewardsScreen} options={{cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,}}/> 
         <Stack.Screen name="ClaimedRewards" component={ClaimedRewardsScreen} options={{cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,}}/>
         <Stack.Screen name="Bottles" component={BottleList} />
-        <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+        <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,}}/>
       </Stack.Navigator>
     </NavigationContainer>
     </SnackbarProvider>

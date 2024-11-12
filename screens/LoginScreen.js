@@ -46,13 +46,13 @@ export default function LoginScreen({ navigation }) {
   const handleLogin = async (emailParam, passwordParam) => {
     const emailToUse = emailParam || email;
     const passwordToUse = passwordParam || password;
-
+  
     if (!validateEmail(emailToUse) || !passwordToUse) {
       if (!emailToUse) setEmailError(true);
       if (!passwordToUse) setPasswordError(true);
       return;
     }
-
+  
     try {
       const response = await fetch('http://192.168.1.9:3000/login', {
         method: 'POST',
@@ -61,23 +61,17 @@ export default function LoginScreen({ navigation }) {
         },
         body: JSON.stringify({ email: emailToUse, password: passwordToUse }),
       });
-
+  
       const data = await response.json();
-
+  
       if (data.success) {
         ToastAndroid.show('Logged in successfully!', ToastAndroid.LONG);
         setUser(data.user);  // Store user data in context
-
-        if (isChecked) {
-          // Store credentials if "Remember Me" is checked
-          await AsyncStorage.setItem('email', emailToUse);
-          await AsyncStorage.setItem('password', passwordToUse);
-        } else {
-          // Clear stored credentials if "Remember Me" is unchecked
-          await AsyncStorage.removeItem('email');
-          await AsyncStorage.removeItem('password');
-        }
-
+  
+        // Store credentials in AsyncStorage
+        await AsyncStorage.setItem('email', emailToUse);
+        await AsyncStorage.setItem('password', passwordToUse);
+  
         navigation.navigate('Hometabs');
       } else {
         Alert.alert('Error', data.message);
@@ -193,7 +187,7 @@ export default function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor:'white',
+    backgroundColor:'whitesmoke',
   },
   imageContainer: {
     alignItems: 'center',
