@@ -452,19 +452,27 @@ app.post('/claim-reward', async (req, res) => {
     }
 
     // Deduct the reward points from the user's points, ensuring it does not go below zero
-    const newPoints = Math.max(user.points - reward.points, 0);
+    let remainingPointsToDeduct = reward.points;
 
-    // Update the user's points in the database
-    await userDoc.update({ points: newPoints });
-
-    // Update the points in the userPoints collection
+    // Fetch the user's points documents
     const userPointsSnapshot = await db.collection('userPoints').where('studentNumber', '==', user.studentNumber).get();
+
     userPointsSnapshot.forEach(async (doc) => {
       const userPointsDoc = doc.ref;
       const userPointsData = doc.data();
-      const updatedPoints = Math.max(userPointsData.totalPoints - reward.points, 0);
-      await userPointsDoc.update({ totalPoints: updatedPoints });
+
+      if (remainingPointsToDeduct > 0) {
+        const pointsToDeduct = Math.min(userPointsData.totalPoints, remainingPointsToDeduct);
+        const updatedPoints = userPointsData.totalPoints - pointsToDeduct;
+        remainingPointsToDeduct -= pointsToDeduct;
+
+        await userPointsDoc.update({ totalPoints: updatedPoints });
+      }
     });
+
+    // Update the user's total points in the users collection
+    const newPoints = user.points - reward.points;
+    await userDoc.update({ points: newPoints });
 
     // Optionally, you can add the claimed reward to a claimedRewards collection
     await db.collection('claimedRewards').add({
@@ -521,6 +529,32 @@ app.get('/leaderboard', async (req, res) => {
   }
 });
 
+app.post('/notifications', async (req, res) => {
+  const { studentNumber } = req.body;
+
+  if (!studentNumber) {
+    return res.status(400).json({ success: false, message: 'studentNumber is required' });
+  }
+
+  try {
+    const notificationsSnapshot = await db.collection('userPoints')
+      .where('studentNumber', '==', studentNumber)
+      .orderBy('timestamp', 'desc')
+      .get();
+
+    const notifications = notificationsSnapshot.docs.map(doc => ({
+      id: doc.id,
+      timestamp: doc.data().timestamp,
+      totalPoints: doc.data().totalPoints,
+      bottleCount: doc.data().bottleCount,
+    }));
+
+    return res.status(200).json({ success: true, notifications });
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    return res.status(500).json({ success: false, message: 'Failed to fetch notifications', error: error.message });
+  }
+});
 app.listen(3000, () => {
   console.log('Server running on port 3000');
 });

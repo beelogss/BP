@@ -110,12 +110,12 @@ export default function ProfileScreen({ navigation }) {
 
       {/* Statistics */}
       <View style={styles.statsBoxContainer}>
-        <View style={styles.tabContainer}>
-          <Text style={styles.tabTextActive}>Total Bottle Contribution</Text>
-        </View>
+        
         <View style={styles.savedAmountContainer}>
           <Text style={styles.savedAmount}>{bottleCount}</Text>
-          <Text style={styles.savedUnit}>kg of <Text style={{ fontFamily: 'Poppins-SemiBold', color: '#83951c', fontSize: wp('4%') }}>CO₂</Text></Text>
+          </View>
+          <View style={styles.tabContainer}>
+          <Text style={styles.tabTextActive}>Total Bottle Contribution</Text>
         </View>
       </View>
 
@@ -304,7 +304,6 @@ const styles = StyleSheet.create({
   tabContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginVertical: hp('1.5%'),
   },
   tabTextActive: {
     color: '#455e14',
@@ -314,19 +313,15 @@ const styles = StyleSheet.create({
   statsBoxContainer: {
     alignItems: 'center',
     marginVertical: hp('3%'),
-    marginHorizontal: wp('6%'),
+    marginHorizontal: wp('20%'),
     padding: wp('2%'),
     borderRadius: wp('2%'),
     backgroundColor: 'white',
     borderBottomRightRadius: wp('8%'),
     borderTopLeftRadius: wp('8%'),
-    borderWidth: 1,
-    borderColor: '#83951c',
-    shadowColor: '#000',
   },
   savedAmountContainer: {
     alignItems: 'center',
-    marginVertical: hp('2%'),
   },
   savedAmount: {
     fontFamily: 'Poppins-Bold',

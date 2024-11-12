@@ -22,19 +22,24 @@ export default function LoginScreen({ navigation }) {
     // Retrieve stored credentials on component mount
     const loadCredentials = async () => {
       try {
-        const storedEmail = await AsyncStorage.getItem('email');
-        const storedPassword = await AsyncStorage.getItem('password');
-        if (storedEmail && storedPassword) {
-          setEmail(storedEmail);
-          setPassword(storedPassword);
-          setChecked(true);
-          handleLogin(storedEmail, storedPassword);
+        const rememberMe = await AsyncStorage.getItem('rememberMe');
+        if (rememberMe === 'true') {
+          const storedEmail = await AsyncStorage.getItem('email');
+          const storedPassword = await AsyncStorage.getItem('password');
+          if (storedEmail && storedPassword) {
+            setEmail(storedEmail);
+            setPassword(storedPassword);
+            setChecked(true);
+            handleLogin(storedEmail, storedPassword);
+          }
+        } else {
+          setChecked(false);
         }
       } catch (error) {
         console.error('Failed to load credentials', error);
       }
     };
-
+  
     loadCredentials();
   }, []);
 

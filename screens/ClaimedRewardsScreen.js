@@ -341,6 +341,7 @@ const ClaimedRewardsScreen = ({ navigation }) => {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [sortCriteria, setSortCriteria] = useState('date'); // 'date' or 'name'
 
   useEffect(() => {
     fetchClaimedRewards();
@@ -405,9 +406,17 @@ const ClaimedRewardsScreen = ({ navigation }) => {
     );
   };
 
-  const filteredRewards = claimedRewards.filter((reward) =>
-    filter === 'toBeClaimed' ? reward.status !== 'claimed' : reward.status === 'claimed'
-  );
+  const filteredRewards = claimedRewards
+    .filter((reward) =>
+      filter === 'toBeClaimed' ? reward.status !== 'claimed' : reward.status === 'claimed'
+    )
+    .sort((a, b) => {
+      if (sortCriteria === 'date') {
+        return new Date(a.claimedAt) - new Date(b.claimedAt);
+      } else if (sortCriteria === 'name') {
+        return a.name.localeCompare(b.name);
+      }
+    });
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -450,8 +459,24 @@ const ClaimedRewardsScreen = ({ navigation }) => {
           >
             <Text style={styles.filterButtonText}>Claimed</Text>
           </TouchableOpacity>
-        </View>
+       
       </View>
+      </View>
+        <View style={styles.sortContainer}>
+          <Text style={styles.sortText}>Sort by:</Text>
+          <TouchableOpacity
+            style={[styles.sortButton, sortCriteria === 'date' && styles.activeSortButton]}
+            onPress={() => setSortCriteria('date')}
+          >
+            <Text style={styles.sortButtonText}>Date</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.sortButton, sortCriteria === 'name' && styles.activeSortButton]}
+            onPress={() => setSortCriteria('name')}
+          >
+            <Text style={styles.sortButtonText}>Name</Text>
+          </TouchableOpacity>
+        </View>
       {filteredRewards.length === 0 ? (
         <View style={styles.emptyContainer}>
           <MaterialCommunityIcons name="delete-empty-outline" size={wp('20%')} color="#83951c" borderRadius={20} />
@@ -573,6 +598,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp('4%'),
   },
   filterButtonText: {
+    color: '#455e14',
+    fontSize: hp('1.5%'),
+    fontFamily: 'Poppins-SemiBold',
+  },
+  sortContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: hp('1%'),
+  },
+  sortText: {
+    fontSize: hp('2%'),
+    fontFamily: 'Poppins-Regular',
+    color: '#455e14',
+    marginRight: wp('2%'),
+  },
+  sortButton: {
+    padding: hp('1%'),
+  },
+  activeSortButton: {
+    borderRadius: 20,
+    backgroundColor: '#bdd299',
+    paddingHorizontal: wp('4%'),
+  },
+  sortButtonText: {
     color: '#455e14',
     fontSize: hp('1.5%'),
     fontFamily: 'Poppins-SemiBold',

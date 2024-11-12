@@ -155,7 +155,7 @@ export default function HomeScreen({ navigation }) {
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.greeting}>Hi, {userName}!</Text>
-          <Pressable onPress={() => navigation.navigate('Rewards')}>
+          <Pressable onPress={() => navigation.navigate('Notif')}>
             <Ionicons name="notifications" size={wp('6%')} color="#83951c" />
           </Pressable>
         </View>
