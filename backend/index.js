@@ -480,6 +480,47 @@ app.post('/claim-reward', async (req, res) => {
   }
 });
 
+app.get('/leaderboard', async (req, res) => {
+  try {
+    // Fetch all user points data
+    const pointsSnapshot = await db.collection('userPoints').get();
+
+    // Aggregate bottle counts for each user
+    const leaderboardMap = new Map();
+    pointsSnapshot.forEach(doc => {
+      const data = doc.data();
+      const studentNumber = data.studentNumber;
+      const bottleCount = data.bottleCount;
+
+      if (leaderboardMap.has(studentNumber)) {
+        const existingData = leaderboardMap.get(studentNumber);
+        leaderboardMap.set(studentNumber, {
+          studentNumber: studentNumber,
+          name: existingData.name, // Assuming name is consistent across documents
+          avatar: existingData.avatar, // Assuming avatar is consistent across documents
+          bottleCount: existingData.bottleCount + bottleCount,
+        });
+      } else {
+        leaderboardMap.set(studentNumber, {
+          studentNumber: studentNumber,
+          name: data.name, // Assuming you have a name field in userPoints collection
+          avatar: data.avatar, // Assuming you have an avatar field in userPoints collection
+          bottleCount: bottleCount,
+        });
+      }
+    });
+
+    // Convert the map to an array and sort the leaderboard by bottle count in descending order
+    const leaderboard = Array.from(leaderboardMap.values());
+    leaderboard.sort((a, b) => b.bottleCount - a.bottleCount);
+
+    return res.status(200).json({ success: true, leaderboard });
+  } catch (error) {
+    console.error('Error fetching leaderboard:', error);
+    return res.status(500).json({ success: false, message: 'Failed to fetch leaderboard' });
+  }
+});
+
 app.listen(3000, () => {
   console.log('Server running on port 3000');
 });

@@ -35,4 +35,4 @@ yarn-error.*
 *.tsbuildinfo
 
 # Service account key
-serviceAccountKey.json
+/backend/serviceAccountKey.json

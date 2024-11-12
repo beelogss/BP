@@ -9,6 +9,7 @@ import { UserContext } from '../context/UserContext'; // Import UserContext
 import QRCode from 'react-native-qrcode-svg';
 import axios from 'axios'; // Import axios for API calls
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
+const { width, height } = Dimensions.get('window');
 export default function HomeScreen({ navigation }) {
   const { user, setUser } = useContext(UserContext); // Use user data from context and setUser to update it
   const userName = user ? user.name : 'Guest'; // Replace with actual user's name
@@ -20,6 +21,7 @@ export default function HomeScreen({ navigation }) {
 
   const [refreshing, setRefreshing] = useState(false);
   const [qrModalVisible, setQrModalVisible] = useState(false);
+  const [leaderboardData, setLeaderboardData] = useState([]);
 
   const fetchUserData = async () => {
     try {
@@ -38,10 +40,29 @@ export default function HomeScreen({ navigation }) {
     }
   };
 
+  const fetchLeaderboardData = async () => {
+    try {
+      const response = await axios.get('http://192.168.1.9:3000/leaderboard');
+      if (response.data.success) {
+        setLeaderboardData(response.data.leaderboard);
+      } else {
+        ToastAndroid.show('Failed to fetch leaderboard', ToastAndroid.SHORT);
+      }
+    } catch (error) {
+      console.error('Error fetching leaderboard:', error.response ? error.response.data : error.message);
+      ToastAndroid.show('Error fetching leaderboard', ToastAndroid.SHORT);
+    }
+  };
+
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await fetchUserData();
+    await fetchLeaderboardData();
     setRefreshing(false);
+  }, []);
+
+  useEffect(() => {
+    fetchLeaderboardData();
   }, []);
 
   const navIndex = useNavigationState(s => s.index);
@@ -129,12 +150,6 @@ export default function HomeScreen({ navigation }) {
     },
   ];
 
-  const leaderboardData = [
-    { id: 1, name: 'John Doe', points: 150 },
-    { id: 2, name: 'Jane Smith', points: 120 },
-    { id: 3, name: 'Alice Johnson', points: 100 },
-  ];
-
   return (
     <SafeAreaProvider>
       <View style={styles.container}>
@@ -158,7 +173,7 @@ export default function HomeScreen({ navigation }) {
                   <Ionicons name="qr-code-outline" size={wp('9%')} color="#83951c" style={styles.scanButtonIcon} />
                 </Pressable>
               </View>
-              <Text style={styles.scanButtonText}>Scan Bottle</Text>
+              <Text style={styles.scanButtonText}>My QR</Text>
             </View>
             <View style={styles.scanText}>
               <View style={styles.scanButton}>
@@ -222,21 +237,28 @@ export default function HomeScreen({ navigation }) {
             </View>
 
             {/* Leaderboard Container */}
-            <View style={styles.leaderboardContainer} >
+            <View style={styles.leaderboardContainer}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 <Text style={styles.leaderboardTitle}>Leaderboard</Text>
                 <Pressable onPress={() => navigation.navigate('Leaderboard')}>
                   <Text style={styles.seeAllText}>See All</Text>
                 </Pressable>
               </View>
+              <View style={styles.tableHeader}>
+                <Text style={styles.tableHeaderText}>Rank</Text>
+                <Text style={styles.tableHeaderText}>Name</Text>
+                <Text style={styles.tableHeaderText}>Bottles</Text>
+              </View>
               <ScrollView vertical style={styles.leaderboardScrollView} showsVerticalScrollIndicator={true}>
-              {leaderboardData.map((user) => (
-                <View key={user.id} style={styles.leaderboardItem}>
-                  <Text style={styles.leaderboardName}>{user.name}</Text>
-                  <Text style={styles.leaderboardPoints}>{user.points} points</Text>
-                </View>
-              ))}
-            </ScrollView>
+                {leaderboardData.map((user, index) => (
+                  <View key={index} style={styles.leaderboardItem}>
+                    <Text style={styles.leaderboardPosition}>{index + 1}</Text>
+                    <Image source={{ uri: user.avatar }} style={styles.leaderboardImage} />
+                    <Text style={styles.leaderboardName}>{user.name}</Text>
+                    <Text style={styles.leaderboardPoints}>{user.bottleCount}</Text>
+                  </View>
+                ))}
+              </ScrollView>
             </View>
 
             <View style={{ marginBottom: hp('5%') }}>
@@ -265,10 +287,10 @@ export default function HomeScreen({ navigation }) {
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>My QR Code</Text>
               <View style={styles.instructionContainer}>
-            <MaterialCommunityIcons name="information-outline" size={wp('5%')} color="#83951c" />
-            <Text style={styles.instructionText}>Use this QR code when {'\n'} recycling your bottles</Text>
-          </View>
-          <View style={styles.horizontalLine1} />
+                <MaterialCommunityIcons name="information-outline" size={wp('5%')} color="#83951c" />
+                <Text style={styles.instructionText}>Use this QR code when {'\n'} recycling your bottles</Text>
+              </View>
+              <View style={styles.horizontalLine1} />
               <QRCode
                 value={`${id}`}
                 size={200}
@@ -283,7 +305,7 @@ export default function HomeScreen({ navigation }) {
               />
               <View style={styles.horizontalLine} />
               <Pressable style={styles.closeButton} onPress={() => setQrModalVisible(false)}>
-                <Text style={{fontFamily: 'Poppins-Bold', color: '#fff', fontSize: hp('2%')}}>Close</Text>
+                <Text style={{ fontFamily: 'Poppins-Bold', color: '#fff', fontSize: hp('2%') }}>Close</Text>
               </Pressable>
             </View>
           </View>
@@ -307,7 +329,7 @@ const styles = StyleSheet.create({
     marginBottom: hp('2%'),
   },
   greeting: {
-    fontSize: hp('2.5%'),
+    fontSize: height / 40,
     color: '#455e14',
     fontFamily: 'Poppins-Bold',
   },
@@ -423,7 +445,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: wp('5%'),
     marginBottom: hp('3%'),
-    height: hp('30%'),
+    height: hp('35%'),
   },
   leaderboardTitle: {
     fontSize: hp('2.5%'),
@@ -438,6 +460,19 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     marginRight: hp('1.5%'),
   },
+  tableHeader: {
+    flexDirection: 'row',
+    paddingVertical: hp('1%'),
+    borderBottomWidth: 1,
+    borderBottomColor: '#bdd299',
+    justifyContent: 'space-between',
+  },
+  tableHeaderText: {
+    fontSize: hp('1.8%'),
+    fontFamily: 'Poppins-SemiBold',
+    color: '#455e14',
+    textAlign: 'center',
+  },
   leaderboardScrollView: {
     flex: 1,
   },
@@ -448,15 +483,34 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#bdd299',
   },
-  leaderboardName: {
+  leaderboardPosition: {
     fontSize: hp('2%'),
+    fontFamily: 'Poppins-Bold',
+    color: '#83951c',
+    textAlignVertical: 'center',
+    flex: 1,
+    textAlign: 'center',
+  },
+  leaderboardImage: {
+    width: wp('10%'),
+    height: wp('10%'),
+    borderRadius: wp('5%'),
+  },
+  leaderboardName: {
+    fontSize: hp('1.8%'),
     fontFamily: 'Poppins-Regular',
     color: '#455e14',
+    textAlignVertical: 'center',
+    flex: 2,
+    textAlign: 'center',
   },
   leaderboardPoints: {
     fontSize: hp('2%'),
     fontFamily: 'Poppins-Bold',
     color: '#7a9b57',
+    textAlignVertical: 'center',
+    flex: 1,
+    textAlign: 'center',
   },
   bottom: {
     flexDirection: 'row',
@@ -501,12 +555,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Bold',
     color: '#455e14',
   },
- horizontalLine: {
-  height: hp('.1%'), 
-  backgroundColor: '#7a9b57', 
-  marginVertical: wp('2%'),
-  top: hp('1.6%'),
-  width: '100%',
+  horizontalLine: {
+    height: hp('.1%'),
+    backgroundColor: '#7a9b57',
+    marginVertical: wp('2%'),
+    top: hp('1.6%'),
+    width: '100%',
   },
   instructionContainer: {
     flexDirection: 'row',
@@ -521,12 +575,12 @@ const styles = StyleSheet.create({
     marginLeft: wp('2%'),
   },
   horizontalLine1: {
-    height: hp('.1%'), 
-    backgroundColor: '#7a9b57', 
+    height: hp('.1%'),
+    backgroundColor: '#7a9b57',
     marginVertical: wp('2%'),
     bottom: hp('1.6%'),
     width: '100%',
-    },
+  },
   closeButton: {
     marginTop: hp('3%'),
     backgroundColor: '#83951c',
