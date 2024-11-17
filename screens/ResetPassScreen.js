@@ -434,7 +434,7 @@ export default function ResetPassScreen({ route, navigation }) {
 
   const handleVerifyCode = async () => {
     try {
-      const response = await fetch('http://192.168.1.9:3000/verifyCode', {
+      const response = await fetch('http://192.168.1.12:3000/verifyCode', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -458,7 +458,7 @@ export default function ResetPassScreen({ route, navigation }) {
     try {
       setIsResendDisabled(true);
       setTimer(60);
-      const response = await fetch('http://192.168.1.9:3000/sendVerificationCode', {
+      const response = await fetch('http://192.168.1.12:3000/sendVerificationCode', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -508,7 +508,7 @@ export default function ResetPassScreen({ route, navigation }) {
     }
 
     try {
-      const response = await fetch('http://192.168.1.9:3000/resetPassword', {
+      const response = await fetch('http://192.168.1.12:3000/resetPassword', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

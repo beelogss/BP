@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
+import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, BackHandler, ActivityIndicator } from 'react-native';
 import { getAvailableRewards } from './rewardsService'; // Fetch from Firestore
 import RewardActionSheet from '../components/RewardActionSheet'; // Import the centralized ActionSheet
 import { FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { SheetManager } from 'react-native-actions-sheet';
+import { useFocusEffect } from '@react-navigation/native';
 import { UserContext } from '../context/UserContext'; // Import UserContext
 
 const RewardsScreen = ({ navigation }) => {
@@ -12,14 +13,18 @@ const RewardsScreen = ({ navigation }) => {
   const [rewards, setRewards] = useState([]);
   const [selectedReward, setSelectedReward] = useState(null);
   const points = user ? user.points : 0;
+  const [loading, setLoading] = useState(true);
 
+  
   useEffect(() => {
     fetchRewards();
   }, []);
 
   const fetchRewards = async () => {
+    setLoading(true);
     const availableRewards = await getAvailableRewards();
-    setRewards(availableRewards.slice(0, 3)); // Show only 3 rewards for this screen
+    setRewards(availableRewards);
+    setLoading(false);
   };
 
   const handleRewardPress = (reward) => {
@@ -37,10 +42,23 @@ const RewardsScreen = ({ navigation }) => {
             style={{ height: hp('1.5%'), width: wp('3%') }}
             source={require('../assets/images/points.png')}
           />
-          <Text style={styles.rewardPoints}>{item.points}</Text>
+          <Text style={styles.rewardPoints}>: {item.points}</Text>
         </View>
       </View>
     </TouchableOpacity>
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        navigation.goBack();
+        return true;
+      };
+
+      BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+      return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+    }, [navigation])
   );
 
   return (
@@ -58,36 +76,32 @@ const RewardsScreen = ({ navigation }) => {
               <Text style={{ bottom: hp('1.3%'), fontSize: hp('1.3%'), fontFamily: 'Poppins-SemiBold', color: '#455e14' }}>Total Points Earned</Text>
               <View style={styles.horizontalLine1} />
             </View>
-            
           </View>
-          <Pressable
+          <TouchableOpacity
             style={styles.claimedRewardsButton}
             onPress={() => navigation.navigate('ClaimedRewards')}
           >
             <MaterialCommunityIcons name="gift-open-outline" size={wp('6%')} color="#7a9b57" style={{ justifyContent: 'center' }} />
             <Text style={styles.claimedRewardsButtonText}>View Rewards</Text>
-          </Pressable>
+          </TouchableOpacity>
         </View>
       </View>
-      {/* Popular Rewards */}
+      {/* Rewards Catalog */}
       <View style={styles.RewardContainer}>
         <Text style={styles.popularRewards}>Rewards Catalog</Text>
-        <View style={styles.rewardContainer}>
-          <TouchableOpacity
-            style={styles.seeAllButton}
-            onPress={() => navigation.navigate('AllRewards')}
-          >
-            <Text style={styles.seeAllText}>See All</Text>
-          </TouchableOpacity>
+        {loading ? (
+          <ActivityIndicator size="large" color="#7a9b57" style={{ marginTop: hp('25%') }} />
+        ) : (
           <FlatList
             data={rewards}
             renderItem={renderRewardItem}
             keyExtractor={(item) => item.id.toString()}
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}
+            showsVerticalScrollIndicator={false}
+            numColumns={2} // Set the number of columns to 2
+            columnWrapperStyle={styles.columnWrapper} // Add this line to style the columns
+            key={2} // Add this line to force a fresh render when the number of columns changes
           />
-        </View>
-
+        )}
         <RewardActionSheet selectedReward={selectedReward} points={points} sheetId="reward-details-rewards-screen" user={user} />
       </View>
     </View>
@@ -174,12 +188,7 @@ const styles = StyleSheet.create({
   },
   RewardContainer: {
     top: hp('16%'),
-  },
-  rewardContainer: {
-    justifyContent: 'center',
-    backgroundColor: 'white',
-    height: hp('30%'),
-    borderRadius: wp('3%'),
+    marginBottom: hp('26%'),
   },
   rewardItem: {
     flexDirection: 'column',
@@ -187,11 +196,12 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     backgroundColor: 'white',
     borderRadius: wp('8%'),
-    width: wp('42%'),
-    height: hp('23.5%'),
-    marginRight: hp('2%'),
+    width: wp('42%'), // Adjust the width to fit two columns
+    height: hp('25%'),
+    marginBottom: hp('2%'),
     borderWidth: 1,
     borderColor: '#7a9b57',
+    margin: wp('2%'), // Add margin to separate the items       
   },
   rewardImage: {
     width: wp('35%'),
@@ -200,47 +210,29 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     alignSelf: 'center',
     backgroundColor: 'white',
-    borderBottomWidth: 5,
-    borderColor: '#455e14',
   },
   rewardInfo: {
-    backgroundColor: '#f1f1f1',
-    width: wp('42%'),
-    height: hp('7.1%'),
-    borderBottomRightRadius: wp('8%'),
-    borderBottomLeftRadius: wp('8%'),
-    alignSelf: 'center',
-    paddingLeft: wp('3%'),
-    borderWidth: 1,
-    borderColor: '#7a9b57',
-    justifyContent: 'center',
+    marginLeft: hp('1%'),
   },
   rewardName: {
-    fontSize: hp('1.6%'),
+    fontSize: hp('1.7%'),
     fontFamily: 'Poppins-Bold',
     color: '#455e14',
   },
   rewardPoints: {
-    fontSize: hp('1.8%'),
+    fontSize: hp('1.5%'),
     fontFamily: 'Poppins-Bold',
     color: '#83951c',
     marginTop: hp('0.5%'),
     marginLeft: wp('.5%'),
   },
+  columnWrapper: {
+    justifyContent: 'space-between', // Add this line to space out the columns
+  },
   popularRewards: {
     fontSize: hp('2.5%'),
     fontFamily: 'Poppins-Bold',
     color: '#455e14',
-  },
-  seeAllButton: {
-    // alignItems: 'center',
-  },
-  seeAllText: {
-    fontSize: hp('2%'),
-    color: '#83951c',
-    fontFamily: 'Poppins-Bold',
-    textAlign: 'right',
-    marginRight: hp('1.5%'),
   },
 });
 

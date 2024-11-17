@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, KeyboardAvoidingView, Platform, ToastAndroid, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, KeyboardAvoidingView, Platform, ToastAndroid, Alert, ActivityIndicator } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Checkbox from 'expo-checkbox';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -16,6 +16,7 @@ export default function LoginScreen({ navigation }) {
   const [emailError, setEmailError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
   const [isChecked, setChecked] = useState(false);
+  const [loading, setLoading] = useState(false); // Loading state
   const { setUser } = useContext(UserContext);  // Use setUser from context
 
   useEffect(() => {
@@ -58,8 +59,9 @@ export default function LoginScreen({ navigation }) {
       return;
     }
   
+    setLoading(true); // Start loading
     try {
-      const response = await fetch('http://192.168.1.9:3000/login', {
+      const response = await fetch('http://192.168.1.12:3000/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -83,6 +85,8 @@ export default function LoginScreen({ navigation }) {
       }
     } catch (error) {
       Alert.alert('Error', 'Failed to log in');
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -170,10 +174,12 @@ export default function LoginScreen({ navigation }) {
             onPress={() => handleLogin()}
             disabled={!email || !password || emailError}
           >
-            <Text style={styles.buttonText}>Login</Text>
+            {loading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Login</Text>
+            )}
           </TouchableOpacity>
-
-          
         </View >
         <Text style={styles.switchText}>
             Don't have an account?{" "}

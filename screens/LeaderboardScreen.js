@@ -188,7 +188,7 @@ const LeaderboardScreen = ({ navigation }) => {
 
   const fetchLeaderboardData = async () => {
     try {
-      const response = await axios.get('http://192.168.1.9:3000/leaderboard');
+      const response = await axios.get('http://192.168.1.12:3000/leaderboard');
       if (response.data.success) {
         setLeaderboardData(response.data.leaderboard);
       } else {

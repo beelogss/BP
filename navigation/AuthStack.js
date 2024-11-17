@@ -18,6 +18,12 @@ import ClaimedRewardsScreen from '../screens/ClaimedRewardsScreen'
 import BottleList from '../screens/BottleList';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import NotifScreen from '../screens/NotifScreen';
+import TermsAndConditionsScreen from '@/screens/TermsAndConditionsScreen';
+import PrivacyPolicyScreen from '@/screens/PrivacyPolicyScreen';
+import HelpCenterScreen from '@/screens/HelpCenterScreen';
+import AboutScreen from '@/screens/AboutScreen';
+import ContactUsScreen from '@/screens/ContactUsScreen';
+
 const Stack = createStackNavigator();
 
 export default function AuthStack() {
@@ -43,6 +49,11 @@ export default function AuthStack() {
         <Stack.Screen name="Bottles" component={BottleList} />
         <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,}}/>
         <Stack.Screen name="Notif" component={NotifScreen} options={{cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,}}/>
+        <Stack.Screen name="TermsAndConditions" component={TermsAndConditionsScreen} options={{cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,}}/>
+        <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} options={{cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,}}/>
+        <Stack.Screen name="HelpCenter" component={HelpCenterScreen} options={{cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,}}/>
+        <Stack.Screen name="About" component={AboutScreen} options={{cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,}}/>
+        <Stack.Screen name="Contact" component={ContactUsScreen} options={{cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,}}/>
       </Stack.Navigator>
     </NavigationContainer>
     </SnackbarProvider>

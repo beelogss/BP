@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView, Dimensions, Image, BackHandler, Pressable } from 'react-native';
+import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView, Dimensions, Image, BackHandler, Pressable, Linking } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons, Entypo, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import { Avatar, Divider } from 'react-native-paper';
@@ -61,41 +61,38 @@ export default function ProfileScreen({ navigation }) {
           </View>
         </View>
       </Modal>
-      <View style={styles.headerIconContainer}>
-        <Entypo name="menu" size={wp('8%')} color="#83951c" style={styles.headerIcon} />
-      </View>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.contentContainer}>
-      <View style={styles.headerContainer}>
+        <View style={styles.headerContainer}>
 
 
-        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
-          <View style={styles.avatarContainer}>
-            <Pressable onPress={() => setModalVisible(true)}>
-              <Avatar.Image size={wp('27%')} source={avatar ? { uri: avatar } : require('../assets/images/default-profile.png')} style={styles.avatar} />
-            </Pressable>
-            <TouchableOpacity style={styles.editIconContainer} onPress={() => navigation.navigate('EditProfile')}>
-              <MaterialCommunityIcons name="pencil-outline" size={wp('6%')} color="#455e14" />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.verticalLine} />
-          <View style={styles.headerItem}>
-
-          <Text style={styles.userName} numberOfLines={1} ellipsizeMode="tail">{userName}</Text>
-            <Text style={styles.userStudentNumber}>{userStudentNumber}</Text>
-            <View style={styles.pointsContainer}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', bottom: hp('0.5%') }}>
-                <Image
-                  style={{ height: hp('2.5%'), width: wp('5%'), }}
-                  source={require('../assets/images/points.png')}
-                />
-                <Text style={styles.pointsValue}>: {points}</Text>
-              </View>
-
+          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
+            <View style={styles.avatarContainer}>
+              <Pressable onPress={() => setModalVisible(true)}>
+                <Avatar.Image size={wp('27%')} source={avatar ? { uri: avatar } : require('../assets/images/default-profile.png')} style={styles.avatar} />
+              </Pressable>
+              <Pressable style={styles.editIconContainer} onPress={() => navigation.navigate('EditProfile')}>
+                <MaterialCommunityIcons name="pencil-outline" size={wp('6%')} color="#455e14" />
+              </Pressable>
             </View>
-          </View>
+            <View style={styles.verticalLine} />
+            <View style={styles.headerItem}>
 
-        </View>
-        {/* <View style={styles.editSContainer}>
+              <Text style={styles.userName} numberOfLines={1} ellipsizeMode="tail">{userName}</Text>
+              <Text style={styles.userStudentNumber}>{userStudentNumber}</Text>
+              <View style={styles.pointsContainer}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', bottom: hp('0.5%') }}>
+                  <Image
+                    style={{ height: hp('2.5%'), width: wp('5%'), }}
+                    source={require('../assets/images/points.png')}
+                  />
+                  <Text style={styles.pointsValue}>: {points}</Text>
+                </View>
+
+              </View>
+            </View>
+
+          </View>
+          {/* <View style={styles.editSContainer}>
           <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('EditProfile')}>
             <Text style={styles.editSText}>Edit Profile</Text>
           </TouchableOpacity>
@@ -103,81 +100,93 @@ export default function ProfileScreen({ navigation }) {
             <Text style={styles.editSText}>Share Contribution</Text>
           </TouchableOpacity>
         </View> */}
-      </View>
-      <Divider style={{ backgroundColor: '#83951c', height: 1 }} />
+        </View>
+        <Divider style={{ backgroundColor: '#7a9b57', height: .5 }} />
 
 
 
-      {/* Statistics */}
-      <View style={styles.statsBoxContainer}>
-        
-        <View style={styles.savedAmountContainer}>
-          <Text style={styles.savedAmount}>{bottleCount}</Text>
+        {/* Statistics */}
+        <View style={styles.statsBoxContainer}>
+
+          <View style={styles.savedAmountContainer}>
+            <Text style={styles.savedAmount}>{bottleCount}</Text>
           </View>
           <View style={styles.tabContainer}>
-          <Text style={styles.tabTextActive}>Total Bottle Contribution</Text>
+            <Text style={styles.tabTextActive}>Total Bottle Contribution</Text>
+          </View>
         </View>
-      </View>
 
-      {/* Activity Overview */}
-      <View style={styles.activityContainer}>
-        <Text style={styles.activityHeader}>Your environmental awareness made an impact and have saved CO₂ equivalent of the following:</Text>
-        <View style={styles.activityGrid}>
-          {activityData.map((item, index) => (
-            <View key={index} style={styles.activityItem}>
-              {item.iconType === 'Entypo' && <Entypo name={item.icon} size={wp('10%')} color="#7a9b57" />}
-              {item.iconType === 'MaterialIcons' && <MaterialIcons name={item.icon} size={wp('10%')} color="#7a9b57" />}
-              {item.iconType === 'FontAwesome5' && <FontAwesome5 name={item.icon} size={wp('10%')} color="#7a9b57" />}
-              <Text style={styles.activityValue}>{item.value}</Text>
-              <Text style={styles.activityLabel}>{item.name}</Text>
+        {/* Information Section */}
+        <View style={styles.infoContainer}>
+          <Pressable style={styles.infoItem} onPress={() => navigation.navigate('TermsAndConditions')}>
+            <MaterialCommunityIcons name="file-document-outline" size={wp('6%')} color="#455e14" style={styles.infoIcon} />
+            <Text style={styles.infoText}>Terms and Conditions</Text>
+          </Pressable>
+          <Pressable style={styles.infoItem} onPress={() => navigation.navigate('PrivacyPolicy')}>
+            <MaterialCommunityIcons name="shield-lock-outline" size={wp('6%')} color="#455e14" style={styles.infoIcon} />
+            <Text style={styles.infoText}>Privacy and Policy</Text>
+          </Pressable>
+          <Pressable style={styles.infoItem} onPress={() => navigation.navigate('HelpCenter')}>
+            <MaterialCommunityIcons name="help-circle-outline" size={wp('6%')} color="#455e14" style={styles.infoIcon} />
+            <Text style={styles.infoText}>Help Center</Text>
+          </Pressable>
+          <Pressable style={styles.infoItem} onPress={() => navigation.navigate('About')}>
+            <MaterialCommunityIcons name="information-outline" size={wp('6%')} color="#455e14" style={styles.infoIcon} />
+            <Text style={styles.infoText}>About</Text>
+          </Pressable>
+        </View>
+        <View style={styles.scanContainer}>
+          <View style={styles.scanText}>
+            <View style={styles.scanButton}>
+              <Pressable style={styles.contactItem} onPress={() => Linking.openURL('https://bp-website-one.vercel.app/#')}>
+                <MaterialCommunityIcons name="web" size={wp('9%')} color="#455e14" style={styles.scanButtonIcon} />
+              </Pressable>
             </View>
-          ))}
+            <Text style={styles.scanButtonText}>View Our Website</Text>
+          </View>
+          <View style={styles.scanText}>
+            <View style={styles.scanButton}>
+              <Pressable style={styles.contactItem} onPress={() => navigation.navigate('Contact')}>
+                <MaterialCommunityIcons name="email-outline" size={wp('9%')} color="#455e14" style={styles.scanButtonIcon} />
+              </Pressable>
+            </View>
+            <Text style={styles.scanButtonText}>Contact Us</Text>
+          </View>
         </View>
-      </View>
-
-      {/* My Inventory */}
-      <View style={styles.inventoryContainer}>
-        <Text style={styles.inventoryHeader}>Lorem ipsum</Text>
-        <Text style={styles.inventorySubheader}>Lorem ipsum</Text>
-        <View style={styles.inventoryItem}>
-          <MaterialCommunityIcons name="leaf" size={wp('10%')} color="#83951c" />
-          <Text style={styles.inventoryText}>Lorem ipsum</Text>
-        </View>
-      </View>
-      <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={() => this.AlertPro.open()}>
-        <Text style={styles.buttonText}>Logout</Text>
-      </TouchableOpacity>
-      <AlertPro
-        ref={ref => {
-          this.AlertPro = ref;
-        }}
-        onConfirm={() => {
-          this.AlertPro.close();
-          navigation.navigate('Login');;
-        }}
-        onCancel={() => this.AlertPro.close()}
-        title="Confirmation"
-        message="Are you sure you want to logout?"
-        textCancel="Cancel"
-        textConfirm="Yes"
-        customStyles={{
-          mask: {
-            backgroundColor: "transparent"
-          },
-          container: {
-            borderWidth: 1,
-            borderColor: "#455e14",
-            borderRadius: 20
-          },
-          buttonCancel: {
-            backgroundColor: "#f66"
-          },
-          buttonConfirm: {
-            backgroundColor: "#83951c"
-          }
-        }}
-      />
-    </ScrollView>
+        <Pressable style={[styles.button, styles.logoutButton]} onPress={() => this.AlertPro.open()}>
+          <Text style={styles.buttonText}>Logout</Text>
+        </Pressable>
+        <AlertPro
+          ref={ref => {
+            this.AlertPro = ref;
+          }}
+          onConfirm={() => {
+            this.AlertPro.close();
+            navigation.navigate('Login');;
+          }}
+          onCancel={() => this.AlertPro.close()}
+          title="Confirmation"
+          message="Are you sure you want to logout?"
+          textCancel="Cancel"
+          textConfirm="Yes"
+          customStyles={{
+            mask: {
+              backgroundColor: "transparent"
+            },
+            container: {
+              borderWidth: 1,
+              borderColor: "#455e14",
+              borderRadius: 20
+            },
+            buttonCancel: {
+              backgroundColor: "red"
+            },
+            buttonConfirm: {
+              backgroundColor: "#83951c"
+            }
+          }}
+        />
+      </ScrollView>
     </View >
   );
 };
@@ -194,6 +203,7 @@ const styles = StyleSheet.create({
     paddingVertical: hp('1%'),
     backgroundColor: 'white',
     paddingBottom: hp('2%'),
+    paddingTop: hp('5%'),
   },
   headerItem: {
     flexDirection: 'column',
@@ -210,11 +220,11 @@ const styles = StyleSheet.create({
   },
   editIconContainer: {
     position: 'absolute',
-    bottom: hp('1%'),
-    right: wp('5%'),
-    backgroundColor: '#bdd299',
-    borderRadius: wp('2.5%'),
-    padding: wp('1%'),
+    top: hp('7%'),
+    right: wp('4%'),
+    backgroundColor: 'white',
+    borderRadius: wp('5%'),
+    padding: wp('2.2%'),
   },
   verticalLine: {
     width: 1,
@@ -233,12 +243,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-SemiBold',
     color: '#455e14',
   },
-  headerIcon: {
-    paddingTop: hp('5%'),
-    paddingBottom: hp('.5%'),
-    backgroundColor: 'white',
-    paddingLeft: wp('88%'),
-  },
   pointsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -251,31 +255,57 @@ const styles = StyleSheet.create({
     marginTop: hp('0.5%'),
     marginLeft: wp('.5%'),
   },
-  editSText: {
-    fontSize: wp('3.3%'),
-    fontFamily: 'Poppins-SemiBold',
-    color: '#455e14',
+  infoContainer: {
+    marginTop: hp('2%'),
+    padding: wp('3%'),
+    backgroundColor: 'white',
+    borderRadius: wp('5%'),
+    marginHorizontal: wp('5%'), // Add space outside the container
   },
-  editSContainer: {
+  infoItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: hp('1.5%'),
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
+  infoIcon: {
+    marginRight: wp('3%'),
+  },
+  infoText: {
+    fontSize: hp('1.8%'),
+    fontFamily: 'Poppins-Medium',
+    color: '#455e14',
+  }, gnItems: 'center',
+  scanContainer: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
-    marginTop: hp('.8%'),
+    marginBottom: hp('2%'),
+    padding: wp('3%'),
+    width: wp('80%'),
+    alignSelf: 'center',
+    borderRadius: wp('5%'),
   },
-  editButton: {
-    padding: hp('.6%'),
-    borderRadius: wp('2.3%'),
-    borderWidth: hp('0.1%'),
-    paddingHorizontal: wp('15%'),
-    borderColor: '#455e14',
+  scanButton: {
+    borderRadius: wp('3%'),
+    alignItems: 'center',
+    width: wp('20%'),
+    height: hp('5%'),
+    flexDirection: 'column',
+    justifyContent: 'center',
   },
-  shareButton: {
-    padding: hp('.6%'),
-    borderRadius: wp('2.3%'),
-    borderWidth: hp('0.1%'),
-    paddingHorizontal: wp('7%'),
-    borderColor: '#455e14'
+  scanText: {
+    flexDirection: 'column',
+    alignItems: 'center',
   },
-  // Modal styles
+  scanButtonIcon: {
+    alignSelf: 'center',
+  },
+  scanButtonText: {
+    color: '#455e14',
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: hp('1.3%'),
+  },
   modalContainer: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.7)',  // Semi-transparent background
@@ -308,7 +338,7 @@ const styles = StyleSheet.create({
   tabTextActive: {
     color: '#455e14',
     fontFamily: 'Poppins-SemiBold',
-    fontSize: wp('4%'),
+    fontSize: wp('3.2%'),
   },
   statsBoxContainer: {
     alignItems: 'center',
@@ -316,7 +346,7 @@ const styles = StyleSheet.create({
     marginHorizontal: wp('20%'),
     padding: wp('2%'),
     borderRadius: wp('2%'),
-    backgroundColor: 'white',
+    backgroundColor: '#e5eeda',
     borderBottomRightRadius: wp('8%'),
     borderTopLeftRadius: wp('8%'),
   },
@@ -325,96 +355,16 @@ const styles = StyleSheet.create({
   },
   savedAmount: {
     fontFamily: 'Poppins-Bold',
-    fontSize: wp('10%'),
+    fontSize: wp('12%'),
     color: '#83951c',
-  },
-  savedUnit: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: wp('4%'),
-  },
-  activityContainer: {
-    paddingHorizontal: wp('4%'),
-  },
-  activityHeader: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: wp('3.5%'),
-    color: '#455e14',
-    textAlign: 'center',
-  },
-  activityGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginTop: hp('1.5%'),
-  },
-  activityItem: {
-    alignItems: 'center',
-    width: '30%',
-    marginVertical: hp('1.5%'),
-    backgroundColor: '#f9f9f9',
-    borderRadius: wp('3%'),
-    padding: wp('2%'),
-    borderColor: '#f3f3f3',
-    borderWidth: 1,
-  },
-  activityValue: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: wp('4%'),
-    color: '#455e14',
-    marginTop: hp('1%'),
-  },
-  activityLabel: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: wp('2.9%'),
-    color: '#455e14',
-    textAlign: 'center',
-  },
-  inventoryContainer: {
-    backgroundColor: '#e5eeda',
-    paddingHorizontal: wp('5%'),
-    paddingVertical: hp('2.5%'),
-    borderRadius: wp('2.5%'),
-    marginTop: hp('2%'),
-    marginHorizontal: wp('5%'),
-  },
-  inventoryHeader: {
-    fontFamily: 'Poppins-Bold',
-    fontSize: wp('4%'),
-    color: '#455e14',
-  },
-  inventorySubheader: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: wp('3.5%'),
-    color: '#83951c',
-    marginTop: hp('1%'),
-  },
-  inventoryItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: hp('2%'),
-  },
-  inventoryText: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: wp('3.5%'),
-    color: '#455e14',
-    marginLeft: wp('2.5%'),
-  },
-  button: {
-    backgroundColor: '#83951c',
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 5,
-    marginTop: 20,
-  },
-  logoutButton: {
-    backgroundColor: '#d9534f',
-    marginTop: 10,
   },
   buttonText: {
-    color: '#fff',
-    fontSize: 16,
+    color: 'red',
+    fontSize: wp('4%'),
     textAlign: 'center',
-    fontWeight: 'bold',
+    fontFamily: 'Poppins-SemiBold',
+    marginTop: hp('2%'),
+
   },
 
 });

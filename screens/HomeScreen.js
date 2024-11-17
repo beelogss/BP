@@ -32,7 +32,7 @@ export default function HomeScreen({ navigation }) {
         throw new Error('Stored credentials are missing');
       }
 
-      const response = await axios.post('http://192.168.1.9:3000/login', { email: storedEmail, password: storedPassword });
+      const response = await axios.post('http://192.168.1.12:3000/login', { email: storedEmail, password: storedPassword });
       setUser(response.data.user);
     } catch (error) {
       console.error('Error fetching user data:', error.response ? error.response.data : error.message);
@@ -42,7 +42,7 @@ export default function HomeScreen({ navigation }) {
 
   const fetchLeaderboardData = async () => {
     try {
-      const response = await axios.get('http://192.168.1.9:3000/leaderboard');
+      const response = await axios.get('http://192.168.1.12:3000/leaderboard');
       if (response.data.success) {
         setLeaderboardData(response.data.leaderboard);
       } else {
@@ -132,21 +132,21 @@ export default function HomeScreen({ navigation }) {
   const carouselData = [
     {
       id: 1,
-      image: require('../assets/images/collect.png'),
+      image: require('../assets/images/bote.png'),
       title: 'COLLECT',
-      description: 'Collect standardized bottles and insert them into the designated bin. Let\'s start now, Cdmians!',
+      description: 'Collect recyclable bottles that are only included in the system\'s approved list.',
     },
     {
       id: 2,
-      image: require('../assets/images/reward.png'),
-      title: 'REWARD',
-      description: 'Accumulate enough points to redeem exclusive rewards.',
+      image: require('../assets/images/scan.png'),
+      title: 'SCAN',
+      description: 'Scan your bottles and earn points. Each bottle has a redeemable point value',
     },
     {
       id: 3,
-      image: require('../assets/images/repeat.png'),
-      title: 'REPEAT',
-      description: 'Let\'s repeat the process altogether, Cdmians! Get your rewards, Go for the Green!',
+      image: require('../assets/images/rewards.png'),
+      title: 'REWARD',
+      description: 'Redeem rewards based on reward\'s specific points requirement.',
     },
   ];
 
@@ -182,14 +182,6 @@ export default function HomeScreen({ navigation }) {
                 </Pressable>
               </View>
               <Text style={styles.scanButtonText}>Bottles List</Text>
-            </View>
-            <View style={styles.scanText}>
-              <View style={styles.scanButton}>
-                <Pressable onPress={() => navigation.navigate('Scanner')}>
-                  <MaterialCommunityIcons name="bottle-soda-classic-outline" size={wp('9%')} color="#83951c" style={styles.scanButtonIcon} />
-                </Pressable>
-              </View>
-              <Text style={styles.scanButtonText}>My Bottles</Text>
             </View>
           </View>
           <View >
@@ -261,7 +253,7 @@ export default function HomeScreen({ navigation }) {
               </ScrollView>
             </View>
 
-            <View style={{ marginBottom: hp('5%') }}>
+            {/* <View style={{ marginBottom: hp('5%') }}>
               <View >
                 <Text style={{ fontFamily: 'Poppins-Bold', fontSize: hp('2.5%'), color: '#455e14', marginLeft: hp('2%') }}>About</Text>
               </View>
@@ -273,7 +265,7 @@ export default function HomeScreen({ navigation }) {
                   <Text style={styles.buttonText}>Track Your Recycling</Text>
                 </Pressable>
               </View>
-            </View>
+            </View> */}
           </View>
         </ScrollView>
 
@@ -339,11 +331,13 @@ const styles = StyleSheet.create({
   },
   scanContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-evenly',
     marginBottom: hp('2%'),
-    padding: wp('2%'),
+    padding: wp('3%'),
     width: wp('80%'),
     alignSelf: 'center',
+    backgroundColor: '#e5eeda',
+    borderRadius: wp('5%'),
   },
   scanButton: {
     backgroundColor: 'white',

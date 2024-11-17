@@ -92,7 +92,7 @@ export default function VerificationCodeScreen({ route, navigation }) {
   const handleSendVerification = () => {
     const code = verificationCode.join('');
   
-    fetch('http://192.168.1.9:3000/verifyCode', {
+    fetch('http://192.168.1.12:3000/verifyCode', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -118,7 +118,7 @@ export default function VerificationCodeScreen({ route, navigation }) {
   
 
   const resendVerificationCode = () => {
-    fetch('http://192.168.1.9:3000/sendVerificationCode', {
+    fetch('http://192.168.1.12:3000/sendVerificationCode', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -16,7 +16,7 @@ const NotifScreen = ({ navigation }) => {
 
   const fetchNotifications = async () => {
     try {
-      const response = await axios.post('http://192.168.1.9:3000/notifications', { studentNumber: user.studentNumber });
+      const response = await axios.post('http://192.168.1.12:3000/notifications', { studentNumber: user.studentNumber });
       if (response.data.success) {
         setNotifications(response.data.notifications);
       } else {

@@ -63,7 +63,7 @@ export default function EditProfileScreen({ navigation }) {
 
     try {
       // Update user info in the database
-      const response = await fetch('http://192.168.1.9:3000/updateProfile', {
+      const response = await fetch('http://192.168.1.12:3000/updateProfile', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -109,9 +109,9 @@ export default function EditProfileScreen({ navigation }) {
           source={avatar ? { uri: avatar } : require('../assets/images/default-profile.png')}
           style={styles.avatar}
         />
-        <TouchableOpacity style={styles.editIconContainer} onPress={pickImage}>
-        <MaterialCommunityIcons name="pencil-outline" size={wp('6%')} color="#455e14" />
-        </TouchableOpacity>
+        <Pressable style={styles.editIconContainer} onPress={pickImage}>
+        <MaterialCommunityIcons name="pencil-outline" size={wp('7%')} color="#455e14" />
+        </Pressable>
       </View>
       <Text style={styles.changeAvatarText}>Name:</Text>
       <TextInput
@@ -120,9 +120,9 @@ export default function EditProfileScreen({ navigation }) {
         value={name}
         onChangeText={setName}
       />
-      <TouchableOpacity style={styles.button} onPress={handleSave} disabled={uploading}>
+      <Pressable style={styles.button} onPress={handleSave} disabled={uploading}>
         <Text style={styles.buttonText}>{uploading ? 'Saving...' : 'Save Changes'}</Text>
-      </TouchableOpacity>
+      </Pressable>
       </View>
     </View>
   );
@@ -152,10 +152,10 @@ const styles = StyleSheet.create({
   editIconContainer: {
     position: 'absolute',
     bottom: hp('3%'),
-    right: wp('20%'),
-    backgroundColor: '#bdd299',
-    borderRadius: wp('2.5%'),
-    padding: wp('1%'),
+    right: wp('17%'),
+    backgroundColor: 'white',
+    borderRadius: wp('8%'),
+    padding: wp('4%'),
   },
   changeAvatarText: {
     color: '#455e14',
