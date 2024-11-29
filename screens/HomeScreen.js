@@ -32,7 +32,7 @@ export default function HomeScreen({ navigation }) {
         throw new Error('Stored credentials are missing');
       }
 
-      const response = await axios.post('http://192.168.1.12:3000/login', { email: storedEmail, password: storedPassword });
+      const response = await axios.post('http://192.168.1.2:3000/login', { email: storedEmail, password: storedPassword });
       setUser(response.data.user);
     } catch (error) {
       console.error('Error fetching user data:', error.response ? error.response.data : error.message);
@@ -42,7 +42,7 @@ export default function HomeScreen({ navigation }) {
 
   const fetchLeaderboardData = async () => {
     try {
-      const response = await axios.get('http://192.168.1.12:3000/leaderboard');
+      const response = await axios.get('http://192.168.1.2:3000/leaderboard');
       if (response.data.success) {
         setLeaderboardData(response.data.leaderboard);
       } else {
