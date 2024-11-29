@@ -200,7 +200,7 @@ export default function ForgotPasswordScreen({ navigation }) {
 
     try {
       setIsLoading(true);
-      const response = await fetch('http://192.168.1.2:3000/sendVerificationCode', {
+      const response = await fetch('https://4d18bffc-5559-4534-b92c-8106440742d3-00-3g1frlvror77n.riker.replit.dev/sendVerificationCode', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

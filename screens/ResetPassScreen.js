@@ -434,7 +434,7 @@ export default function ResetPassScreen({ route, navigation }) {
 
   const handleVerifyCode = async () => {
     try {
-      const response = await fetch('http://192.168.1.2:3000/verifyCode', {
+      const response = await fetch('https://4d18bffc-5559-4534-b92c-8106440742d3-00-3g1frlvror77n.riker.replit.dev/verifyCode', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -458,7 +458,7 @@ export default function ResetPassScreen({ route, navigation }) {
     try {
       setIsResendDisabled(true);
       setTimer(60);
-      const response = await fetch('http://192.168.1.2:3000/sendVerificationCode', {
+      const response = await fetch('https://4d18bffc-5559-4534-b92c-8106440742d3-00-3g1frlvror77n.riker.replit.dev/sendVerificationCode', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -508,7 +508,7 @@ export default function ResetPassScreen({ route, navigation }) {
     }
 
     try {
-      const response = await fetch('http://192.168.1.2:3000/resetPassword', {
+      const response = await fetch('https://4d18bffc-5559-4534-b92c-8106440742d3-00-3g1frlvror77n.riker.replit.dev/resetPassword', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
