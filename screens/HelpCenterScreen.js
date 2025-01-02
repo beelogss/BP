@@ -3,8 +3,13 @@ import { View, Text, StyleSheet, ScrollView, BackHandler, TextInput, Pressable }
 import { useFocusEffect } from '@react-navigation/native';
 import { AntDesign } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { contentStyles } from './shared/ContentStyle';
+import { headerStyles } from './shared/HeaderStyle';
+import { useBackHandler } from '../hooks/useBackHandler';
 
 const HelpCenterScreen = ({ navigation }) => {
+    useBackHandler(navigation);
+
     const faqs = [
         {
             question: 'How do I view my QR code?',
@@ -110,23 +115,66 @@ const HelpCenterScreen = ({ navigation }) => {
             question: 'How do I contact support?',
             answer: 'If you need further assistance, please contact our support team at bottlepoints@gmail.com.',
           },
+          {
+            question: 'How do I edit my profile?',
+            answer: 'To edit your profile, go to the Profile screen and tap the pencil icon next to your profile picture. You can update your name, avatar, and other information.',
+          },
+          {
+            question: 'How do I view my profile statistics?',
+            answer: 'Your profile statistics are displayed on the Profile screen, showing your total points and bottles collected.',
+          },
+          {
+            question: 'How do I change my profile picture?',
+            answer: 'Tap your profile picture on the Profile screen to open the avatar selection modal. You can choose a new avatar from the available options.',
+          },
+          {
+            question: 'How does the leaderboard work?',
+            answer: 'The leaderboard ranks users based on their total bottle contributions earned from depositing bottles. The more bottles you recycle, the higher your ranking.',
+          },
+          {
+            question: 'How often is the leaderboard updated?',
+            answer: 'The leaderboard is updated in real-time as users collect and recycle bottles.',
+          },
+          {
+            question: 'What do the different colors on the leaderboard mean?',
+            answer: 'Gold indicates 1st place, silver for 2nd place, and bronze for 3rd place. Other positions are shown in standard colors.',
+          },
+          {
+            question: 'What do the different impact metrics mean?',
+            answer: 'Energy Consumption shows energy saved, Trees Planted represents environmental benefit, and Transportation shows reduced carbon emissions.',
+          },
+          {
+            question: 'Where can I find the Terms and Conditions?',
+            answer: 'Go to Profile > Settings > Terms and Conditions to view the full terms of service.',
+          },
+          {
+            question: 'How can I view the Privacy Policy?',
+            answer: 'Access the Privacy Policy through Profile > Settings > Privacy Policy.',
+          },
+          {
+            question: 'How do I contact support?',
+            answer: 'You can reach support through Profile > Settings > Contact Us, or email directly at bottlepoints@gmail.com.',
+          },
+          {
+            question: 'How do I log out of my account?',
+            answer: 'Go to your Profile screen and scroll to the bottom. Tap the Logout button and confirm your action.',
+          },
+          {
+            question: 'What happens to my points if I log out?',
+            answer: 'Your points and achievements are safely stored in your account and will be available when you log back in.',
+          },
+          {
+            question: 'What is BottlePoints?',
+            answer: 'BottlePoints is an eco-friendly application that encourages recycling by rewarding users with points for recycling bottles.',
+          },
+          {
+            question: 'How can I learn more about BottlePoints?',
+            answer: 'Visit Profile > Settings > About Us to learn more about our mission and impact.',
+          }
     ];
 
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredQuestions, setFilteredQuestions] = useState(faqs);
-
-    useFocusEffect(
-        useCallback(() => {
-            const onBackPress = () => {
-                navigation.goBack();
-                return true;
-            };
-
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-
-            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-        }, [navigation])
-    );
 
     const handleSearch = (query) => {
         setSearchQuery(query);
@@ -142,95 +190,113 @@ const HelpCenterScreen = ({ navigation }) => {
     };
 
     return (
-        <View style={styles.container}>
-            <View style={styles.headerContainer}>
-                <Pressable>
-                    <AntDesign name="arrowleft" size={wp('10%')} color="#83951c" style={styles.backIcon}
-                        onPress={() => navigation.goBack()}
-                    />
+        <View style={contentStyles.container}>
+            <View style={headerStyles.headerContainer}>
+                <Pressable style={headerStyles.backButton} onPress={() => navigation.goBack()}>
+                    <AntDesign name="arrowleft" size={wp('7%')} color="#83951c" />
                 </Pressable>
-                <Text style={styles.header}>Help Center</Text>
+                <Text style={headerStyles.header}>Help Center</Text>
             </View>
-            <TextInput
-                style={styles.searchBar}
-                placeholder="Search FAQs..."
-                value={searchQuery}
-                onChangeText={handleSearch}
-            />
-            <ScrollView showsVerticalScrollIndicator={false} >
-                <Text style={styles.text}>
-                    Welcome to the Help Center. Here you can find answers to frequently asked questions and get support for any issues you may encounter.
-                </Text>
 
+            <View style={styles.searchContainer}>
+                <View style={styles.searchWrapper}>
+                    <AntDesign name="search1" size={wp('5%')} color="#83951c" />
+                    <TextInput
+                        style={styles.searchInput}
+                        placeholder="Search FAQs..."
+                        value={searchQuery}
+                        onChangeText={handleSearch}
+                    />
+                </View>
+            </View>
 
-
-                <Text style={styles.subHeader}>Frequently Asked Questions</Text>
-
-                {filteredQuestions.map((faq, index) => (
-                    <View key={index}>
-                        <Text style={styles.boldText}>Q: {faq.question}</Text>
-                        <Text style={styles.text}>A: {faq.answer}</Text>
-                    </View>
-                ))}
-
-                <Text style={styles.subHeader}>Contact Support</Text>
-                <Text style={styles.text}>
-                    If you need further assistance, please contact our support team at bottlepoints@gmail.com.
-                </Text>
+            <ScrollView 
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={contentStyles.scrollContent}
+            >
+                <View style={styles.faqContainer}>
+                    {filteredQuestions.map((faq, index) => (
+                        <View key={index} style={styles.faqCard}>
+                            <Text style={styles.question}>
+                                <Text style={styles.questionMark}>Q: </Text>
+                                {faq.question}
+                            </Text>
+                            <Text style={styles.answer}>
+                                <Text style={styles.answerMark}>A: </Text>
+                                {faq.answer}
+                            </Text>
+                        </View>
+                    ))}
+                </View>
             </ScrollView>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
+    searchContainer: {
         padding: wp('5%'),
-        backgroundColor: 'white',
-        paddingBottom: hp('5%'),
+        backgroundColor: '#ffffff',
+        borderBottomWidth: 1,
+        borderBottomColor: '#e5eeda',
     },
-    headerContainer: {
+    searchWrapper: {
         flexDirection: 'row',
         alignItems: 'center',
+        backgroundColor: '#f5f8f2',
+        borderRadius: wp('3%'),
+        paddingHorizontal: wp('4%'),
+        paddingVertical: hp('1%'),
+        borderWidth: 1,
+        borderColor: '#e5eeda',
     },
-    header: {
-        fontSize: hp('3%'),
-        fontFamily: 'Poppins-Bold',
+    searchInput: {
+        flex: 1,
+        marginLeft: wp('2%'),
+        fontFamily: 'Poppins-Regular',
+        fontSize: hp('1.8%'),
         color: '#455e14',
-        top: hp('2%'),
-        left: wp('15%'),
     },
-    backIcon: {
-        marginBottom: wp('3.5%'),
-        paddingTop: hp('5%'),
+    faqContainer: {
+        paddingHorizontal: wp('4%'),
     },
-    subHeader: {
-        fontSize: hp('2.5%'),
+    faqCard: {
+        backgroundColor: '#ffffff',
+        padding: wp('4%'),
+        borderRadius: wp('3%'),
+        marginBottom: hp('2%'),
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        borderLeftWidth: 3,
+        borderLeftColor: '#83951c',
+    },
+    question: {
+        fontSize: hp('1.8%'),
         fontFamily: 'Poppins-SemiBold',
         color: '#455e14',
+        marginBottom: hp('1%'),
+        paddingRight: wp('4%'),
     },
-
-    text: {
+    questionMark: {
+        color: '#83951c',
+        fontFamily: 'Poppins-Bold',
+    },
+    answer: {
         fontSize: hp('1.7%'),
         fontFamily: 'Poppins-Regular',
         color: '#455e14',
-        marginBottom: hp('1%'),
+        lineHeight: hp('2.5%'),
+        paddingLeft: wp('4%'),
+        borderLeftWidth: 1,
+        borderLeftColor: '#e5eeda',
     },
-    boldText: {
+    answerMark: {
+        color: '#83951c',
         fontFamily: 'Poppins-Bold',
-        fontSize: hp('2%'),
-        color: '#455e14',
-        marginBottom: hp('1%'),
-    },
-    searchBar: {
-        height: hp('5%'),
-        borderColor: '#7a9b57',
-        borderWidth: 1,
-        borderRadius: wp('2%'),
-        paddingHorizontal: wp('3%'),
-        fontFamily: 'Poppins-Regular',
-        marginBottom: hp('1%'),
-    },
+    }
 });
 
 export default HelpCenterScreen;

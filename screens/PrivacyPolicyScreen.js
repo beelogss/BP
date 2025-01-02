@@ -3,113 +3,93 @@ import { View, Text, StyleSheet, ScrollView, BackHandler, Pressable } from 'reac
 import { useFocusEffect } from '@react-navigation/native';
 import { AntDesign } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { headerStyles } from './shared/HeaderStyle';
+import { contentStyles } from './shared/ContentStyle';
+import { useBackHandler } from '../hooks/useBackHandler';
 
 const PrivacyPolicyScreen = ({ navigation }) => {
-    useFocusEffect(
-        useCallback(() => {
-            const onBackPress = () => {
-                navigation.goBack();
-                return true;
-            };
+    useBackHandler(navigation);
 
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-
-            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-        }, [navigation])
-    );
+    // Define sections data
+    const sections = [
+        {
+            title: "Information We Collect",
+            content: "We collect information that you provide directly to us, including your name, student number, and other relevant details necessary for the operation of the BottlePoints system."
+        },
+        {
+            title: "How We Use Your Information",
+            content: "Your information is used to maintain your account, track your recycling activities, award points, and improve our services."
+        },
+        {
+            title: "Data Security",
+            content: "We implement appropriate security measures to protect your personal information from unauthorized access, alteration, or disclosure."
+        },
+        {
+            title: "Information Sharing",
+            content: "We do not share your personal information with third parties except as required for the operation of the BottlePoints system or as required by law."
+        },
+        {
+            title: "User Rights",
+            content: "You have the right to access, correct, or delete your personal information. Contact us if you wish to exercise these rights."
+        },
+        {
+            title: "Updates to Privacy Policy",
+            content: "We may update this privacy policy from time to time. We will notify you of any changes by posting the new policy on this page."
+        }
+    ];
 
     return (
-        <View style={styles.container}>
-            <View style={styles.headerContainer}>
-                <Pressable>
-                    <AntDesign name="arrowleft" size={wp('10%')} color="#83951c" style={styles.backIcon}
-                        onPress={() => navigation.goBack()}
-                    />
+        <View style={contentStyles.container}>
+            <View style={headerStyles.headerContainer}>
+                <Pressable style={headerStyles.backButton} onPress={() => navigation.goBack()}>
+                    <AntDesign name="arrowleft" size={wp('7%')} color="#83951c" />
                 </Pressable>
-                <Text style={styles.header}>Privacy Policy</Text>
+                <Text style={headerStyles.header}>Privacy Policy</Text>
             </View>
-            <ScrollView showsVerticalScrollIndicator={false}>
-                <Text style={styles.text}>
-                    This privacy policy sets out how BottlePoints uses and protects any information that you give BottlePoints when you use this application.
-                </Text>
-                <Text style={styles.text}>
-                    BottlePoints is committed to ensuring that your privacy is protected. Should we ask you to provide certain information by which you can be identified when using this application, then you can be assured that it will only be used in accordance with this privacy statement.
-                </Text>
 
-                <Text style={styles.subHeader}>Information We Collect</Text>
-                <Text style={styles.text}>
-                    {'\n'}- Personal Information: Your name, student ID, email, and other relevant information for account setup.
-                    {'\n'}- Usage Data: Points earned, bottles collected, and rewards redeemed to track your activity within the system.
-                </Text>
-
-                <Text style={styles.subHeader}>How We Use Your Information</Text>
-                <Text style={styles.text}>
-                    {'\n'}- Track and manage your points and reward history.
-                    {'\n'}- Provide you with information about available rewards and system updates.
-                    {'\n'}- Improve the BottlePoints System's functionality based on user activity.
-                </Text>
-
-                <Text style={styles.subHeader}>Data Security</Text>
-                <Text style={styles.text}>
-                    We take your privacy seriously and implement measures to protect your data from unauthorized access or misuse. However, we cannot guarantee total security and encourage you to use strong passwords and avoid sharing your account details.
-                </Text>
-
-                <Text style={styles.subHeader}>Sharing Your Information</Text>
-                <Text style={styles.text}>
-                    Your information is private and will not be shared with third parties unless required by law or in the case of partnerships that provide rewards. Any third-party access will be limited to necessary information and will comply with this privacy policy.
-                </Text>
-
-                <Text style={styles.subHeader}>Your Rights</Text>
-                <Text style={styles.text}>
-                    You have the right to access, update, or delete your personal information. If you would like to do so, contact us through the contact information section.
-                </Text>
-
-                <Text style={styles.subHeader}>Changes to this Privacy Policy</Text>
-                <Text style={styles.text}>
-                    We may update this Privacy Policy periodically. Major changes will be communicated through the application, and you are encouraged to review it regularly.
-                </Text>
-
-                <Text style={styles.subHeader}>Contact Information</Text>
-                <Text style={styles.text}>
-                    For questions about this policy or your data, reach out via the contact information section or through our official email.
-                </Text>
+            <ScrollView 
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={contentStyles.scrollContent}
+            >
+                <View style={styles.card}>
+                    <Text style={contentStyles.text}>
+                        This privacy policy sets out how BottlePoints uses and protects any information that you give BottlePoints when you use this application.
+                    </Text>
+                </View>
+                
+                {sections.map((section, index) => (
+                    <View key={index} style={[styles.card, styles.sectionCard]}>
+                        <Text style={styles.sectionTitle}>{section.title}</Text>
+                        <Text style={contentStyles.text}>{section.content}</Text>
+                    </View>
+                ))}
             </ScrollView>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: wp('5%'),
-        backgroundColor: 'white',
+    card: {
+        backgroundColor: '#ffffff',
+        padding: wp('4%'),
+        borderRadius: wp('3%'),
+        marginBottom: hp('2%'),
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
     },
-    headerContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
+    sectionCard: {
+        borderLeftWidth: 4,
+        borderLeftColor: '#83951c',
     },
-    header: {
-        fontSize: hp('3%'),
-        fontFamily: 'Poppins-Bold',
-        color: '#455e14',
-        top: hp('2%'),
-        left: wp('12%'),
-    },
-    backIcon: {
-        marginBottom: wp('3.5%'),
-        paddingTop: hp('5%'),
-    },
-    subHeader: {
-        fontFamily: 'Poppins-Bold',
+    sectionTitle: {
         fontSize: hp('2%'),
-        color: '#455e14',
-    },
-    text: {
-        fontSize: hp('1.7%'),
-        fontFamily: 'Poppins-Regular',
+        fontFamily: 'Poppins-Bold',
         color: '#455e14',
         marginBottom: hp('1%'),
-    },
+    }
 });
 
 export default PrivacyPolicyScreen;

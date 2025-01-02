@@ -1,184 +1,8 @@
-// import React, { useState } from 'react';
-// import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Alert } from 'react-native';
-// import { MaterialCommunityIcons, AntDesign } from '@expo/vector-icons'; // Importing MaterialCommunityIcons
-// import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-
-// export default function ForgotPasswordScreen({ navigation }) {
-//   const [email, setEmail] = useState('');
-//   const [isLoading, setIsLoading] = useState(false);
-//   const [emailFocused, setEmailFocused] = useState(false);
-//   const [emailError, setEmailError] = useState(false);
-
-//   // Email validation function
-//   const validateEmail = (email) => {
-//     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-//     return emailRegex.test(email);
-//   };
-
-
-//   const handleForgotPassword = async () => {
-//     if (!email || !validateEmail(email)) {
-//       setEmailError(true)
-//       Alert.alert('Error', 'Please enter a valid email address');
-//       return;
-//     }
-
-//     try {
-//       setIsLoading(true);
-//       // Placeholder for future backend implementation
-//       Alert.alert('Success', 'A password reset link has been sent to your email');
-//       navigation.navigate('ResetPass' , { email });
-//     } catch (error) {
-//       console.error('Error:', error);
-//       Alert.alert('Error', 'An error occurred while requesting password reset');
-//     } finally {
-//       setIsLoading(false);
-//     }
-//   };
-
-//   // Disable button if email is invalid or empty
-//   const isFormValid = email && validateEmail(email);
-
-//   return (
-//     <KeyboardAvoidingView
-//       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-//       style={styles.container}
-//     >
-//       <View style={styles.formContainer}>
-//       <TouchableOpacity>
-//         <AntDesign name="arrowleft" size={wp('10%')} color="#83951c" style={styles.backIcon} 
-//           onPress={() => navigation.navigate('Login')}
-//         />
-//        </TouchableOpacity>
-//         <Text style={styles.title}>Forgot Password</Text>
-//         <Text style={styles.instructions}>
-//           Please enter your email to reset the password
-//         </Text>
-//         <Text style={styles.label}>Email</Text>
-
-//         {/* Email Input with Icon */}
-//         <View style={[styles.inputContainer, emailError && styles.errorInput, emailFocused && styles.focusedInput]}>
-//           <MaterialCommunityIcons name="email-outline" size={wp('5%')} color="#455e14" style={styles.icon} />
-//           <TextInput
-//             style={styles.input}
-//             placeholder="Enter your email"
-//             value={email}
-//             onChangeText={(text) => {
-//               setEmail(text);
-//               setEmailError(!validateEmail(text));
-//             }}
-//             keyboardType="email-address"
-//             onFocus={() => setEmailFocused(true)}
-//               onBlur={() => setEmailFocused(false)}
-//           />
-//         </View>
-
-//         {/* Submit Button */}
-//         <TouchableOpacity
-//           style={[styles.button, { backgroundColor: isFormValid ? '#83951c' : '#83951c80' }]}
-//           onPress={handleForgotPassword}
-//           disabled={!isFormValid || isLoading}
-//         >
-//           <Text style={styles.buttonText}>{isLoading ? 'Sending...' : 'Send Code'}</Text>
-//         </TouchableOpacity>
-
-//         {/* Back to Login */}
-//         <Text style={styles.switchText}>
-//           Remember your password?{' '}
-//           <Text
-//             style={{ fontFamily: 'Poppins-Black', fontSize: wp('3.5%'), color: '#455e14' }}
-//             onPress={() => navigation.navigate('Login')}
-//           >
-//             Login
-//           </Text>
-//         </Text>
-//       </View>
-//     </KeyboardAvoidingView>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     paddingHorizontal: wp('8%'),
-//     backgroundColor: '#fff',
-//     paddingTop: wp('20%'),
-//   },
-//   formContainer: {
-//     paddingBottom: hp('2%'),
-//   },
-//   backIcon: {
-//     marginBottom: wp('3.5%'),
-//   },
-//   title: {
-//     color: '#455e14',
-//     fontSize: wp('7%'),
-//     textAlign: 'left',
-//     marginBottom: wp('.5%'),
-//     marginTop:  wp('2.5%'),
-//     fontFamily: 'Poppins-Bold',
-//   },
-//   instructions: {
-//     fontFamily: 'Poppins-Regular',
-//     color: '#7a9b57',
-//     textAlign: 'left',
-//     marginBottom: wp('4%'),
-//     fontSize: wp('3.5%'),
-//     letterSpacing: -.6,
-//   },
-//   label: {
-//     color: '#455e14',
-//     fontFamily: 'Poppins-Bold',
-//     fontSize: wp('3.5%')
-//   },
-//   inputContainer: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     borderWidth: 1,
-//     borderColor: '#455e14',
-//     padding: wp('2%'),
-//     borderRadius: 10,
-//     marginBottom: wp('3.7%'),
-//     height: hp('6%'),
-//   },
-//   input: {
-//     flex: 1,
-//     fontFamily: 'Poppins-Regular',
-//     color: '#455e14',
-//     fontSize: wp('3.5%'),
-//   },
-//   icon: {
-//     marginRight: wp('2%'),
-//   },
-//   button: {
-//     padding: wp('3%'),
-//     borderRadius: 10,
-//   },
-//   buttonText: {
-//     color: '#fff',
-//     textAlign: 'center',
-//     fontFamily: 'Poppins-Bold',
-//     fontSize: wp('4%'),
-//     letterSpacing: .1,
-//   },
-//   switchText: {
-//     textAlign: 'center',
-//     color: '#7a9b57',
-//     marginTop: wp('4%'),
-//     fontFamily: 'Poppins-Regular',
-//     fontSize: wp('3%')
-//   },
-//   errorInput: {
-//     borderColor: '#f66',
-//   },
-//   focusedInput: {
-//     borderWidth: 1.5,
-//   },
-// });
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 
 export default function ForgotPasswordScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -226,55 +50,98 @@ export default function ForgotPasswordScreen({ navigation }) {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
-      <View style={styles.formContainer}>
-        <TouchableOpacity>
-          <AntDesign name="arrowleft" size={wp('10%')} color="#83951c" style={styles.backIcon} 
-            onPress={() => navigation.navigate('Login')}
-          />
-        </TouchableOpacity>
-        <Text style={styles.title}>Forgot Password</Text>
-        <Text style={styles.instructions}>
-          Please enter your email to reset the password
-        </Text>
-        <Text style={styles.label}>Email</Text>
-
-        <View style={[styles.inputContainer, emailError && styles.errorInput, emailFocused && styles.focusedInput]}>
-          <MaterialCommunityIcons name="email-outline" size={wp('5%')} color="#455e14" style={styles.icon} />
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your email"
-            value={email}
-            onChangeText={(text) => {
-              setEmail(text);
-              setEmailError(!validateEmail(text));
-            }}
-            keyboardType="email-address"
-            onFocus={() => setEmailFocused(true)}
-            onBlur={() => setEmailFocused(false)}
-          />
-        </View>
-
+      <Animated.View 
+        entering={FadeIn}
+        style={styles.formContainer}
+      >
         <TouchableOpacity
-          style={[styles.button, { backgroundColor: isFormValid ? '#83951c' : '#83951c80' }]}
-          onPress={handleForgotPassword}
-          disabled={!isFormValid || isLoading}
+          style={styles.backButton}
+          onPress={() => navigation.navigate('Login')}
+          android_ripple={{ color: '#f9f9f9', borderless: true, radius: 28 }}
         >
-          <Text style={styles.buttonText}>{isLoading ? 'Sending...' : 'Send Code'}</Text>
+          <AntDesign name="arrowleft" size={wp('7%')} color="#455e14" />
         </TouchableOpacity>
 
-        <Text style={styles.switchText}>
+        <Animated.Text 
+          entering={FadeInDown.delay(200)}
+          style={styles.title}
+        >
+          Forgot Password
+        </Animated.Text>
+        
+        <Animated.Text 
+          entering={FadeInDown.delay(300)}
+          style={styles.instructions}
+        >
+          Please enter your email to reset the password
+        </Animated.Text>
+
+        <Animated.View 
+          entering={FadeInDown.delay(400)}
+          style={styles.inputWrapper}
+        >
+          <Text style={styles.label}>Email</Text>
+          <View style={[
+            styles.inputContainer,
+            emailError && styles.errorInput,
+            emailFocused && styles.focusedInput
+          ]}>
+            <MaterialCommunityIcons 
+              name="email-outline" 
+              size={wp('5%')} 
+              color="#455e14" 
+              style={styles.icon} 
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Enter your email"
+              placeholderTextColor="#7a9b57"
+              value={email}
+              onChangeText={(text) => {
+                setEmail(text);
+                setEmailError(!validateEmail(text));
+              }}
+              keyboardType="email-address"
+              onFocus={() => setEmailFocused(true)}
+              onBlur={() => setEmailFocused(false)}
+            />
+          </View>
+        </Animated.View>
+
+        <Animated.View 
+          entering={FadeInDown.delay(500)}
+          style={styles.buttonContainer}
+        >
+          <TouchableOpacity
+            style={[
+              styles.button,
+              !isFormValid && styles.disabledButton
+            ]}
+            onPress={handleForgotPassword}
+            disabled={!isFormValid || isLoading}
+          >
+            <Text style={styles.buttonText}>
+              {isLoading ? 'Sending...' : 'Send Code'}
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
+
+        <Animated.Text 
+          entering={FadeInDown.delay(600)}
+          style={styles.switchText}
+        >
           Remember your password?{' '}
           <Text
-            style={{ fontFamily: 'Poppins-Black', fontSize: wp('3.5%'), color: '#455e14' }}
+            style={styles.loginText}
             onPress={() => navigation.navigate('Login')}
           >
             Login
           </Text>
-        </Text>
-      </View>
+        </Animated.Text>
+      </Animated.View>
     </KeyboardAvoidingView>
   );
 }
@@ -282,78 +149,108 @@ export default function ForgotPasswordScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: wp('8%'),
     backgroundColor: 'whitesmoke',
-    paddingTop: wp('20%'),
   },
   formContainer: {
-    paddingBottom: hp('2%'),
+    flex: 1,
+    paddingHorizontal: wp('8%'),
+    paddingTop: wp('15%'),
   },
-  backIcon: {
-    marginBottom: wp('3.5%'),
+  backButton: {
+    marginBottom: hp('2%'),
+    padding: wp('2%'),
+    alignSelf: 'flex-start',
   },
   title: {
     color: '#455e14',
-    fontSize: wp('7%'),
-    textAlign: 'left',
-    marginBottom: wp('.5%'),
-    marginTop:  wp('2.5%'),
+    fontSize: wp('8%'),
     fontFamily: 'Poppins-Bold',
+    marginBottom: hp('1%'),
   },
   instructions: {
     fontFamily: 'Poppins-Regular',
     color: '#7a9b57',
-    textAlign: 'left',
-    marginBottom: wp('4%'),
-    fontSize: wp('3.5%'),
-    letterSpacing: -.6,
+    fontSize: wp('3.8%'),
+    marginBottom: hp('3%'),
+    letterSpacing: -0.5,
+  },
+  inputWrapper: {
+    marginBottom: hp('3%'),
   },
   label: {
     color: '#455e14',
     fontFamily: 'Poppins-Bold',
-    fontSize: wp('3.5%')
+    fontSize: wp('3.5%'),
+    marginBottom: hp('1%'),
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: '#455e14',
-    padding: wp('2%'),
-    borderRadius: 10,
-    marginBottom: wp('3.7%'),
-    height: hp('6%'),
+    borderRadius: wp('3%'),
+    paddingHorizontal: wp('4%'),
+    height: hp('7%'),
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
   },
   input: {
     flex: 1,
     fontFamily: 'Poppins-Regular',
     color: '#455e14',
     fontSize: wp('3.5%'),
+    paddingLeft: wp('2%'),
   },
   icon: {
     marginRight: wp('2%'),
   },
+  buttonContainer: {
+    marginTop: hp('2%'),
+  },
   button: {
-    padding: wp('3%'),
-    borderRadius: 10,
+    backgroundColor: '#83951c',
+    padding: hp('2%'),
+    borderRadius: wp('3%'),
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  disabledButton: {
+    backgroundColor: '#83951c80',
+    elevation: 0,
   },
   buttonText: {
     color: '#fff',
     textAlign: 'center',
     fontFamily: 'Poppins-Bold',
     fontSize: wp('4%'),
-    letterSpacing: .1,
+    letterSpacing: 0.5,
   },
   switchText: {
     textAlign: 'center',
     color: '#7a9b57',
-    marginTop: wp('4%'),
+    marginTop: hp('3%'),
     fontFamily: 'Poppins-Regular',
-    fontSize: wp('3%')
+    fontSize: wp('3.5%'),
+  },
+  loginText: {
+    fontFamily: 'Poppins-Black',
+    fontSize: wp('3.5%'),
+    color: '#455e14',
   },
   errorInput: {
     borderColor: '#f66',
+    backgroundColor: '#fff3f3',
   },
   focusedInput: {
-    borderWidth: 1.5,
+    borderColor: '#83951c',
+    borderWidth: 2,
+    backgroundColor: '#f9fbf6',
   },
 });

@@ -2,15 +2,17 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Animated } from 'react-native';
 import {AntDesign } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { FadeIn, FadeInDown } from 'react-native-reanimated';
 
 export default function VerificationCodeScreen({ route, navigation }) {
   const { email } = route.params;
   const [verificationCode, setVerificationCode] = useState(Array(6).fill(''));
   const [inputErrors, setInputErrors] = useState(false);
-  const [timer, setTimer] = useState(30); 
-  const [isResendClickable, setIsResendClickable] = useState(false); 
-  const [focusedIndex, setFocusedIndex] = useState(null); 
+  const [timer, setTimer] = useState(30);
+  const [isResendClickable, setIsResendClickable] = useState(false);
+  const [focusedIndex, setFocusedIndex] = useState(null);
   const inputRefs = useRef([]);
+  
   const shakeAnimation = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -24,6 +26,10 @@ export default function VerificationCodeScreen({ route, navigation }) {
     }
     return () => clearInterval(interval);
   }, [timer]);
+
+  const animateInput = (index) => {
+    setFocusedIndex(index);
+  };
 
   const triggerShake = () => {
     Animated.sequence([
@@ -51,41 +57,55 @@ export default function VerificationCodeScreen({ route, navigation }) {
   };
 
   const handleInputChange = (text, index) => {
-    const newCode = [...verificationCode];
-
-    if (index > 0 && !verificationCode[index - 1]) {
-      setInputErrors(true);
-      triggerShake();
-      return;
-    }
-
-    setInputErrors(false);
-
     if (text.length > 1) {
       const pastedCode = text.split('').slice(0, 6);
-      setVerificationCode(pastedCode);
-      setInputErrors(false);
-      pastedCode.forEach((_, i) => {
-        if (inputRefs.current[i]) {
-          inputRefs.current[i].focus();
+      const newCode = [...verificationCode];
+      let validDigits = true;
+
+      pastedCode.forEach((digit, i) => {
+        if (/^\d+$/.test(digit)) {
+          newCode[i] = digit;
+        } else {
+          validDigits = false;
         }
       });
+
+      if (validDigits) {
+        setVerificationCode(newCode);
+        setInputErrors(false);
+        if (pastedCode.length === 6) {
+          inputRefs.current[5].focus();
+        }
+      }
       return;
     }
 
-    newCode[index] = text;
-    setVerificationCode(newCode);
+    if (/^\d*$/.test(text)) {
+      const newCode = [...verificationCode];
+      newCode[index] = text;
+      setVerificationCode(newCode);
+      setInputErrors(false);
 
-    if (text && index < 5) {
-      inputRefs.current[index + 1].focus();
-    } else if (!text && index > 0) {
-      inputRefs.current[index - 1].focus();
+      if (text && index < 5) {
+        setTimeout(() => {
+          inputRefs.current[index + 1].focus();
+        }, 10);
+      }
     }
   };
 
-  const handleBackspace = (index) => {
-    if (!verificationCode[index] && index > 0) {
-      inputRefs.current[index - 1].focus();
+  const handleBackspace = (index, event) => {
+    if (event.nativeEvent.key === 'Backspace') {
+      const newCode = [...verificationCode];
+      
+      if (!newCode[index] && index > 0) {
+        newCode[index - 1] = '';
+        setVerificationCode(newCode);
+        inputRefs.current[index - 1].focus();
+      } else {
+        newCode[index] = '';
+        setVerificationCode(newCode);
+      }
     }
   };
 
@@ -146,64 +166,80 @@ export default function VerificationCodeScreen({ route, navigation }) {
   const isCodeFilled = verificationCode.every((digit) => digit !== '');
 
   return (
-    <View style={styles.container}>
+    <Animated.View 
+      entering={FadeIn}
+      style={styles.container}
+    >
       <TouchableOpacity>
         <AntDesign name="arrowleft" size={wp('10%')} color="#83951c" style={styles.backIcon} 
           onPress={() => navigation.navigate('EmailInput')}
         />
        </TouchableOpacity>
-      <Text style={styles.title}>Verification</Text>
-      <Text style={styles.emailText}>{`Enter 6-digit code sent by email to:`}</Text>
-      <Text style={styles.highlightedText}>{email}</Text>
-      <Animated.View
-        style={[
-          styles.codeContainer,
-          { transform: [{ translateX: shakeAnimation }] },
-        ]}
+      <Animated.View 
+        entering={FadeInDown.delay(200)}
+        style={styles.header}
       >
-        {verificationCode.map((code, index) => (
-          <TextInput
-            key={index}
-            style={[
-              styles.codeInput,
-              (focusedIndex === index || verificationCode[index]) && styles.highlightedInput, // Keep highlighted if focused or has a value
-              inputErrors && styles.errorInput,
-            ]}
-            value={code}
-            onChangeText={(text) => handleInputChange(text, index)}
-            keyboardType="numeric"
-            maxLength={1}
-            ref={(ref) => (inputRefs.current[index] = ref)}
-            onFocus={() => setFocusedIndex(index)}
-            onBlur={() => setFocusedIndex(null)}
-            onKeyPress={({ nativeEvent }) => {
-              if (nativeEvent.key === 'Backspace') {
-                handleBackspace(index);
-              }
-            }}
-          />
-        ))}
+        <Text style={styles.title}>Verification</Text>
+        <Text style={styles.emailText}>Enter 6-digit code sent by email to:</Text>
+        <Text style={styles.highlightedText}>{email}</Text>
       </Animated.View>
-      <TouchableOpacity
-        style={[styles.button, !isCodeFilled && styles.disabledButton]}
-        onPress={handleSendVerification}
-        disabled={!isCodeFilled}
+
+      <Animated.View 
+        entering={FadeInDown.delay(400)}
+        style={styles.content}
       >
-        <Text style={styles.buttonText}>Confirm Code</Text>
-      </TouchableOpacity>
-      {timer > 0 ? (
-        <Text style={styles.timerText}>
-          Please wait <Text style={styles.highlightedTimer}>{timer}</Text> seconds to resend the code
-        </Text>
-      ) : (
-        <Text style={styles.timerText}>
-          Did not receive the code?{' '}
-          <Text style={styles.resendText} onPress={resendVerificationCode}>
-            Resend now
+        <Animated.View
+          style={[
+            styles.codeContainer,
+            { transform: [{ translateX: shakeAnimation }] }
+          ]}
+        >
+          {verificationCode.map((code, index) => (
+            <View
+              key={index}
+              style={styles.inputWrapper}
+            >
+              <TextInput
+                style={[
+                  styles.codeInput,
+                  focusedIndex === index && styles.highlightedInput,
+                  inputErrors && styles.errorInput
+                ]}
+                value={code}
+                onChangeText={(text) => handleInputChange(text, index)}
+                keyboardType="numeric"
+                maxLength={1}
+                ref={(ref) => (inputRefs.current[index] = ref)}
+                onFocus={() => setFocusedIndex(index)}
+                onBlur={() => setFocusedIndex(null)}
+                onKeyPress={(event) => handleBackspace(index, event)}
+                selectionColor="#83951c"
+              />
+            </View>
+          ))}
+        </Animated.View>
+
+        <TouchableOpacity
+          style={[styles.button, !isCodeFilled && styles.disabledButton]}
+          onPress={handleSendVerification}
+          disabled={!isCodeFilled}
+        >
+          <Text style={styles.buttonText}>Confirm Code</Text>
+        </TouchableOpacity>
+        {timer > 0 ? (
+          <Text style={styles.timerText}>
+            Please wait <Text style={styles.highlightedTimer}>{timer}</Text> seconds to resend the code
           </Text>
-        </Text>
-      )}
-    </View>
+        ) : (
+          <Text style={styles.timerText}>
+            Did not receive the code?{' '}
+            <Text style={styles.resendText} onPress={resendVerificationCode}>
+              Resend now
+            </Text>
+          </Text>
+        )}
+      </Animated.View>
+    </Animated.View>
   );
 }
 
@@ -245,22 +281,27 @@ const styles = StyleSheet.create({
     marginBottom: hp('3.7%') 
   },
   codeInput: {
-    width: wp('12%'),
-    height: hp('6%'),
-    borderWidth: 1,
+    width: wp('13%'),
+    height: wp('13%'),
+    borderWidth: 1.5,
     borderColor: '#455e14',
-    borderRadius: 5,
+    borderRadius: wp('3%'),
     textAlign: 'center',
     fontSize: wp('6%'),
-    fontFamily: 'Poppins-Regular',
+    fontFamily: 'Poppins-Bold',
     color: '#455e14',
+    backgroundColor: '#fff',
+    padding: 0,
   },
   highlightedInput: {
     borderColor: '#83951c',
     borderWidth: 2,
+    backgroundColor: '#f9fbf6',
   },
   errorInput: {
     borderColor: '#f66',
+    backgroundColor: '#fff3f3',
+    transform: [{ scale: 1 }],
   },
   button: {
     backgroundColor: '#83951c',
@@ -291,5 +332,14 @@ const styles = StyleSheet.create({
   resendText: {
     color: '#455e14',
     fontFamily: 'Poppins-Bold',
+  },
+  inputWrapper: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+    backgroundColor: '#fff',
+    borderRadius: wp('3%'),
   },
 });

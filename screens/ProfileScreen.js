@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView, Dimensions, Image, BackHandler, Pressable, Linking } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons, Entypo, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
@@ -7,10 +7,12 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-nat
 import AlertPro from "react-native-alert-pro";
 import { useNavigation } from '@react-navigation/native';
 import { UserContext } from '../context/UserContext'; // Import UserContext
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Add this if not already imported
+import Animated, { FadeIn, FadeOut, ZoomIn } from 'react-native-reanimated';
 const { width, height } = Dimensions.get('window');
 
 export default function ProfileScreen({ navigation }) {
-  const { user } = useContext(UserContext); // Use user data from context
+  const { user, setUser } = useContext(UserContext); // Use user data from context
   const userName = user ? user.name : 'Guest'; // Replace with actual user's name
   const userStudentNumber = user ? user.studentNumber : ''; // Replace with actual user's email
   const avatar = user ? user.avatar : null; // Replace with actual user's avatar
@@ -18,12 +20,13 @@ export default function ProfileScreen({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);  // Modal visibility state
   const points = user ? user.points : 0;
   const bottleCount = user ? user.bottleCount : 0;
+  const alertRef = useRef(null); // Use useRef instead of this
 
-  const activityData = [
-    { name: 'Energy Consumption', icon: 'energy-savings-leaf', value: '0.00', iconType: 'MaterialIcons' },
-    { name: 'Tree/s Planted', icon: 'tree', value: '0.00', iconType: 'Entypo' },
-    { name: 'Transportation', icon: 'car-side', value: '0.00', iconType: 'FontAwesome5' },
-  ];
+  // const activityData = [
+  //   { name: 'Energy Consumption', icon: 'energy-savings-leaf', value: '0.00', iconType: 'MaterialIcons' },
+  //   { name: 'Tree/s Planted', icon: 'tree', value: '0.00', iconType: 'Entypo' },
+  //   { name: 'Transportation', icon: 'car-side', value: '0.00', iconType: 'FontAwesome5' },
+  // ];
 
   const navigations = useNavigation();
 
@@ -40,198 +43,254 @@ export default function ProfileScreen({ navigation }) {
     };
   }, [navigations]);
 
+  const handleLogout = async () => {
+    try {
+      // Clear AsyncStorage
+      await AsyncStorage.clear();
+      // Close alert first
+      alertRef.current.close();
+      // Clear user context
+      setUser(null);
+      // Navigate to Login IMMEDIATELY after clearing data
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' }],
+      });
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+
   return (
-    <View style={[styles.container, {}]}>
-      {/* Header */}
+    <View style={styles.container}>
+      {/* Fixed Header */}
+      <View style={styles.headerContainer}>
+        <View style={styles.profileSection}>
+          <View style={styles.avatarContainer}>
+            <Pressable onPress={() => setModalVisible(true)}>
+              <Avatar.Image 
+                size={wp('25%')} 
+                source={avatar ? { uri: avatar } : require('../assets/images/default-profile.png')} 
+                style={styles.avatar} 
+              />
+            </Pressable>
+            <Pressable style={styles.editIconContainer} onPress={() => navigation.navigate('EditProfile')}>
+              <MaterialCommunityIcons name="pencil-outline" size={wp('5%')} color="#455e14" />
+            </Pressable>
+          </View>
+          
+          <View style={styles.userInfoContainer}>
+            <Text style={styles.userName} numberOfLines={1}>{userName}</Text>
+            <Text style={styles.userStudentNumber}>{userStudentNumber}</Text>
+            <View style={styles.pointsContainer}>
+              <Image
+                style={styles.pointsIcon}
+                source={require('../assets/images/points.png')}
+              />
+              <Text style={styles.pointsValue}>{points} points</Text>
+            </View>
+          </View>
+        </View>
+      </View>
+
+      {/* Scrollable Content */}
+      <ScrollView 
+        showsVerticalScrollIndicator={false} 
+        contentContainerStyle={styles.contentContainer}
+        style={styles.scrollView}
+      >
+        {/* Stats Card */}
+        <View style={styles.statsContainer}>
+          <View style={styles.statsCard}>
+            <Text style={styles.statsValue}>{bottleCount}</Text>
+            <Text style={styles.statsLabel}>Total Bottle Contributions</Text>
+          </View>
+        </View>
+
+        {/* Menu Items */}
+        <View style={styles.menuContainer}>
+          <Text style={styles.menuTitle}>Settings</Text>
+          <View style={styles.menuItems}>
+            {[
+              { icon: 'file-document-outline', label: 'Terms and Conditions', route: 'TermsAndConditions' },
+              { icon: 'shield-lock-outline', label: 'Privacy Policy', route: 'PrivacyPolicy' },
+              { icon: 'help-circle-outline', label: 'Help Center', route: 'HelpCenter' },
+              { icon: 'information-outline', label: 'About', route: 'About' },
+            ].map((item, index) => (
+              <Pressable 
+                key={index}
+                style={styles.menuItem} 
+                onPress={() => navigation.navigate(item.route)}
+              >
+                <MaterialCommunityIcons name={item.icon} size={wp('6%')} color="#455e14" />
+                <Text style={styles.menuItemText}>{item.label}</Text>
+                <MaterialCommunityIcons name="chevron-right" size={wp('6%')} color="#83951c" />
+              </Pressable>
+            ))}
+          </View>
+        </View>
+
+        {/* Contact Section */}
+        <View style={styles.contactContainer}>
+          <Text style={styles.menuTitle}>Connect With Us</Text>
+          <View style={styles.contactButtons}>
+            <Pressable 
+              style={styles.contactButton} 
+              onPress={() => Linking.openURL('https://bp-website-one.vercel.app/#')}
+            >
+              <MaterialCommunityIcons name="web" size={wp('7%')} color="#455e14" />
+              <Text style={styles.contactButtonText}>Website</Text>
+            </Pressable>
+            <Pressable 
+              style={styles.contactButton}
+              onPress={() => navigation.navigate('Contact')}
+            >
+              <MaterialCommunityIcons name="email-outline" size={wp('7%')} color="#455e14" />
+              <Text style={styles.contactButtonText}>Contact</Text>
+            </Pressable>
+          </View>
+        </View>
+
+        {/* Logout Button */}
+        <View style={styles.logoutContainer}>
+          <Pressable 
+            style={styles.logoutButton} 
+            onPress={() => alertRef.current.open()}
+          >
+            <MaterialCommunityIcons name="logout" size={wp('5%')} color="#ff4444" />
+            <Text style={styles.logoutText}>Logout</Text>
+          </Pressable>
+        </View>
+      </ScrollView>
+
+      {/* Avatar Modal */}
       <Modal
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
+        animationType="fade"
       >
-        <View style={styles.modalContainer}>
-          <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.modalBackground} />
-          <View style={styles.modalContent}>
+        <Animated.View 
+          entering={FadeIn}
+          exiting={FadeOut}
+          style={styles.modalContainer}
+        >
+          <Pressable 
+            style={styles.modalBackground} 
+            onPress={() => setModalVisible(false)} 
+          />
+          <Animated.View 
+            entering={ZoomIn}
+            style={styles.modalContent}
+          >
             <Image
-              source={avatar ? { uri: avatar } : require('../assets/images/default-profile.png')}  // Replace with actual avatar image
+              source={avatar ? { uri: avatar } : require('../assets/images/default-profile.png')}
               style={styles.largeAvatar}
             />
-            <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>
-              <Ionicons name="close" size={30} color="#fff" />
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.contentContainer}>
-        <View style={styles.headerContainer}>
-
-
-          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
-            <View style={styles.avatarContainer}>
-              <Pressable onPress={() => setModalVisible(true)}>
-                <Avatar.Image size={wp('27%')} source={avatar ? { uri: avatar } : require('../assets/images/default-profile.png')} style={styles.avatar} />
-              </Pressable>
-              <Pressable style={styles.editIconContainer} onPress={() => navigation.navigate('EditProfile')}>
-                <MaterialCommunityIcons name="pencil-outline" size={wp('6%')} color="#455e14" />
-              </Pressable>
-            </View>
-            <View style={styles.verticalLine} />
-            <View style={styles.headerItem}>
-
-              <Text style={styles.userName} numberOfLines={1} ellipsizeMode="tail">{userName}</Text>
-              <Text style={styles.userStudentNumber}>{userStudentNumber}</Text>
-              <View style={styles.pointsContainer}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', bottom: hp('0.5%') }}>
-                  <Image
-                    style={{ height: hp('2.5%'), width: wp('5%'), }}
-                    source={require('../assets/images/points.png')}
-                  />
-                  <Text style={styles.pointsValue}>: {points}</Text>
-                </View>
-
+            <Pressable 
+              style={styles.modalCloseButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <View style={styles.closeButtonContainer}>
+                <Ionicons name="close-circle" size={wp('12%')} color="#455e14" />
               </View>
-            </View>
+            </Pressable>
+          </Animated.View>
+        </Animated.View>
+      </Modal>
 
-          </View>
-          {/* <View style={styles.editSContainer}>
-          <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('EditProfile')}>
-            <Text style={styles.editSText}>Edit Profile</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.shareButton} onPress={() => setModalVisible(true)}>
-            <Text style={styles.editSText}>Share Contribution</Text>
-          </TouchableOpacity>
-        </View> */}
-        </View>
-        <Divider style={{ backgroundColor: '#7a9b57', height: .5 }} />
-
-
-
-        {/* Statistics */}
-        <View style={styles.statsBoxContainer}>
-
-          <View style={styles.savedAmountContainer}>
-            <Text style={styles.savedAmount}>{bottleCount}</Text>
-          </View>
-          <View style={styles.tabContainer}>
-            <Text style={styles.tabTextActive}>Total Bottle Contribution</Text>
-          </View>
-        </View>
-
-        {/* Information Section */}
-        <View style={styles.infoContainer}>
-          <Pressable style={styles.infoItem} onPress={() => navigation.navigate('TermsAndConditions')}>
-            <MaterialCommunityIcons name="file-document-outline" size={wp('6%')} color="#455e14" style={styles.infoIcon} />
-            <Text style={styles.infoText}>Terms and Conditions</Text>
-          </Pressable>
-          <Pressable style={styles.infoItem} onPress={() => navigation.navigate('PrivacyPolicy')}>
-            <MaterialCommunityIcons name="shield-lock-outline" size={wp('6%')} color="#455e14" style={styles.infoIcon} />
-            <Text style={styles.infoText}>Privacy and Policy</Text>
-          </Pressable>
-          <Pressable style={styles.infoItem} onPress={() => navigation.navigate('HelpCenter')}>
-            <MaterialCommunityIcons name="help-circle-outline" size={wp('6%')} color="#455e14" style={styles.infoIcon} />
-            <Text style={styles.infoText}>Help Center</Text>
-          </Pressable>
-          <Pressable style={styles.infoItem} onPress={() => navigation.navigate('About')}>
-            <MaterialCommunityIcons name="information-outline" size={wp('6%')} color="#455e14" style={styles.infoIcon} />
-            <Text style={styles.infoText}>About</Text>
-          </Pressable>
-        </View>
-        <View style={styles.scanContainer}>
-          <View style={styles.scanText}>
-            <View style={styles.scanButton}>
-              <Pressable style={styles.contactItem} onPress={() => Linking.openURL('https://bp-website-one.vercel.app/#')}>
-                <MaterialCommunityIcons name="web" size={wp('9%')} color="#455e14" style={styles.scanButtonIcon} />
-              </Pressable>
-            </View>
-            <Text style={styles.scanButtonText}>View Our Website</Text>
-          </View>
-          <View style={styles.scanText}>
-            <View style={styles.scanButton}>
-              <Pressable style={styles.contactItem} onPress={() => navigation.navigate('Contact')}>
-                <MaterialCommunityIcons name="email-outline" size={wp('9%')} color="#455e14" style={styles.scanButtonIcon} />
-              </Pressable>
-            </View>
-            <Text style={styles.scanButtonText}>Contact Us</Text>
-          </View>
-        </View>
-        <Pressable style={[styles.button, styles.logoutButton]} onPress={() => this.AlertPro.open()}>
-          <Text style={styles.buttonText}>Logout</Text>
-        </Pressable>
-        <AlertPro
-          ref={ref => {
-            this.AlertPro = ref;
-          }}
-          onConfirm={() => {
-            this.AlertPro.close();
-            navigation.navigate('Login');;
-          }}
-          onCancel={() => this.AlertPro.close()}
-          title="Confirmation"
-          message="Are you sure you want to logout?"
-          textCancel="Cancel"
-          textConfirm="Yes"
-          customStyles={{
-            mask: {
-              backgroundColor: "transparent"
-            },
-            container: {
-              borderWidth: 1,
-              borderColor: "#455e14",
-              borderRadius: 20
-            },
-            buttonCancel: {
-              backgroundColor: "red"
-            },
-            buttonConfirm: {
-              backgroundColor: "#83951c"
-            }
-          }}
-        />
-      </ScrollView>
-    </View >
+      {/* Alert Pro Component */}
+      <AlertPro
+        ref={alertRef}
+        onConfirm={handleLogout}
+        onCancel={() => alertRef.current.close()}
+        title="Logout Confirmation"
+        message="Are you sure you want to logout?"
+        textCancel="Cancel"
+        textConfirm="Logout"
+        customStyles={{
+          mask: { 
+            backgroundColor: "rgba(0,0,0,0.4)" 
+          },
+          container: {
+            borderWidth: 1,
+            borderColor: "#455e14",
+            borderRadius: wp('5%'),
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+            elevation: 5,
+          },
+          buttonCancel: { 
+            backgroundColor: "#f0f0f0",
+            elevation: 2,
+          },
+          buttonConfirm: { 
+            backgroundColor: "#ff4444",
+            elevation: 2,
+          },
+          textCancel: { 
+            color: "#455e14",
+            fontFamily: 'Poppins-Medium',
+          },
+          textConfirm: { 
+            color: "#ffffff",
+            fontFamily: 'Poppins-Medium',
+          }
+        }}
+      />
+    </View>
   );
 };
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'whitesmoke',
-  },
-  contentContainer: {
-    paddingBottom: hp('10%'),
+    backgroundColor: '#f8f9fa',
   },
   headerContainer: {
-    width: '100%',
-    paddingVertical: hp('1%'),
-    backgroundColor: 'white',
-    paddingBottom: hp('2%'),
+    backgroundColor: '#ffffff',
+    padding: wp('5%'),
     paddingTop: hp('5%'),
+    borderBottomLeftRadius: wp('8%'),
+    borderBottomRightRadius: wp('8%'),
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    zIndex: 1,
   },
-  headerItem: {
-    flexDirection: 'column',
-    marginLeft: wp('2%'),
-    top: hp('1%'),
-    maxWidth: wp('50%'), // Set a maximum width
+  scrollView: {
+    flex: 1,
+    marginTop: -wp('5%'),
+  },
+  contentContainer: {
+    paddingTop: wp('8%'),
+    paddingBottom: hp('12%'),
+  },
+  profileSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   avatarContainer: {
     position: 'relative',
   },
   avatar: {
-    backgroundColor: '#7a9b57',
-    right: wp('6%'),
+    backgroundColor: '#e5eeda',
   },
   editIconContainer: {
     position: 'absolute',
-    top: hp('7%'),
-    right: wp('4%'),
-    backgroundColor: 'white',
+    bottom: 0,
+    right: 0,
+    backgroundColor: '#ffffff',
     borderRadius: wp('5%'),
-    padding: wp('2.2%'),
+    padding: wp('2%'),
+    elevation: 2,
   },
-  verticalLine: {
-    width: 1,
-    height: '100%',
-    backgroundColor: '#7a9b57',
-    marginHorizontal: wp('3%'),
-    position: 'fixed',
+  userInfoContainer: {
+    marginLeft: wp('5%'),
+    flex: 1,
   },
   userName: {
     fontSize: wp('5%'),
@@ -240,95 +299,161 @@ const styles = StyleSheet.create({
   },
   userStudentNumber: {
     fontSize: wp('3.5%'),
-    fontFamily: 'Poppins-SemiBold',
-    color: '#455e14',
+    fontFamily: 'Poppins-Medium',
+    color: '#83951c',
+    marginTop: hp('0.5%'),
   },
   pointsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    top: hp('.5%'),
+    marginTop: hp('1%'),
+  },
+  pointsIcon: {
+    height: hp('2.5%'),
+    width: wp('5%'),
   },
   pointsValue: {
     fontSize: wp('4%'),
+    fontFamily: 'Poppins-SemiBold',
+    color: '#83951c',
+    marginLeft: wp('2%'),
+  },
+  statsContainer: {
+    padding: wp('5%'),
+  },
+  statsCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: wp('5%'),
+    padding: wp('5%'),
+    alignItems: 'center',
+    elevation: 2,
+  },
+  statsValue: {
+    fontSize: wp('12%'),
     fontFamily: 'Poppins-Bold',
     color: '#83951c',
-    marginTop: hp('0.5%'),
-    marginLeft: wp('.5%'),
+    marginVertical: hp('1%'),
   },
-  infoContainer: {
-    marginTop: hp('2%'),
-    padding: wp('3%'),
-    backgroundColor: 'white',
-    borderRadius: wp('5%'),
-    marginHorizontal: wp('5%'), // Add space outside the container
-  },
-  infoItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: hp('1.5%'),
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-  },
-  infoIcon: {
-    marginRight: wp('3%'),
-  },
-  infoText: {
-    fontSize: hp('1.8%'),
+  statsLabel: {
+    fontSize: wp('3.5%'),
     fontFamily: 'Poppins-Medium',
     color: '#455e14',
-  }, gnItems: 'center',
-  scanContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    marginBottom: hp('2%'),
-    padding: wp('3%'),
-    width: wp('80%'),
-    alignSelf: 'center',
-    borderRadius: wp('5%'),
   },
-  scanButton: {
-    borderRadius: wp('3%'),
-    alignItems: 'center',
-    width: wp('20%'),
-    height: hp('5%'),
-    flexDirection: 'column',
-    justifyContent: 'center',
+  menuContainer: {
+    padding: wp('5%'),
   },
-  scanText: {
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  scanButtonIcon: {
-    alignSelf: 'center',
-  },
-  scanButtonText: {
-    color: '#455e14',
+  menuTitle: {
+    fontSize: wp('4%'),
     fontFamily: 'Poppins-SemiBold',
-    fontSize: hp('1.3%'),
+    color: '#455e14',
+    marginBottom: hp('2%'),
+  },
+  menuItems: {
+    backgroundColor: '#ffffff',
+    borderRadius: wp('5%'),
+    elevation: 2,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: wp('4%'),
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  menuItemText: {
+    flex: 1,
+    fontSize: wp('3.8%'),
+    fontFamily: 'Poppins-Medium',
+    color: '#455e14',
+    marginLeft: wp('3%'),
+  },
+  contactContainer: {
+    padding: wp('5%'),
+  },
+  contactButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    backgroundColor: '#ffffff',
+    borderRadius: wp('5%'),
+    padding: wp('4%'),
+    elevation: 2,
+  },
+  contactButton: {
+    alignItems: 'center',
+    padding: wp('3%'),
+  },
+  contactButtonText: {
+    fontSize: wp('3.5%'),
+    fontFamily: 'Poppins-Medium',
+    color: '#455e14',
+    marginTop: hp('1%'),
+  },
+  logoutContainer: {
+    paddingHorizontal: wp('5%'),
+    paddingBottom: hp('2%'),
+    marginTop: hp('2%'),
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: wp('4%'),
+  },
+  logoutText: {
+    fontSize: wp('4%'),
+    fontFamily: 'Poppins-SemiBold',
+    color: 'red',
+    marginLeft: wp('2%'),
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',  // Semi-transparent background
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalBackground: {
     position: 'absolute',
-    width: width,
-    height: height,
+    width: '100%',
+    height: '100%',
   },
   modalContent: {
     justifyContent: 'center',
     alignItems: 'center',
+    padding: wp('5%'),
+    borderRadius: wp('5%'),
   },
   largeAvatar: {
-    width: wp('80%'),  // Enlarged avatar size
-    height: wp('80%'),
-    borderRadius: wp('40%'),
-    borderColor: '#455e14',
+    width: wp('90%'),
+    height: wp('90%'),
+    borderRadius: wp('45%'),
+    borderWidth: 3,
+    borderColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 5,
+    elevation: 10,
+    marginBottom: hp('2%'),
   },
-  closeButton: {
+  modalCloseButton: {
+    alignItems: 'center',
     marginTop: hp('2%'),
+  },
+  closeButtonContainer: {
+    backgroundColor: 'white',
+    borderRadius: wp('10%'),
+    padding: wp('1%'),
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
 
   tabContainer: {

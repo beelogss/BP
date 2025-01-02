@@ -1,20 +1,22 @@
-import React, { useState, useContext, useEffect, useCallback } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert, BackHandler, Platform, Pressable } from 'react-native';
+import React, { useState, useContext } from 'react';
+import { View, Text, TextInput, StyleSheet, Image, Alert, Platform, Pressable, ScrollView, ActivityIndicator } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { UserContext } from '../context/UserContext'; // Import UserContext
+import { UserContext } from '../context/UserContext';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { useFocusEffect } from '@react-navigation/native';
-import storage from '@react-native-firebase/storage';
-import { MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';
+import { MaterialCommunityIcons, AntDesign, Feather } from '@expo/vector-icons';
+import { useBackHandler } from '../hooks/useBackHandler';
+import { headerStyles } from './shared/HeaderStyle';
 
 export default function EditProfileScreen({ navigation }) {
-  const { user, setUser } = useContext(UserContext); // Use user data from context
+  const { user, setUser } = useContext(UserContext);
   const [name, setName] = useState(user.name);
   const [avatar, setAvatar] = useState(user.avatar);
   const [uploading, setUploading] = useState(false);
 
+  // Use the custom back handler hook
+  useBackHandler(navigation);
+
   const pickImage = async () => {
-    // Request permission to access media library
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert('Permission Denied', 'Sorry, we need camera roll permissions to make this work!');
@@ -28,102 +30,174 @@ export default function EditProfileScreen({ navigation }) {
       quality: 1,
     });
 
-    console.log('Image Picker Result:', result); // Log the entire result object
-
     if (!result.canceled) {
-      console.log('Image URI:', result.assets[0].uri); // Debugging log
       setAvatar(result.assets[0].uri);
     }
   };
 
-  const uploadImage = async (uri) => {
-    const filename = `profile_images/${uri.substring(uri.lastIndexOf('/') + 1)}`;
-    const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
+  const handleSave = async () => {
+    if (!name.trim()) {
+      Alert.alert('Error', 'Please enter your name');
+      return;
+    }
+
     setUploading(true);
 
-    const task = storage().ref(filename).putFile(uploadUri);
-
     try {
-      await task;
-      const url = await storage().ref(filename).getDownloadURL();
-      setUploading(false);
-      return url;
-    } catch (e) {
-      console.error(e);
-      setUploading(false);
-      return null;
-    }
-  };
+      let avatarUrl = avatar;
+      
+      // Only upload if it's a new image (file URI)
+      if (avatar && avatar.startsWith('file://')) {
+        const formData = new FormData();
+        formData.append('avatar', {
+          uri: avatar,
+          type: 'image/jpeg',
+          name: 'avatar.jpg',
+        });
+        
+        console.log('Uploading image...');
+        const imageResponse = await fetch(
+          'https://4d18bffc-5559-4534-b92c-8106440742d3-00-3g1frlvror77n.riker.replit.dev/api/users/avatar',
+          {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        );
 
-  const handleSave = async () => {
-    let avatarUrl = avatar;
-    if (avatar && avatar.startsWith('file://')) {
-      avatarUrl = await uploadImage(avatar);
-    }
+        if (!imageResponse.ok) {
+          throw new Error(`Image upload failed: ${imageResponse.status}`);
+        }
 
-    try {
-      // Update user info in the database
-      const response = await fetch('https://4d18bffc-5559-4534-b92c-8106440742d3-00-3g1frlvror77n.riker.replit.dev/updateProfile', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: user.email, name, avatar: avatarUrl }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setUser({ ...user, name, avatar: avatarUrl }); // Update user context
-        Alert.alert('Success', 'Profile updated successfully');
-        navigation.goBack();
-      } else {
-        Alert.alert('Error', data.message);
+        const imageData = await imageResponse.json();
+        if (!imageData.success) {
+          throw new Error(imageData.message || 'Failed to upload image');
+        }
+        
+        avatarUrl = imageData.avatarUrl;
+        console.log('Image uploaded successfully:', avatarUrl);
       }
+
+      console.log('Updating profile...');
+      const updateResponse = await fetch(
+        'https://4d18bffc-5559-4534-b92c-8106440742d3-00-3g1frlvror77n.riker.replit.dev/api/users/update-profile',
+        {
+          method: 'PUT',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            email: user.email, 
+            name, 
+            avatar: avatarUrl 
+          }),
+        }
+      );
+
+      if (!updateResponse.ok) {
+        throw new Error(`Profile update failed: ${updateResponse.status}`);
+      }
+
+      const updateData = await updateResponse.json();
+      if (!updateData.success) {
+        throw new Error(updateData.message || 'Failed to update profile');
+      }
+
+      setUser({ ...user, name, avatar: avatarUrl });
+      Alert.alert('Success', 'Profile updated successfully');
+      navigation.goBack();
     } catch (error) {
-      Alert.alert('Error', 'Failed to update profile');
+      console.error('Error updating profile:', error);
+      Alert.alert(
+        'Error',
+        'Failed to update profile. Please try again.'
+      );
+    } finally {
+      setUploading(false);
     }
   };
-
-  useFocusEffect(
-    useCallback(() => {
-      const onBackPress = () => {
-        navigation.goBack();
-        return true;
-      };
-
-      BackHandler.addEventListener('hardwareBackPress', onBackPress);
-
-      return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-    }, [navigation])
-  );
 
   return (
     <View style={styles.container}>
-      <Pressable delayLongPress={200} android_ripple={{ color: '#f9f9f9', borderless: true, radius: 50}}>
-        <AntDesign name="arrowleft" size={wp('10%')} color="#83951c" style={styles.backIcon} onPress={() => navigation.navigate('Profile')} />
-      </Pressable>
-      <View style={styles.boxContainer}>
-      <View style={styles.avatarContainer}>
-        <Image
-          source={avatar ? { uri: avatar } : require('../assets/images/default-profile.png')}
-          style={styles.avatar}
-        />
-        <Pressable style={styles.editIconContainer} onPress={pickImage}>
-        <MaterialCommunityIcons name="pencil-outline" size={wp('7%')} color="#455e14" />
+      {/* Header */}
+      <View style={headerStyles.headerContainer}>
+        <Pressable 
+          style={headerStyles.backButton} 
+          onPress={() => navigation.goBack()}
+          android_ripple={{ color: '#e5eeda', borderless: true, radius: 28 }}
+        >
+          <AntDesign name="arrowleft" size={wp('7%')} color="#83951c" />
         </Pressable>
+        <Text style={headerStyles.header}>Edit Profile</Text>
       </View>
-      <Text style={styles.changeAvatarText}>Name:</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Name"
-        value={name}
-        onChangeText={setName}
-      />
-      <Pressable style={styles.button} onPress={handleSave} disabled={uploading}>
-        <Text style={styles.buttonText}>{uploading ? 'Saving...' : 'Save Changes'}</Text>
-      </Pressable>
-      </View>
+
+      <ScrollView 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        <View style={styles.profileCard}>
+          {/* Avatar Section */}
+          <View style={styles.avatarSection}>
+            <View style={styles.avatarContainer}>
+              <Image
+                source={avatar ? { uri: avatar } : require('../assets/images/default-profile.png')}
+                style={styles.avatar}
+              />
+              <Pressable 
+                style={styles.editIconContainer} 
+                onPress={pickImage}
+                android_ripple={{ color: '#e5eeda', borderless: true, radius: 28 }}
+              >
+                <MaterialCommunityIcons name="camera" size={wp('6.5%')} color="white" />
+              </Pressable>
+            </View>
+            <Text style={styles.changePhotoText}>Change Profile Photo</Text>
+          </View>
+
+          {/* Form Section */}
+          <View style={styles.formSection}>
+            <Text style={styles.label}>Full Name</Text>
+            <View style={styles.inputContainer}>
+              <Feather name="user" size={wp('5%')} color="#83951c" />
+              <TextInput
+                style={styles.input}
+                placeholder="Enter your name"
+                placeholderTextColor="#a3a3a3"
+                value={name}
+                onChangeText={setName}
+              />
+            </View>
+
+            <Text style={styles.label}>Email</Text>
+            <View style={styles.inputContainer}>
+              <Feather name="mail" size={wp('5%')} color="#83951c" />
+              <TextInput
+                style={[styles.input, styles.disabledInput]}
+                value={user.email}
+                editable={false}
+              />
+            </View>
+          </View>
+
+          {/* Save Button */}
+          <Pressable 
+            style={[styles.saveButton, uploading && styles.savingButton]}
+            onPress={handleSave}
+            disabled={uploading}
+            android_ripple={{ color: '#6b7b17' }}
+          >
+            {uploading ? (
+              <ActivityIndicator color="#ffffff" size="small" />
+            ) : (
+              <Text style={styles.saveButtonText}>Save Changes</Text>
+            )}
+          </Pressable>
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -131,70 +205,105 @@ export default function EditProfileScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: wp('7%'),
-    backgroundColor: 'whitesmoke',
-    
+    backgroundColor: '#ffffff',
   },
-  backIcon: {
-    marginBottom: wp('3.5%'),
+  scrollContent: {
+    padding: wp('5%'),
   },
-  avatar: {
-    width: wp('40%'),
-    height: wp('40%'),
-    borderRadius: wp('20%'),
-    marginBottom: 20,
-    alignSelf: 'center',
-    marginTop: hp('5%'),
+  profileCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: wp('4%'),
+    padding: wp('5%'),
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  avatarSection: {
+    alignItems: 'center',
+    marginBottom: hp('3%'),
   },
   avatarContainer: {
     position: 'relative',
+    marginBottom: hp('1%'),
+  },
+  avatar: {
+    width: wp('35%'),
+    height: wp('35%'),
+    borderRadius: wp('17.5%'),
+    borderWidth: 3,
+    borderColor: '#e5eeda',
   },
   editIconContainer: {
     position: 'absolute',
-    bottom: hp('3%'),
-    right: wp('17%'),
-    backgroundColor: 'white',
-    borderRadius: wp('8%'),
-    padding: wp('4%'),
+    bottom: 0,
+    right: 0,
+    backgroundColor: '#ffffff',
+    borderRadius: wp('6%'),
+    padding: wp('3%'),
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
   },
-  changeAvatarText: {
+  changePhotoText: {
+    color: '#83951c',
+    fontFamily: 'Poppins-Medium',
+    fontSize: wp('3.8%'),
+    marginTop: hp('1%'),
+  },
+  formSection: {
+    marginBottom: hp('3%'),
+  },
+  label: {
     color: '#455e14',
-    fontFamily: 'Poppins-Bold',
-    marginBottom: hp('.2%'),
-    fontSize: wp('3.5%')
+    fontFamily: 'Poppins-Medium',
+    fontSize: wp('3.8%'),
+    marginBottom: hp('1%'),
+    marginLeft: wp('1%'),
   },
-  input: {
-    width: '100%',
-    padding: hp('1%'),
+  inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#f5f8f2',
+    borderRadius: wp('3%'),
+    paddingHorizontal: wp('4%'),
+    marginBottom: hp('2%'),
     borderWidth: 1,
-    borderColor: '#455e14',
-    borderRadius: 10,
-    paddingVertical: hp('0.7%'),
-    paddingHorizontal: wp('2%'),
-    marginBottom: wp('3.2%'),
-    height: hp('6%'),
+    borderColor: '#e5eeda',
+  },
+  input: {
+    flex: 1,
+    paddingVertical: hp('1.5%'),
+    paddingHorizontal: wp('3%'),
     fontFamily: 'Poppins-Regular',
-    paddingLeft: wp('4%'),
+    fontSize: wp('3.8%'),
     color: '#455e14',
-    fontSize: wp('3.5%'),
   },
-  button: {
+  disabledInput: {
+    color: '#a3a3a3',
+    backgroundColor: '#f9f9f9',
+  },
+  saveButton: {
     backgroundColor: '#83951c',
-    padding: hp('1.5%'),
-    borderRadius: hp('2%'),
+    borderRadius: wp('3%'),
+    paddingVertical: hp('1.8%'),
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
   },
-  buttonText: {
-    color: '#fff',
-    fontSize: wp('4%'),
+  savingButton: {
+    backgroundColor: '#a3a3a3',
+  },
+  saveButtonText: {
+    color: '#ffffff',
     fontFamily: 'Poppins-SemiBold',
-    textAlign: 'center',
-  },
-  boxContainer: {
-    borderWidth: 1,
-    borderRadius: wp('2%'),
-    padding: wp('5%'),
-    backgroundColor: 'white',
+    fontSize: wp('4%'),
   }
 });

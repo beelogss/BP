@@ -1,405 +1,8 @@
-// import React, { useState, useEffect } from 'react';
-// import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
-// import { MaterialCommunityIcons, AntDesign } from 'react-native-vector-icons';
-// import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-
-// export default function ResetPassScreen({ route, navigation }) {
-//   const { email } = route.params;
-//   const [code, setCode] = useState('');
-//   const [newPassword, setNewPassword] = useState('');
-//   const [confirmNewPassword, setConfirmNewPassword] = useState('');
-//   const [isCodeVerified, setIsCodeVerified] = useState(false);
-//   const [timer, setTimer] = useState(60);
-//   const [isResendDisabled, setIsResendDisabled] = useState(true);
-//   const [showPassword, setShowPassword] = useState(false);
-//   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-//   const [passwordValidation, setPasswordValidation] = useState({
-//     length: false,
-//     uppercase: false,
-//     lowercase: false,
-//     number: false,
-//     specialChar: false,
-//   });
-
-//   useEffect(() => {
-//     const countdown = setInterval(() => {
-//       if (timer > 0) {
-//         setTimer((prevTimer) => prevTimer - 1);
-//       } else {
-//         setIsResendDisabled(false);
-//         clearInterval(countdown);
-//       }
-//     }, 1000);
-
-//     return () => clearInterval(countdown);
-//   }, [timer]);
-
-//   const handleVerifyCode = () => {
-//     if (code === '123456') { // Sample validation
-//       setIsCodeVerified(true);
-//       alert('Code verified successfully');
-//     } else {
-//       alert('Invalid verification code');
-//     }
-//   };
-
-//   const handleResendCode = () => {
-//     setIsResendDisabled(true);
-//     setTimer(60);
-//     alert('Verification code resent');
-//   };
-
-//   const handlePasswordInput = (password) => {
-//     setNewPassword(password);
-
-//     const length = password.length >= 8;
-//     const uppercase = /[A-Z]/.test(password);
-//     const lowercase = /[a-z]/.test(password);
-//     const number = /\d/.test(password);
-//     const specialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-
-//     setPasswordValidation({
-//       length,
-//       uppercase,
-//       lowercase,
-//       number,
-//       specialChar,
-//     });
-//   };
-
-//   const isPasswordValid = Object.values(passwordValidation).every(Boolean);
-
-//   const handleResetPassword = () => {
-//     if (newPassword !== confirmNewPassword) {
-//       alert("Passwords don't match");
-//       return;
-//     }
-//     if (!isPasswordValid) {
-//       alert('Password does not meet the requirements.');
-//       return;
-//     }
-//     alert('Password has been reset successfully');
-//     navigation.navigate('Login');
-//   };
-
-//   return (
-//     <KeyboardAvoidingView
-//       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-//       style={styles.container}
-//     >
-//       <View style={styles.formContainer}>
-//       <TouchableOpacity>
-//         <AntDesign name="arrowleft" size={wp('10%')} color="#83951c" style={styles.backIcon} 
-//           onPress={() => navigation.navigate('ForgotPass')}
-//         />
-//        </TouchableOpacity>
-//         <Text style={styles.title}>Reset Password</Text>
-
-//         {/* Instructions Label */}
-//         <Text style={styles.instructions}>
-//           Enter the verification code sent to:
-//         </Text>
-//         <Text style={styles.highlightedText}>{email}</Text>
-
-//         {/* Verification Code Input */}
-//         <View style={styles.codeContainer}>
-//           <TextInput
-//             style={[styles.codeInput, isCodeVerified && styles.disabledInput]}
-//             value={code}
-//             onChangeText={setCode}
-//             maxLength={6}
-//             keyboardType="numeric"
-//             placeholder="Enter verification code"
-//             editable={!isCodeVerified}
-//           />
-//           <TouchableOpacity
-//             style={[styles.verifyButton, { backgroundColor: !isCodeVerified && code.length == 6 ? '#83951c' : '#83951c80' }]}
-//             onPress={handleVerifyCode}
-//             disabled={code.length < 6 || isCodeVerified}
-//           >
-//             <Text style={styles.buttonText}>Verify</Text>
-//           </TouchableOpacity>
-//         </View>
-
-//         {/* Resend Code and Timer */}
-//         <View style={[styles.resendContainer, isCodeVerified && styles.verifiedContainer]}>
-//           {isCodeVerified ? (
-//             <Text style={styles.verifiedText}>Code Verified</Text>
-//           ) : (
-//             <>
-//               <Text style={styles.timerText}>
-//                 Resend in:  <Text style={styles.highlightedTimer}>{timer}s</Text>
-//               </Text>
-//               <TouchableOpacity
-//                 onPress={handleResendCode}
-//                 disabled={isResendDisabled || isCodeVerified}
-//               >
-//                 <Text style={[styles.resendText, (isResendDisabled || isCodeVerified) && styles.disabledText]}>
-//                 Resend Code
-//                 </Text>
-//               </TouchableOpacity>
-//               </>
-//           )}
-//         </View>
-
-//         {/* Password Input */}
-//         <View style={[styles.inputContainer, !isCodeVerified && styles.disabledInput]}>
-//           <MaterialCommunityIcons name="lock-outline" size={wp('5%')} color={isCodeVerified ? "#455e14" : "#ccc"} style={styles.icon} />
-//           <TextInput
-//             style={styles.input}
-//             placeholder="New Password"
-//             value={newPassword}
-//             onChangeText={handlePasswordInput}
-//             secureTextEntry={!showPassword}
-//             editable={isCodeVerified}
-//           />
-//           <TouchableOpacity
-//             onPress={() => setShowPassword(!showPassword)}
-//             disabled={!isCodeVerified}
-//           >
-//             <MaterialCommunityIcons
-//               name={showPassword ? 'eye-off' : 'eye'}
-//               size={wp('5%')}
-//               color={isCodeVerified ? "#455e14" : "#ccc"}
-//               style={styles.eyeIcon}
-//             />
-//           </TouchableOpacity>
-//         </View>
-
-//         {/* Password Validation Hints */}
-//         <View style={[styles.passwordHintContainer, !isCodeVerified && styles.disabledInput]}>
-//           <Text style={{ fontFamily: 'Poppins-Regular', fontSize: wp('3.2%'), color: '#455e14' }}>Password must contain:</Text>
-//           <View style={styles.passwordHintItem}>
-//             <MaterialCommunityIcons 
-//               name={passwordValidation.length ? 'check' : 'close'}
-//               size={wp('5%')} 
-//               color={passwordValidation.length ? '#7a9b57' : '#ed3e3e'} 
-//             />
-//             <Text style={styles.passwordHintText}>At least 8 characters</Text>
-//           </View>
-//           <View style={styles.passwordHintItem}>
-//             <MaterialCommunityIcons 
-//               name={passwordValidation.uppercase ? 'check' : 'close'}
-//               size={wp('5%')} 
-//               color={passwordValidation.uppercase ? '#7a9b57' : '#ed3e3e'} 
-//             />
-//             <Text style={styles.passwordHintText}>Contains uppercase letter</Text>
-//           </View>
-//           <View style={styles.passwordHintItem}>
-//             <MaterialCommunityIcons 
-//               name={passwordValidation.lowercase ? 'check' : 'close'}
-//               size={wp('5%')} 
-//               color={passwordValidation.lowercase ? '#7a9b57' : '#ed3e3e'} 
-//             />
-//             <Text style={styles.passwordHintText}>Contains lowercase letter</Text>
-//           </View>
-//           <View style={styles.passwordHintItem}>
-//             <MaterialCommunityIcons 
-//               name={passwordValidation.number ? 'check' : 'close'}
-//               size={wp('5%')} 
-//               color={passwordValidation.number ? '#7a9b57' : '#ed3e3e'} 
-//             />
-//             <Text style={styles.passwordHintText}>Contains number</Text>
-//           </View>
-//           <View style={styles.passwordHintItem}>
-//             <MaterialCommunityIcons 
-//               name={passwordValidation.specialChar ? 'check' : 'close'}
-//               size={wp('5%')} 
-//               color={passwordValidation.specialChar ? '#7a9b57' : '#ed3e3e'} 
-//             />
-//             <Text style={styles.passwordHintText}>Contains special character</Text>
-//           </View>
-//         </View>
-
-//         {/* Confirm Password Input */}
-//         <View style={[styles.inputContainer, !isCodeVerified && styles.disabledInput]}>
-//           <MaterialCommunityIcons name="lock-check-outline" size={wp('5%')} color={isCodeVerified ? "#455e14" : "#ccc"} style={styles.icon} />
-//           <TextInput
-//             style={styles.input}
-//             placeholder="Confirm New Password"
-//             value={confirmNewPassword}
-//             onChangeText={setConfirmNewPassword}
-//             secureTextEntry={!showConfirmPassword}
-//             editable={isCodeVerified}
-//           />
-//           <TouchableOpacity
-//             onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-//             disabled={!isCodeVerified}
-//           >
-//             <MaterialCommunityIcons
-//               name={showConfirmPassword ? 'eye-off' : 'eye'}
-//               size={wp('5%')}
-//               color={isCodeVerified ? "#455e14" : "#ccc"}
-//               style={styles.eyeIcon}
-//             />
-//           </TouchableOpacity>
-//         </View>
-
-//         {/* Reset Password Button */}
-//         <TouchableOpacity
-//           style={[styles.button, { backgroundColor: isCodeVerified && isPasswordValid ? '#83951c' : '#83951c80' }]}
-//           onPress={handleResetPassword}
-//           disabled={!isCodeVerified || !newPassword || !confirmNewPassword || !isPasswordValid}
-//         >
-//           <Text style={styles.buttonText}>Reset Password</Text>
-//         </TouchableOpacity>
-
-//       </View>
-//     </KeyboardAvoidingView>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     paddingHorizontal: wp('8%'),
-//     backgroundColor: '#fff',
-//     paddingTop: wp('20%'),
-//   },
-//   formContainer: {
-//     paddingBottom: 20,
-//   },
-//   backIcon: {
-//     marginBottom: wp('3%'),
-//   },
-//   title: {
-//     color: '#455e14',
-//     fontSize: wp('7%'),
-//     textAlign: 'left',
-//     marginTop:  wp('1.5%'),
-//     fontFamily: 'Poppins-Bold',
-//   },
-//   instructions: {
-//     fontFamily: 'Poppins-Regular',
-//     color: '#7a9b57',
-//     textAlign: 'left',
-//     fontSize: wp('3.5%'),
-//     letterSpacing: -.6,
-//   },
-//   highlightedText: {
-//     fontSize: wp('3.5%'),
-//     textAlign: 'left',
-//     fontFamily: 'Poppins-Bold',
-//     color: '#455e14',
-//     marginBottom: wp('2.5%'), // Extra space after email
-//   },
-//   codeContainer: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     marginBottom: wp('3%'),
-//   },
-//   codeInput: {
-//     flex: 1,
-//     borderWidth: 1,
-//     borderColor: '#455e14',
-//     padding: wp('2%'),
-//     borderRadius: 10,
-//     fontFamily: 'Poppins-Regular',
-//     color: '#455e14',
-//     fontSize: wp('3.5%'),
-//     height: hp('6%'),
-//     textAlign: 'center'
-//   },
-//   verifyButton: {
-//     backgroundColor: '#83951c',
-//     padding: wp('2.5%'),
-//     borderRadius: 10,
-//     marginLeft: wp('2%'),
-//     width: wp('25%'),
-//   },
-//   verifiedContainer: {
-//     backgroundColor: '#e5eeda',
-//     paddingVertical: wp('0.5%'),
-//     paddingHorizontal: wp('2%'),
-//     borderRadius: 10,
-//     height: wp('10%'),
-//     justifyContent: 'center',
-//   },
-//   verifiedText: {
-//     fontFamily: 'Poppins-SemiBold',
-//     color: '#7a9b57',
-//     fontSize: wp('4%'),
-//   },
-//   resendContainer: {
-//     flexDirection: 'row',
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     marginBottom: wp('3%'),
-//     height: wp('10%'),
-//   },
-//   timerText: {
-//     fontFamily: 'Poppins-Regular',
-//     color: '#455e14',
-//   },
-//   highlightedTimer: {
-//     color: '#83951c',
-//     fontFamily: 'Poppins-Bold',
-//   },
-//   resendText: {
-//     fontFamily: 'Poppins-Bold',
-//     color: '#455e14',
-//     marginLeft: wp('2%'),
-//   },
-//   disabledText: {
-//     color: '#83951c80',
-//   },
-//   inputContainer: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     borderWidth: 1,
-//     borderColor: '#455e14',
-//     borderRadius: 10,
-//     paddingVertical: hp('0.9%'),
-//     paddingHorizontal: wp('2%'),
-//     height: hp('6%'),
-//   },
-//   input: {
-//     flex: 1,
-//     fontFamily: 'Poppins-Regular',
-//     color: '#455e14',
-//     fontSize: wp('3.5%'),
-//     paddingLeft: wp('1%') 
-//   },
-//   eyeIcon: {
-//     marginLeft: wp('1.5%'),
-//   },
-//   icon: {
-//     marginRight: wp('2%'),
-//   },
-//   button: {
-//     padding: wp('3%'),
-//     borderRadius: 10,
-//     marginTop: wp('3.7%'),
-//   },
-//   buttonText: {
-//     color: '#fff', 
-//     textAlign: 'center', 
-//     fontFamily: 'Poppins-Bold', 
-//     fontSize: wp('4.5%'),
-//   },
-//   disabledInput: {
-//     opacity: 0.5,
-//   },
-//   passwordHintContainer: {
-//     marginTop: wp('1%'),
-//     marginBottom: wp('1%'),
-//   },
-//   passwordHintItem: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     marginBottom: wp('1%'),
-//   },
-//   passwordHintText: {
-//     marginLeft: wp('1.5%'),
-//     color: '#455e14',
-//     fontFamily: 'Poppins-Regular',
-//     fontSize: wp('3%'),
-//   },
-// });
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Alert } from 'react-native';
-import { MaterialCommunityIcons, AntDesign } from 'react-native-vector-icons';
+import { MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 
 export default function ResetPassScreen({ route, navigation }) {
   const { email } = route.params;
@@ -420,17 +23,20 @@ export default function ResetPassScreen({ route, navigation }) {
   });
 
   useEffect(() => {
-    const countdown = setInterval(() => {
-      if (timer > 0) {
-        setTimer((prevTimer) => prevTimer - 1);
-      } else {
-        setIsResendDisabled(false);
-        clearInterval(countdown);
-      }
-    }, 1000);
+    let countdown;
+    if (!isCodeVerified) {
+      countdown = setInterval(() => {
+        if (timer > 0) {
+          setTimer((prevTimer) => prevTimer - 1);
+        } else {
+          setIsResendDisabled(false);
+          clearInterval(countdown);
+        }
+      }, 1000);
+    }
 
     return () => clearInterval(countdown);
-  }, [timer]);
+  }, [timer, isCodeVerified]);
 
   const handleVerifyCode = async () => {
     try {
@@ -530,160 +136,178 @@ export default function ResetPassScreen({ route, navigation }) {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
-      <View style={styles.formContainer}>
-        <TouchableOpacity>
-          <AntDesign name="arrowleft" size={wp('10%')} color="#83951c" style={styles.backIcon} 
-            onPress={() => navigation.navigate('ForgotPass')}
-          />
-        </TouchableOpacity>
-        <Text style={styles.title}>Reset Password</Text>
-
-        <Text style={styles.instructions}>
-          Enter the verification code sent to:
-        </Text>
-        <Text style={styles.highlightedText}>{email}</Text>
-
-        <View style={styles.codeContainer}>
-          <TextInput
-            style={[styles.codeInput, isCodeVerified && styles.disabledInput]}
-            value={code}
-            onChangeText={setCode}
-            maxLength={6}
-            keyboardType="numeric"
-            placeholder="Enter verification code"
-            editable={!isCodeVerified}
-          />
+      <Animated.ScrollView 
+        entering={FadeIn}
+        style={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.formContainer}>
           <TouchableOpacity
-            style={[styles.verifyButton, { backgroundColor: !isCodeVerified && code.length == 6 ? '#83951c' : '#83951c80' }]}
-            onPress={handleVerifyCode}
-            disabled={code.length < 6 || isCodeVerified}
+            style={styles.backButton}
+            onPress={() => navigation.navigate('ForgotPass')}
           >
-            <Text style={styles.buttonText}>Verify</Text>
+            <AntDesign name="arrowleft" size={wp('7%')} color="#455e14" />
           </TouchableOpacity>
-        </View>
 
-        <View style={[styles.resendContainer, isCodeVerified && styles.verifiedContainer]}>
-          {isCodeVerified ? (
-            <Text style={styles.verifiedText}>Code Verified</Text>
-          ) : (
-            <>
-              <Text style={styles.timerText}>
-                Resend in:  <Text style={styles.highlightedTimer}>{timer}s</Text>
+          <Animated.Text 
+            entering={FadeInDown.delay(200)}
+            style={styles.title}
+          >
+            Reset Password
+          </Animated.Text>
+
+          <Animated.Text 
+            entering={FadeInDown.delay(300)}
+            style={styles.instructions}
+          >
+            Enter the verification code sent to:
+          </Animated.Text>
+          <Text style={styles.highlightedText}>{email}</Text>
+
+          <Animated.View 
+            entering={FadeInDown.delay(400)}
+            style={styles.codeContainer}
+          >
+            <View style={[
+              styles.codeInputWrapper,
+              isCodeVerified && styles.verifiedInput
+            ]}>
+              <TextInput
+                style={styles.codeInput}
+                value={code}
+                onChangeText={setCode}
+                maxLength={6}
+                keyboardType="numeric"
+                placeholder="Enter 6-digit code"
+                placeholderTextColor="#7a9b57"
+                editable={!isCodeVerified}
+              />
+            </View>
+            <TouchableOpacity
+              style={[
+                styles.verifyButton,
+                code.length === 6 && styles.activeVerifyButton,
+                isCodeVerified && styles.verifiedButton
+              ]}
+              onPress={handleVerifyCode}
+              disabled={code.length < 6 || isCodeVerified}
+            >
+              <Text style={styles.buttonText}>
+                {isCodeVerified ? 'Verified ✓' : 'Verify Code'}
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
+
+          <Animated.View 
+            entering={FadeInDown.delay(500)}
+            style={styles.resendWrapper}
+          >
+            <Animated.View style={styles.resendContainer}>
+              <Text style={[
+                styles.timerText,
+                isCodeVerified && styles.disabledText
+              ]}>
+                {isCodeVerified ? 'Code verified' : `Resend code in ${timer}s`}
               </Text>
               <TouchableOpacity
                 onPress={handleResendCode}
                 disabled={isResendDisabled || isCodeVerified}
+                style={styles.resendButton}
               >
-                <Text style={[styles.resendText, (isResendDisabled || isCodeVerified) && styles.disabledText]}>
+                <Text style={[
+                  styles.resendText,
+                  (isResendDisabled || isCodeVerified) && styles.disabledText
+                ]}>
                   Resend Code
                 </Text>
               </TouchableOpacity>
-            </>
-          )}
-        </View>
+            </Animated.View>
+          </Animated.View>
 
-        <View style={[styles.inputContainer, !isCodeVerified && styles.disabledInput]}>
-          <MaterialCommunityIcons name="lock-outline" size={wp('5%')} color={isCodeVerified ? "#455e14" : "#ccc"} style={styles.icon} />
-          <TextInput
-            style={styles.input}
-            placeholder="New Password"
-            value={newPassword}
-            onChangeText={handlePasswordInput}
-            secureTextEntry={!showPassword}
-            editable={isCodeVerified}
-          />
+          {isCodeVerified && <View style={styles.verifiedSpacing} />}
+
+          <View style={[styles.inputContainer, !isCodeVerified && styles.disabledInput]}>
+            <MaterialCommunityIcons name="lock-outline" size={wp('5%')} color={isCodeVerified ? "#455e14" : "#ccc"} style={styles.icon} />
+            <TextInput
+              style={styles.input}
+              placeholder="New Password"
+              value={newPassword}
+              onChangeText={handlePasswordInput}
+              secureTextEntry={!showPassword}
+              editable={isCodeVerified}
+            />
+            <TouchableOpacity
+              onPress={() => setShowPassword(!showPassword)}
+              disabled={!isCodeVerified}
+            >
+              <MaterialCommunityIcons
+                name={showPassword ? 'eye-off' : 'eye'}
+                size={wp('5%')}
+                color={isCodeVerified ? "#455e14" : "#ccc"}
+                style={styles.eyeIcon}
+              />
+            </TouchableOpacity>
+          </View>
+
+          <View style={[styles.passwordHintContainer, !isCodeVerified && styles.disabledInput]}>
+            <Text style={styles.passwordHintTitle}>Password Requirements:</Text>
+            {Object.entries(passwordValidation).map(([key, isValid]) => (
+              <View key={key} style={styles.passwordHintItem}>
+                <MaterialCommunityIcons 
+                  name={isValid ? 'check-circle' : 'close-circle'}
+                  size={wp('4%')} 
+                  color={isValid ? '#7a9b57' : '#ed3e3e'} 
+                />
+                <Text style={[
+                  styles.passwordHintText,
+                  isValid && styles.validHintText
+                ]}>
+                  {key === 'length' && 'At least 8 characters'}
+                  {key === 'uppercase' && 'One uppercase letter'}
+                  {key === 'lowercase' && 'One lowercase letter'}
+                  {key === 'number' && 'One number'}
+                  {key === 'specialChar' && 'One special character'}
+                </Text>
+              </View>
+            ))}
+          </View>
+
+          <View style={[styles.inputContainer, !isCodeVerified && styles.disabledInput]}>
+            <MaterialCommunityIcons name="lock-check-outline" size={wp('5%')} color={isCodeVerified ? "#455e14" : "#ccc"} style={styles.icon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Confirm New Password"
+              value={confirmNewPassword}
+              onChangeText={setConfirmNewPassword}
+              secureTextEntry={!showConfirmPassword}
+              editable={isCodeVerified}
+            />
+            <TouchableOpacity
+              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+              disabled={!isCodeVerified}
+            >
+              <MaterialCommunityIcons
+                name={showConfirmPassword ? 'eye-off' : 'eye'}
+                size={wp('5%')}
+                color={isCodeVerified ? "#455e14" : "#ccc"}
+                style={styles.eyeIcon}
+              />
+            </TouchableOpacity>
+          </View>
+
           <TouchableOpacity
-            onPress={() => setShowPassword(!showPassword)}
-            disabled={!isCodeVerified}
+            style={[styles.button, { backgroundColor: isCodeVerified && isPasswordValid ? '#83951c' : '#83951c80' }]}
+            onPress={handleResetPassword}
+            disabled={!isCodeVerified || !newPassword || !confirmNewPassword || !isPasswordValid}
           >
-            <MaterialCommunityIcons
-              name={showPassword ? 'eye-off' : 'eye'}
-              size={wp('5%')}
-              color={isCodeVerified ? "#455e14" : "#ccc"}
-              style={styles.eyeIcon}
-            />
+            <Text style={styles.buttonText}>Reset Password</Text>
           </TouchableOpacity>
+
         </View>
-
-        <View style={[styles.passwordHintContainer, !isCodeVerified && styles.disabledInput]}>
-          <Text style={{ fontFamily: 'Poppins-Regular', fontSize: wp('3.2%'), color: '#455e14' }}>Password must contain:</Text>
-          <View style={styles.passwordHintItem}>
-            <MaterialCommunityIcons 
-              name={passwordValidation.length ? 'check' : 'close'}
-              size={wp('5%')} 
-              color={passwordValidation.length ? '#7a9b57' : '#ed3e3e'} 
-            />
-            <Text style={styles.passwordHintText}>At least 8 characters</Text>
-          </View>
-          <View style={styles.passwordHintItem}>
-            <MaterialCommunityIcons 
-              name={passwordValidation.uppercase ? 'check' : 'close'}
-              size={wp('5%')} 
-              color={passwordValidation.uppercase ? '#7a9b57' : '#ed3e3e'} 
-            />
-            <Text style={styles.passwordHintText}>Contains uppercase letter</Text>
-          </View>
-          <View style={styles.passwordHintItem}>
-            <MaterialCommunityIcons 
-              name={passwordValidation.lowercase ? 'check' : 'close'}
-              size={wp('5%')} 
-              color={passwordValidation.lowercase ? '#7a9b57' : '#ed3e3e'} 
-            />
-            <Text style={styles.passwordHintText}>Contains lowercase letter</Text>
-          </View>
-          <View style={styles.passwordHintItem}>
-            <MaterialCommunityIcons 
-              name={passwordValidation.number ? 'check' : 'close'}
-              size={wp('5%')} 
-              color={passwordValidation.number ? '#7a9b57' : '#ed3e3e'} 
-            />
-            <Text style={styles.passwordHintText}>Contains number</Text>
-          </View>
-          <View style={styles.passwordHintItem}>
-            <MaterialCommunityIcons 
-              name={passwordValidation.specialChar ? 'check' : 'close'}
-              size={wp('5%')} 
-              color={passwordValidation.specialChar ? '#7a9b57' : '#ed3e3e'} 
-            />
-            <Text style={styles.passwordHintText}>Contains special character</Text>
-          </View>
-        </View>
-
-        <View style={[styles.inputContainer, !isCodeVerified && styles.disabledInput]}>
-          <MaterialCommunityIcons name="lock-check-outline" size={wp('5%')} color={isCodeVerified ? "#455e14" : "#ccc"} style={styles.icon} />
-          <TextInput
-            style={styles.input}
-            placeholder="Confirm New Password"
-            value={confirmNewPassword}
-            onChangeText={setConfirmNewPassword}
-            secureTextEntry={!showConfirmPassword}
-            editable={isCodeVerified}
-          />
-          <TouchableOpacity
-            onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-            disabled={!isCodeVerified}
-          >
-            <MaterialCommunityIcons
-              name={showConfirmPassword ? 'eye-off' : 'eye'}
-              size={wp('5%')}
-              color={isCodeVerified ? "#455e14" : "#ccc"}
-              style={styles.eyeIcon}
-            />
-          </TouchableOpacity>
-        </View>
-
-        <TouchableOpacity
-          style={[styles.button, { backgroundColor: isCodeVerified && isPasswordValid ? '#83951c' : '#83951c80' }]}
-          onPress={handleResetPassword}
-          disabled={!isCodeVerified || !newPassword || !confirmNewPassword || !isPasswordValid}
-        >
-          <Text style={styles.buttonText}>Reset Password</Text>
-        </TouchableOpacity>
-
-      </View>
+      </Animated.ScrollView>
     </KeyboardAvoidingView>
   );
 }
@@ -691,88 +315,126 @@ export default function ResetPassScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: wp('8%'),
     backgroundColor: 'whitesmoke',
-    paddingTop: wp('20%'),
+  },
+  scrollContainer: {
+    flex: 1,
   },
   formContainer: {
-    paddingBottom: 20,
+    padding: wp('8%'),
+    paddingTop: wp('15%'),
   },
-  backIcon: {
-    marginBottom: wp('3%'),
+  backButton: {
+    marginBottom: hp('2%'),
+    padding: wp('2%'),
+    alignSelf: 'flex-start',
   },
   title: {
     color: '#455e14',
-    fontSize: wp('7%'),
-    textAlign: 'left',
-    marginTop:  wp('1.5%'),
+    fontSize: wp('8%'),
     fontFamily: 'Poppins-Bold',
+    marginBottom: hp('1%'),
   },
   instructions: {
     fontFamily: 'Poppins-Regular',
     color: '#7a9b57',
-    textAlign: 'left',
-    fontSize: wp('3.5%'),
-    letterSpacing: -.6,
+    fontSize: wp('3.8%'),
+    marginBottom: hp('1%'),
+    letterSpacing: -0.5,
   },
   highlightedText: {
-    fontSize: wp('3.5%'),
-    textAlign: 'left',
+    fontSize: wp('3.8%'),
     fontFamily: 'Poppins-Bold',
     color: '#455e14',
-    marginBottom: wp('2.5%'), // Extra space after email
+    marginBottom: hp('3%'),
   },
   codeContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: wp('3%'),
+    marginBottom: hp('3%'),
+  },
+  codeInputWrapper: {
+    borderWidth: 1.5,
+    borderColor: '#455e14',
+    borderRadius: wp('3%'),
+    backgroundColor: '#fff',
+    marginBottom: hp('2%'),
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
   },
   codeInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: '#455e14',
-    padding: wp('2%'),
-    borderRadius: 10,
-    fontFamily: 'Poppins-Regular',
+    fontFamily: 'Poppins-Medium',
     color: '#455e14',
-    fontSize: wp('3.5%'),
-    height: hp('6%'),
-    textAlign: 'center'
+    fontSize: wp('4.5%'),
+    height: hp('7%'),
+    textAlign: 'center',
+    letterSpacing: wp('1%'),
+  },
+  verifiedInput: {
+    borderColor: '#7a9b57',
+    backgroundColor: '#f9fbf6',
   },
   verifyButton: {
+    backgroundColor: '#83951c80',
+    padding: hp('2%'),
+    borderRadius: wp('3%'),
+    alignItems: 'center',
+  },
+  activeVerifyButton: {
     backgroundColor: '#83951c',
-    padding: wp('2.5%'),
-    borderRadius: 10,
-    marginLeft: wp('2%'),
-    width: wp('25%'),
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
-  verifiedContainer: {
-    backgroundColor: '#e5eeda',
-    paddingVertical: wp('0.5%'),
+  verifiedButton: {
+    backgroundColor: '#7a9b57',
+  },
+  passwordHintContainer: {
+    marginTop: wp('1%'),
+    marginBottom: wp('1%'),
+  },
+  passwordHintTitle: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: wp('3.5%'),
+    color: '#455e14',
+    marginBottom: hp('1%'),
+  },
+  passwordHintItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: hp('0.5%'),
     paddingHorizontal: wp('2%'),
-    borderRadius: 10,
-    height: wp('10%'),
-    justifyContent: 'center',
   },
-  verifiedText: {
-    fontFamily: 'Poppins-SemiBold',
+  passwordHintText: {
+    marginLeft: wp('2%'),
+    color: '#455e14',
+    fontFamily: 'Poppins-Regular',
+    fontSize: wp('3.2%'),
+  },
+  validHintText: {
     color: '#7a9b57',
-    fontSize: wp('4%'),
+  },
+  resendWrapper: {
   },
   resendContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: wp('3%'),
-    height: wp('10%'),
+  },
+  resendButton: {
+    marginLeft: wp('2%'),
   },
   timerText: {
     fontFamily: 'Poppins-Regular',
     color: '#455e14',
+    fontSize: wp('3.2%'),
   },
   highlightedTimer: {
-    color: '#83951c',
     fontFamily: 'Poppins-Bold',
+    color: '#83951c',
   },
   resendText: {
     fontFamily: 'Poppins-Bold',
@@ -781,6 +443,7 @@ const styles = StyleSheet.create({
   },
   disabledText: {
     color: '#83951c80',
+    opacity: 0.6,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -819,19 +482,10 @@ const styles = StyleSheet.create({
   disabledInput: {
     opacity: 0.5,
   },
-  passwordHintContainer: {
-    marginTop: wp('1%'),
-    marginBottom: wp('1%'),
+  hideContainer: {
+    display: 'none',
   },
-  passwordHintItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: wp('1%'),
-  },
-  passwordHintText: {
-    marginLeft: wp('1.5%'),
-    color: '#455e14',
-    fontFamily: 'Poppins-Regular',
-    fontSize: wp('3%'),
+  verifiedSpacing: {
+    height: hp('2%'),
   },
 });

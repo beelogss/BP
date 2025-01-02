@@ -1,337 +1,11 @@
-// import React, { useState, useEffect, useCallback, useContext } from 'react';
-// import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image, Modal, ActivityIndicator, BackHandler, Pressable, RefreshControl, ToastAndroid } from 'react-native';
-// import { getClaimedRewards, updateClaimedRewardStatus } from './claimedRewardsService';
-// import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-// import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
-// import { useFocusEffect } from '@react-navigation/native';
-// import { UserContext } from '../context/UserContext'; // Import UserContext
-
-// const ClaimedRewardsScreen = ({ navigation }) => {
-//   const { user } = useContext(UserContext); // Use user data from context
-//   const [claimedRewards, setClaimedRewards] = useState([]);
-//   const [filter, setFilter] = useState('toBeClaimed'); // 'toBeClaimed' or 'claimed'
-//   const [selectedReward, setSelectedReward] = useState(null);
-//   const [showModal, setShowModal] = useState(false);
-//   const [loading, setLoading] = useState(false);
-//   const [refreshing, setRefreshing] = useState(false);
-
-//   useEffect(() => {
-//     fetchClaimedRewards();
-//   }, [user]);
-
-//   const fetchClaimedRewards = async () => {
-//     if (user && user.studentNumber) {
-//       const rewards = await getClaimedRewards(user.studentNumber);
-//       setClaimedRewards(rewards);
-//     }
-//   };
-
-//   const handleClaimed = async (rewardId) => {
-//     if (!rewardId) {
-//       console.error('Invalid rewardId:', rewardId);
-//       return;
-//     }
-
-//     try {
-//       setLoading(true);
-//       console.log(`Updating reward status for document ID: ${rewardId}`);
-//       await updateClaimedRewardStatus(rewardId, 'claimed');
-//       fetchClaimedRewards();
-//       setLoading(false);
-//       setShowModal(false);
-//       ToastAndroid.show('Reward claimed successfully', ToastAndroid.SHORT);
-//     } catch (error) {
-//       console.error('Error updating claimed reward status:', error);
-//       setLoading(false);
-//     }
-//   };
-
-//   const handleRewardPress = (reward) => {
-//     setSelectedReward(reward);
-//     setShowModal(true);
-//   };
-
-//   const filteredRewards = claimedRewards.filter((reward) =>
-//     filter === 'toBeClaimed' ? reward.status !== 'claimed' : reward.status === 'claimed'
-//   );
-
-//   const onRefresh = useCallback(async () => {
-//     setRefreshing(true);
-//     await fetchClaimedRewards();
-//     setRefreshing(false);
-//   }, []);
-
-//   useFocusEffect(
-//     useCallback(() => {
-//       const onBackPress = () => {
-//         navigation.goBack();
-//         return true;
-//       };
-
-//       BackHandler.addEventListener('hardwareBackPress', onBackPress);
-
-//       return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-//     }, [navigation])
-//   );
-
-//   return (
-//     <View style={styles.container}>
-//       <View style={styles.headerContainer}>
-//         <View style={styles.header}>
-//           <Pressable delayLongPress={200} android_ripple={{ color: '#f9f9f9', borderless: true, radius: 50 }}>
-//             <AntDesign name="arrowleft" size={wp('10%')} color="#bdd299" style={{ marginLeft: wp('3%'), marginTop: wp('5%') }} onPress={() => navigation.goBack()} />
-//           </Pressable>
-//           <Text style={styles.title}>Rewards</Text>
-//         </View>
-//         <View style={styles.filterContainer}>
-//           <TouchableOpacity
-//             style={[styles.filterButton, filter === 'toBeClaimed' && styles.activeFilterButton]}
-//             onPress={() => setFilter('toBeClaimed')}
-//           >
-//             <Text style={styles.filterButtonText}>To Be Claimed</Text>
-//           </TouchableOpacity>
-//           <TouchableOpacity
-//             style={[styles.filterButton, filter === 'claimed' && styles.activeFilterButton]}
-//             onPress={() => setFilter('claimed')}
-//           >
-//             <Text style={styles.filterButtonText}>Claimed</Text>
-//           </TouchableOpacity>
-//         </View>
-//       </View>
-//       {filteredRewards.length === 0 ? (
-//         <View style={styles.emptyContainer}>
-//           <MaterialCommunityIcons name="delete-empty-outline" size={wp('20%')} color="#83951c" borderRadius={20} />
-//           <Text style={styles.emptyText}>
-//             {filter === 'toBeClaimed' ? (
-//               <>
-//                 <Text>Your <Text
-//                   style={{ fontFamily: 'Poppins-Bold', fontSize: hp('1.8%'), color: '#455e14' }}
-//                 >to-be-claimed</Text> rewards {"\n"} will appear here.</Text>
-//               </>
-//             ) : (
-//               <Text>Your <Text
-//                 style={{ fontFamily: 'Poppins-Bold', fontSize: hp('1.8%'), color: '#455e14' }}
-//               >claimed</Text> rewards {"\n"} will appear here.</Text>
-//             )}
-//           </Text>
-//         </View>
-//       ) : (
-//         <FlatList
-//           style={{ padding: wp('3%') }}
-//           data={filteredRewards}
-//           keyExtractor={(item, index) => item.id + index.toString()}
-//           showsVerticalScrollIndicator={false}
-//           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-//           renderItem={({ item }) => (
-//             <Pressable onPress={() => handleRewardPress(item)}>
-//               <View style={styles.rewardItem}>
-//                 <Image source={item.image} style={styles.rewardImage} />
-//                 <View style={styles.rewardInfo}>
-//                   <Text style={styles.rewardName}>{item.name}</Text>
-//                   <Text style={styles.rewardPoints}>Points: {item.points}</Text>
-//                 </View>
-//               </View>
-//             </Pressable>
-//           )}
-//         />
-//       )}
-
-//       {/* Reward Details Modal */}
-//       {selectedReward && (
-//         <Modal
-//           visible={showModal}
-//           transparent={true}
-//           animationType="slide"
-//           onRequestClose={() => setShowModal(false)}
-//         >
-//           <View style={styles.modalContainer}>
-//             <View style={styles.modalContent}>
-//               <Text style={styles.modalTitle}>Reward Details</Text>
-//               <Image source={selectedReward.image} style={styles.modalImage} />
-//               <Text style={styles.modalTitle}>{selectedReward.name}</Text>
-//               <Text style={styles.modalText}>Points: {selectedReward.points}</Text>
-//               <Text style={styles.modalText}>Claimed At: {new Date(selectedReward.claimedAt).toLocaleString()}</Text>
-//               <Image source={{ uri: selectedReward.barcodeUrl }} style={styles.barcodeImage} />
-//               {loading ? (
-//                 <ActivityIndicator size="large" color="#83951c" />
-//               ) : (
-//                 filter === 'toBeClaimed' && (
-//                   <TouchableOpacity style={styles.claimButton} onPress={() => handleClaimed(selectedReward.id)}>
-//                     <Text style={styles.claimButtonText}>Mark as Claimed</Text>
-//                   </TouchableOpacity>
-//                 )
-//               )}
-//               <TouchableOpacity style={styles.closeButton} onPress={() => setShowModal(false)}>
-//                 <Text style={styles.closeButtonText}>Close</Text>
-//               </TouchableOpacity>
-//             </View>
-//           </View>
-//         </Modal>
-//       )}
-//     </View>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: '#f6f6f6',
-//   },
-//   headerContainer: {
-//     backgroundColor: 'white',
-//     borderBottomColor: '#455e14',
-//     borderBottomWidth: 0.5,
-//   },
-//   header: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     marginTop: wp('4%'),
-//   },
-//   title: {
-//     color: '#455e14',
-//     fontSize: wp('6%'),
-//     marginLeft: wp('5%'),
-//     marginTop: wp('6%'),
-//     fontFamily: 'Poppins-Bold',
-//   },
-//   filterContainer: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-evenly',
-//     marginBottom: hp('1%'),
-//   },
-//   filterButton: {
-//     padding: hp('1.3%'),
-//   },
-//   activeFilterButton: {
-//     borderRadius: 20,
-//     backgroundColor: '#bdd299',
-//     paddingHorizontal: wp('4%'),
-//   },
-//   filterButtonText: {
-//     color: '#455e14',
-//     fontSize: hp('1.5%'),
-//     fontFamily: 'Poppins-SemiBold',
-//   },
-//   emptyContainer: {
-//     flex: 1,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//   },
-//   emptyText: {
-//     fontSize: hp('2%'),
-//     fontFamily: 'Poppins-Regular',
-//     color: '#455e14',
-//     textAlign: 'center',
-//   },
-//   rewardItem: {
-//     padding: hp('2%'),
-//     marginVertical: hp('1%'),
-//     backgroundColor: 'white',
-//     borderRadius: 10,
-//     elevation: 3,
-//     flexDirection: 'row',
-//   },
-//   rewardInfo: {
-//     marginLeft: hp('1%'),
-    
-//   },
-//   rewardImage: {
-//     width: wp('30%'), // Adjusted width
-//     height: hp('10%'), // Adjusted height
-//     resizeMode: 'contain',
-//     alignSelf: 'center',
-//   },
-//   rewardName: {
-//     fontSize: hp('2%'),
-//     fontFamily: 'Poppins-Bold',
-//     color: '#455e14',
-//   },
-//   rewardPoints: {
-//     fontSize: hp('1.7%'),
-//     fontFamily: 'Poppins-Regular',
-//     color: '#83951c',
-//   },
-//   rewardDate: {
-//     fontSize: hp('1.7%'),
-//     fontFamily: 'Poppins-Regular',
-//     color: '#83951c',
-//   },
-//   rewardBarcode: {
-//     fontSize: hp('2%'),
-//     fontFamily: 'Poppins-Regular',
-//     color: '#83951c',
-//   },
-//   modalImage: {
-//     width: wp('50%'), // Adjusted width
-//     height: hp('20%'), // Adjusted height
-//     resizeMode: 'contain',
-//     alignSelf: 'center',
-//   },
-//   barcodeImage: {
-//     width: wp('50%'), // Adjusted width
-//     height: hp('20%'), // Adjusted height
-//     resizeMode: 'contain',
-//     marginBottom: hp('2%'),
-//     alignSelf: 'center',
-//   },
-//   claimButton: {
-//     marginTop: hp('1%'),
-//     padding: hp('1%'),
-//     borderRadius: 5,
-//     backgroundColor: '#83951c',
-//     alignItems: 'center',
-//   },
-//   claimButtonText: {
-//     color: 'white',
-//     fontSize: hp('2%'),
-//     fontFamily: 'Poppins-SemiBold',
-//   },
-//   modalContainer: {
-//     flex: 1,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-//   },
-//   modalContent: {
-//     width: wp('80%'),
-//     padding: hp('2%'),
-//     backgroundColor: 'white',
-//     borderRadius: 10,
-//   },
-//   modalTitle: {
-//     fontSize: hp('3%'),
-//     fontFamily: 'Poppins-Bold',
-//     marginBottom: hp('2%'),
-//     color: '#455e14',
-//     alignSelf: 'center',
-//   },
-//   modalText: {
-//     fontSize: hp('2%'),
-//     fontFamily: 'Poppins-Regular',
-//   },
-//   closeButton: {
-//     marginTop: hp('2%'),
-//     padding: hp('1%'),
-//     borderRadius: 5,
-//     backgroundColor: '#83951c',
-//     alignItems: 'center',
-//   },
-//   closeButtonText: {
-//     color: 'white',
-//     fontSize: hp('2%'),
-//     fontFamily: 'Poppins-SemiBold',
-//   },
-// });
-
-// export default ClaimedRewardsScreen;
-
 import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image, Modal, ActivityIndicator, BackHandler, Pressable, RefreshControl, ToastAndroid, Alert } from 'react-native';
 import { getClaimedRewards, updateClaimedRewardStatus, deleteClaimedReward } from './claimedRewardsService';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
+import { AntDesign, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { UserContext } from '../context/UserContext'; // Import UserContext
+import Animated, { FadeIn, FadeInDown, SlideInDown } from 'react-native-reanimated';
 
 const ClaimedRewardsScreen = ({ navigation }) => {
   const { user } = useContext(UserContext); // Use user data from context
@@ -439,44 +113,56 @@ const ClaimedRewardsScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.headerContainer}>
+      <Animated.View 
+        entering={FadeIn}
+        style={styles.headerContainer}
+      >
         <View style={styles.header}>
-          <Pressable delayLongPress={200} android_ripple={{ color: '#f9f9f9', borderless: true, radius: 50 }}>
-            <AntDesign name="arrowleft" size={wp('10%')} color="#bdd299" style={{ marginLeft: wp('3%'), marginTop: wp('5%') }} onPress={() => navigation.goBack()} />
+          <Pressable 
+            style={styles.backButton}
+            android_ripple={{ color: '#f9f9f9', borderless: true, radius: 28 }}
+            onPress={() => navigation.goBack()}
+          >
+            <AntDesign name="arrowleft" size={wp('7%')} color="#455e14" />
           </Pressable>
           <Text style={styles.title}>Rewards</Text>
         </View>
         <View style={styles.filterContainer}>
-          <TouchableOpacity
-            style={[styles.filterButton, filter === 'toBeClaimed' && styles.activeFilterButton]}
-            onPress={() => setFilter('toBeClaimed')}
-          >
-            <Text style={styles.filterButtonText}>To Be Claimed</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.filterButton, filter === 'claimed' && styles.activeFilterButton]}
-            onPress={() => setFilter('claimed')}
-          >
-            <Text style={styles.filterButtonText}>Claimed</Text>
-          </TouchableOpacity>
-       
-      </View>
-      </View>
-        <View style={styles.sortContainer}>
-          <Text style={styles.sortText}>Sort by:</Text>
-          <TouchableOpacity
-            style={[styles.sortButton, sortCriteria === 'date' && styles.activeSortButton]}
-            onPress={() => setSortCriteria('date')}
-          >
-            <Text style={styles.sortButtonText}>Date</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.sortButton, sortCriteria === 'name' && styles.activeSortButton]}
-            onPress={() => setSortCriteria('name')}
-          >
-            <Text style={styles.sortButtonText}>Name</Text>
-          </TouchableOpacity>
+          {['toBeClaimed', 'claimed'].map((filterType) => (
+            <Animated.View 
+              key={filterType}
+              entering={FadeInDown.delay(filterType === 'claimed' ? 200 : 0)}
+            >
+              <TouchableOpacity
+                style={[styles.filterButton, filter === filterType && styles.activeFilterButton]}
+                onPress={() => setFilter(filterType)}
+              >
+                <Text style={[
+                  styles.filterButtonText,
+                  filter === filterType && styles.activeFilterText
+                ]}>
+                  {filterType === 'toBeClaimed' ? 'To Be Claimed' : 'Claimed'}
+                </Text>
+              </TouchableOpacity>
+            </Animated.View>
+          ))}
         </View>
+      </Animated.View>
+      <View style={styles.sortContainer}>
+        <Text style={styles.sortText}>Sort by:</Text>
+        <TouchableOpacity
+          style={[styles.sortButton, sortCriteria === 'date' && styles.activeSortButton]}
+          onPress={() => setSortCriteria('date')}
+        >
+          <Text style={styles.sortButtonText}>Date</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.sortButton, sortCriteria === 'name' && styles.activeSortButton]}
+          onPress={() => setSortCriteria('name')}
+        >
+          <Text style={styles.sortButtonText}>Name</Text>
+        </TouchableOpacity>
+      </View>
       {filteredRewards.length === 0 ? (
         <View style={styles.emptyContainer}>
           <MaterialCommunityIcons name="delete-empty-outline" size={wp('20%')} color="#83951c" borderRadius={20} />
@@ -508,11 +194,11 @@ const ClaimedRewardsScreen = ({ navigation }) => {
                 <View style={styles.rewardInfo}>
                   <Text style={styles.rewardName}>{item.name}</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', bottom: hp('0.5%'), marginLeft: hp('0.5%')}}>
-                  <Image
-            style={{height: hp('1.5%'), width: wp('3%'), }}
-            source={require('../assets/images/points.png')}
-          />
-                  <Text style={styles.rewardPoints}>: {item.points}</Text>
+                    <Image
+                      style={{height: hp('1.5%'), width: wp('3%'), }}
+                      source={require('../assets/images/points.png')}
+                    />
+                    <Text style={styles.rewardPoints}>: {item.points}</Text>
                   </View>
                 </View>
                 {filter === 'claimed' && (
@@ -531,31 +217,76 @@ const ClaimedRewardsScreen = ({ navigation }) => {
         <Modal
           visible={showModal}
           transparent={true}
-          animationType="slide"
+          animationType="fade"
           onRequestClose={() => setShowModal(false)}
         >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Reward Details</Text>
+          <Animated.View 
+            entering={FadeIn}
+            style={styles.modalContainer}
+          >
+            <Pressable 
+              style={styles.modalBackground}
+              onPress={() => setShowModal(false)}
+            />
+            <Animated.View 
+              entering={SlideInDown}
+              style={styles.modalContent}
+            >
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Reward Details</Text>
+                <Pressable 
+                  style={styles.modalCloseIcon}
+                  onPress={() => setShowModal(false)}
+                >
+                  <Ionicons name="close" size={wp('6%')} color="#455e14" />
+                </Pressable>
+              </View>
+              
               <Image source={selectedReward.image} style={styles.modalImage} />
               <Text style={styles.modalTitles}>{selectedReward.name}</Text>
-              <Text style={styles.modalText}>Points: {selectedReward.points}</Text>
-              <Text style={styles.modalText}>Claimed At: {new Date(selectedReward.claimedAt).toLocaleString()}</Text>
+              
+              <View style={styles.modalInfoContainer}>
+                <View style={styles.modalInfoRow}>
+                  <MaterialCommunityIcons name="star" size={wp('5%')} color="#83951c" />
+                  <Text style={styles.modalInfoText}>Points: {selectedReward.points}</Text>
+                </View>
+                <View style={styles.modalInfoRow}>
+                  <MaterialCommunityIcons name="clock-outline" size={wp('5%')} color="#83951c" />
+                  <Text style={styles.modalInfoText}>
+                    {new Date(selectedReward.claimedAt).toLocaleString()}
+                  </Text>
+                </View>
+              </View>
+
+              <Text style={[
+                styles.modalText, 
+                styles.statusText, 
+                selectedReward.status === 'claimed' 
+                  ? styles.completedStatus 
+                  : selectedReward.availability?.toLowerCase() === 'can be claimed'
+                    ? styles.canBeClaimedStatus 
+                    : styles.pendingStatus
+              ]}>
+                Status: {selectedReward.status === 'claimed' 
+                  ? 'Completed' 
+                  : selectedReward.availability}
+              </Text>
               <Image source={{ uri: selectedReward.barcodeUrl }} style={styles.barcodeImage} />
               {loading ? (
                 <ActivityIndicator size="large" color="#83951c" />
               ) : (
-                filter === 'toBeClaimed' && (
-                  <TouchableOpacity style={styles.claimButton} onPress={() => handleClaimed(selectedReward.id)}>
+                filter === 'toBeClaimed' && 
+                selectedReward.availability === 'can be claimed' && (
+                  <TouchableOpacity 
+                    style={styles.claimButton}
+                    onPress={() => handleClaimed(selectedReward.id)}
+                  >
                     <Text style={styles.claimButtonText}>Mark as Claimed</Text>
                   </TouchableOpacity>
                 )
               )}
-              <TouchableOpacity style={styles.closeButton} onPress={() => setShowModal(false)}>
-                <Text style={styles.closeButtonText}>Close</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+            </Animated.View>
+          </Animated.View>
         </Modal>
       )}
     </View>
@@ -569,8 +300,13 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     backgroundColor: 'white',
-    borderBottomColor: '#455e14',
-    borderBottomWidth: 0.5,
+    borderBottomLeftRadius: wp('5%'),
+    borderBottomRightRadius: wp('5%'),
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   header: {
     flexDirection: 'row',
@@ -590,17 +326,22 @@ const styles = StyleSheet.create({
     marginBottom: hp('1%'),
   },
   filterButton: {
-    padding: hp('1.3%'),
+    paddingVertical: hp('1.3%'),
+    paddingHorizontal: wp('6%'),
+    borderRadius: wp('5%'),
+    marginHorizontal: wp('2%'),
+    backgroundColor: '#f5f8f2',
   },
   activeFilterButton: {
-    borderRadius: 20,
-    backgroundColor: '#bdd299',
-    paddingHorizontal: wp('4%'),
+    backgroundColor: '#455e14',
   },
   filterButtonText: {
-    color: '#455e14',
-    fontSize: hp('1.5%'),
+    color: '#83951c',
+    fontSize: hp('1.6%'),
     fontFamily: 'Poppins-SemiBold',
+  },
+  activeFilterText: {
+    color: 'white',
   },
   sortContainer: {
     flexDirection: 'row',
@@ -699,11 +440,11 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   claimButton: {
-    marginTop: hp('1%'),
-    padding: hp('1%'),
-    borderRadius: 5,
-    backgroundColor: '#83951c',
-    alignItems: 'center',
+    backgroundColor: '#455e14',
+    paddingVertical: hp('1.5%'),
+    borderRadius: wp('3%'),
+    marginTop: hp('2%'),
+    elevation: 2,
   },
   claimButtonText: {
     color: 'white',
@@ -714,13 +455,45 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  },
+  modalBackground: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
   },
   modalContent: {
-    width: wp('85%'),
-    padding: hp('2%'),
+    width: wp('90%'),
     backgroundColor: 'white',
-    borderRadius: 10,
+    borderRadius: wp('5%'),
+    padding: wp('5%'),
+    elevation: 5,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: hp('2%'),
+  },
+  modalCloseIcon: {
+    padding: wp('2%'),
+  },
+  modalInfoContainer: {
+    backgroundColor: '#f5f8f2',
+    borderRadius: wp('3%'),
+    padding: wp('4%'),
+    marginVertical: hp('2%'),
+  },
+  modalInfoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: hp('0.5%'),
+  },
+  modalInfoText: {
+    marginLeft: wp('3%'),
+    fontSize: hp('1.8%'),
+    fontFamily: 'Poppins-Medium',
+    color: '#455e14',
   },
   modalTitle: {
     fontSize: hp('3%'),
@@ -738,17 +511,31 @@ const styles = StyleSheet.create({
     fontSize: hp('2%'),
     fontFamily: 'Poppins-Regular',
   },
-  closeButton: {
-    marginTop: hp('2%'),
-    padding: hp('1%'),
-    borderRadius: 5,
-    backgroundColor: '#83951c',
-    alignItems: 'center',
-  },
-  closeButtonText: {
-    color: 'white',
+  statusText: {
     fontSize: hp('2%'),
     fontFamily: 'Poppins-SemiBold',
+    textAlign: 'center',
+    marginVertical: hp('1%'),
+    paddingVertical: hp('0.5%'),
+    paddingHorizontal: wp('2%'),
+    borderRadius: 5,
+  },
+  completedStatus: {
+    color: '#4CAF50',
+    backgroundColor: '#E8F5E9',
+  },
+  canBeClaimedStatus: {
+    color: '#83951c',
+    backgroundColor: '#e5eeda',
+  },
+  pendingStatus: {
+    color: '#FFA000',
+    backgroundColor: '#FFF3E0',
+  },
+  backButton: {
+    padding: wp('3%'),
+    marginLeft: wp('2%'),
+    marginTop: wp('5%'),
   },
 });
 
