@@ -13,38 +13,51 @@ const { Storage } = require("@google-cloud/storage");
 //   throw new Error("FIREBASE_PRIVATE_KEY is not set");
 // }
 
-const serviceAccount = {
-  type: process.env.FIREBASE_TYPE,
-  project_id: process.env.FIREBASE_PROJECT_ID,
-  private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-  private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-  client_email: process.env.FIREBASE_CLIENT_EMAIL,
-  client_id: process.env.FIREBASE_CLIENT_ID,
-  auth_uri: process.env.FIREBASE_AUTH_URI,
-  token_uri: process.env.FIREBASE_TOKEN_URI,
-  auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
-  client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL
-};
+// const serviceAccount = {
+//   type: process.env.FIREBASE_TYPE,
+//   project_id: process.env.FIREBASE_PROJECT_ID,
+//   private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
+//   private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+//   client_email: process.env.FIREBASE_CLIENT_EMAIL,
+//   client_id: process.env.FIREBASE_CLIENT_ID,
+//   auth_uri: process.env.FIREBASE_AUTH_URI,
+//   token_uri: process.env.FIREBASE_TOKEN_URI,
+//   auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
+//   client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL
+// };
 
-console.log('Service Account:', serviceAccount);
 
 // Initialize Firebase Admin
 // Add this after serviceAccount initialization
-if (!serviceAccount.private_key) {
-  console.error('Firebase private key is missing');
-  throw new Error('Firebase configuration is incomplete');
-}
 
 // Initialize Firebase with error handling
 try {
   admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://bpts-34c54-default-rtdb.firebaseio.com",
+    credential: admin.credential.cert({
+      type: process.env.FIREBASE_TYPE,
+      project_id: process.env.FIREBASE_PROJECT_ID,
+      private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
+      private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      client_email: process.env.FIREBASE_CLIENT_EMAIL,
+      client_id: process.env.FIREBASE_CLIENT_ID,
+      auth_uri: process.env.FIREBASE_AUTH_URI,
+      token_uri: process.env.FIREBASE_TOKEN_URI,
+      auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
+      client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL
+    }),
+    databaseURL: process.env.FIREBASE_DATABASE_URL
   });
 } catch (error) {
   console.error('Firebase initialization error:', error);
   throw error;
 }
+console.log('Service Account:', serviceAccount);
+console.log('FIREBASE_PRIVATE_KEY:', process.env.FIREBASE_PRIVATE_KEY);
+if (!private_key) {
+  console.error('Firebase private key is missing');
+  throw new Error('Firebase configuration is incomplete');
+}
+
 const db = admin.firestore();
 // const storage = new Storage({ keyFilename: "./serviceAccountKey.json" });
 const storage = new Storage({
