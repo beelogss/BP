@@ -1,5 +1,3 @@
-require('dotenv').config();
-
 const express = require("express");
 const nodemailer = require("nodemailer");
 const admin = require("firebase-admin");
@@ -19,7 +17,10 @@ const serviceAccount = {
   type: process.env.FIREBASE_TYPE,
   project_id: process.env.FIREBASE_PROJECT_ID,
   private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-  private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+  // Handle the private key with a fallback and proper parsing
+  private_key: process.env.FIREBASE_PRIVATE_KEY ? 
+    process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') : 
+    JSON.parse(process.env.FIREBASE_PRIVATE_KEY_JSON || '""'),
   client_email: process.env.FIREBASE_CLIENT_EMAIL,
   client_id: process.env.FIREBASE_CLIENT_ID,
   auth_uri: process.env.FIREBASE_AUTH_URI,
@@ -29,10 +30,22 @@ const serviceAccount = {
 };
 
 // Initialize Firebase Admin
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://bpts-34c54-default-rtdb.firebaseio.com",
-});
+// Add this after serviceAccount initialization
+if (!serviceAccount.private_key) {
+  console.error('Firebase private key is missing');
+  throw new Error('Firebase configuration is incomplete');
+}
+
+// Initialize Firebase with error handling
+try {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: "https://bpts-34c54-default-rtdb.firebaseio.com",
+  });
+} catch (error) {
+  console.error('Firebase initialization error:', error);
+  throw error;
+}
 const db = admin.firestore();
 // const storage = new Storage({ keyFilename: "./serviceAccountKey.json" });
 const storage = new Storage({
