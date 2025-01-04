@@ -100,7 +100,7 @@ const LeaderboardScreen = ({ navigation }) => {
 
   const fetchLeaderboardData = async () => {
     try {
-      const response = await axios.get('https://4d18bffc-5559-4534-b92c-8106440742d3-00-3g1frlvror77n.riker.replit.dev/leaderboard');
+      const response = await axios.get('https://079d4493-7284-45e2-8f07-032acf84a6e7-00-okeb4h5jwg8d.pike.replit.dev/leaderboard');
       if (response.data.success) {
         setLeaderboardData(response.data.leaderboard);
       } else {

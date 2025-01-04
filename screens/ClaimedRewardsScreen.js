@@ -16,15 +16,24 @@ const ClaimedRewardsScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [sortCriteria, setSortCriteria] = useState('date'); // 'date' or 'name'
+  const [isLoadingRewards, setIsLoadingRewards] = useState(true);
 
   useEffect(() => {
     fetchClaimedRewards();
   }, [user]);
 
   const fetchClaimedRewards = async () => {
-    if (user && user.studentNumber) {
-      const rewards = await getClaimedRewards(user.studentNumber);
-      setClaimedRewards(rewards);
+    try {
+      setIsLoadingRewards(true);
+      if (user && user.studentNumber) {
+        const rewards = await getClaimedRewards(user.studentNumber);
+        setClaimedRewards(rewards);
+      }
+    } catch (error) {
+      console.error('Error fetching rewards:', error);
+      ToastAndroid.show('Error loading rewards', ToastAndroid.SHORT);
+    } finally {
+      setIsLoadingRewards(false);
     }
   };
 
@@ -163,7 +172,13 @@ const ClaimedRewardsScreen = ({ navigation }) => {
           <Text style={styles.sortButtonText}>Name</Text>
         </TouchableOpacity>
       </View>
-      {filteredRewards.length === 0 ? (
+
+      {isLoadingRewards ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#83951c" />
+          <Text style={styles.loadingText}>Loading rewards...</Text>
+        </View>
+      ) : filteredRewards.length === 0 ? (
         <View style={styles.emptyContainer}>
           <MaterialCommunityIcons name="delete-empty-outline" size={wp('20%')} color="#83951c" borderRadius={20} />
           <Text style={styles.emptyText}>
@@ -536,6 +551,17 @@ const styles = StyleSheet.create({
     padding: wp('3%'),
     marginLeft: wp('2%'),
     marginTop: wp('5%'),
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: hp('2%'),
+    fontSize: hp('2%'),
+    fontFamily: 'Poppins-Medium',
+    color: '#83951c',
   },
 });
 

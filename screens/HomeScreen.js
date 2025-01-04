@@ -25,65 +25,9 @@ export default function HomeScreen({ navigation }) {
   const [hasNotifications, setHasNotifications] = useState(false);
   const [activeTooltip, setActiveTooltip] = useState(null);
 
-  const fetchUserData = async () => {
-    try {
-      const storedEmail = await AsyncStorage.getItem('email');
-      const storedPassword = await AsyncStorage.getItem('password');
-
-      if (!storedEmail || !storedPassword) {
-        throw new Error('Stored credentials are missing');
-      }
-
-      const response = await axios.post('https://4d18bffc-5559-4534-b92c-8106440742d3-00-3g1frlvror77n.riker.replit.dev/login', { email: storedEmail, password: storedPassword });
-      const userData = response.data.user;
-
-      // Fetch total points and bottle count from userPoints collection
-      const pointsSnapshot = await axios.get(`https://4d18bffc-5559-4534-b92c-8106440742d3-00-3g1frlvror77n.riker.replit.dev/userPoints?studentNumber=${userData.studentNumber}`);
-      
-      console.log("Points Snapshot:", pointsSnapshot.data); // Log the response
-
-      const totalPoints = pointsSnapshot.data.totalPoints || 0;
-      const totalBottleCount = pointsSnapshot.data.totalBottleCount || 0;
-
-      setUser({
-        ...userData,
-        points: totalPoints,
-        bottleCount: totalBottleCount,
-      });
-    } catch (error) {
-      console.error('Error fetching user data:', error.response ? error.response.data : error.message);
-      ToastAndroid.show('Error fetching user data', ToastAndroid.SHORT);
-    }
-  };
-
-  const fetchLeaderboardData = async () => {
-    try {
-      const response = await axios.get('https://4d18bffc-5559-4534-b92c-8106440742d3-00-3g1frlvror77n.riker.replit.dev/leaderboard');
-      if (response.data.success) {
-        setLeaderboardData(response.data.leaderboard);
-      } else {
-        ToastAndroid.show('Failed to fetch leaderboard', ToastAndroid.SHORT);
-      }
-    } catch (error) {
-      console.error('Error fetching leaderboard:', error.response ? error.response.data : error.message);
-      ToastAndroid.show('Error fetching leaderboard', ToastAndroid.SHORT);
-    }
-  };
-
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    await fetchUserData();
-    await fetchLeaderboardData();
-    setRefreshing(false);
-  }, []);
-
-  useEffect(() => {
-    fetchLeaderboardData();
-  }, []);
-
-  const navIndex = useNavigationState(s => s.index);
   const [backPressCount, setBackPressCount] = useState(0);
-  const timeoutRef = useRef(null); // Ref to store the timeout ID
+  const timeoutRef = useRef(null);
+  const navIndex = useNavigationState(s => s.index);
 
   const handleBackPress = useCallback(() => {
     if (backPressCount === 0) {
@@ -97,7 +41,7 @@ export default function HomeScreen({ navigation }) {
   }, [backPressCount]);
 
   useEffect(() => {
-    if (Platform.OS === 'android' && navIndex === 0) {
+    if (navIndex === 0) {
       const backListener = BackHandler.addEventListener(
         'hardwareBackPress',
         handleBackPress
@@ -106,11 +50,114 @@ export default function HomeScreen({ navigation }) {
       return () => {
         backListener.remove();
         if (timeoutRef.current) {
-          clearTimeout(timeoutRef.current); // Clear the timeout on unmount
+          clearTimeout(timeoutRef.current);
         }
       };
     }
   }, [handleBackPress, navIndex]);
+
+  const fetchUserData = async () => {
+    try {
+      // First check if we already have user data in context
+      if (!user) {
+        const storedEmail = await AsyncStorage.getItem('email');
+        const storedPassword = await AsyncStorage.getItem('password');
+
+        if (!storedEmail || !storedPassword) {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'Login' }],
+          });
+          return;
+        }
+
+        // Proceed with fetching user data
+        const response = await axios.post(
+          'https://079d4493-7284-45e2-8f07-032acf84a6e7-00-okeb4h5jwg8d.pike.replit.dev/login',
+          { 
+            email: storedEmail, 
+            password: storedPassword 
+          }
+        );
+
+        if (!response.data.success) {
+          throw new Error(response.data.message || 'Failed to fetch user data');
+        }
+
+        const userData = response.data.user;
+
+        // Fetch total points and bottle count
+        const pointsSnapshot = await axios.get(
+          `https://079d4493-7284-45e2-8f07-032acf84a6e7-00-okeb4h5jwg8d.pike.replit.dev/userPoints?studentNumber=${userData.studentNumber}`
+        );
+
+        const totalPoints = pointsSnapshot.data.totalPoints || 0;
+        const totalBottleCount = pointsSnapshot.data.totalBottleCount || 0;
+
+        // Update user context
+        setUser({
+          ...userData,
+          points: totalPoints,
+          bottleCount: totalBottleCount,
+        });
+      } else {
+        // If user exists, just update points and bottle count
+        const pointsSnapshot = await axios.get(
+          `https://079d4493-7284-45e2-8f07-032acf84a6e7-00-okeb4h5jwg8d.pike.replit.dev/userPoints?studentNumber=${user.studentNumber}`
+        );
+
+        const totalPoints = pointsSnapshot.data.totalPoints || 0;
+        const totalBottleCount = pointsSnapshot.data.totalBottleCount || 0;
+
+        setUser(prevUser => ({
+          ...prevUser,
+          points: totalPoints,
+          bottleCount: totalBottleCount,
+        }));
+      }
+
+    } catch (error) {
+      console.error('Error fetching user data:', error.response ? error.response.data : error.message);
+      
+      // Only show error message if it's not a credentials issue
+      if (error.message !== 'Stored credentials are missing') {
+        ToastAndroid.show(
+          'Error updating data. Pull down to refresh.',
+          ToastAndroid.SHORT
+        );
+      }
+    }
+  };
+
+  const fetchLeaderboardData = async () => {
+    try {
+      const response = await axios.get('https://079d4493-7284-45e2-8f07-032acf84a6e7-00-okeb4h5jwg8d.pike.replit.dev/leaderboard');
+      if (response.data.success) {
+        setLeaderboardData(response.data.leaderboard);
+      } else {
+        ToastAndroid.show('Failed to fetch leaderboard', ToastAndroid.SHORT);
+      }
+    } catch (error) {
+      console.error('Error fetching leaderboard:', error.response ? error.response.data : error.message);
+      ToastAndroid.show('Error fetching leaderboard', ToastAndroid.SHORT);
+    }
+  };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await fetchUserData();
+      await fetchLeaderboardData();
+    } catch (error) {
+      console.error('Refresh error:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchLeaderboardData();
+  }, []);
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (nextAppState) => {

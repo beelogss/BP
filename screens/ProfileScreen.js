@@ -115,6 +115,7 @@ export default function ProfileScreen({ navigation }) {
               { icon: 'file-document-outline', label: 'Terms and Conditions', route: 'TermsAndConditions' },
               { icon: 'shield-lock-outline', label: 'Privacy Policy', route: 'PrivacyPolicy' },
               { icon: 'help-circle-outline', label: 'Help Center', route: 'HelpCenter' },
+              { icon: 'alert-circle-outline', label: 'Report Problem', route: 'ReportProblem' },
               { icon: 'information-outline', label: 'About', route: 'About' },
             ].map((item, index) => (
               <Pressable 

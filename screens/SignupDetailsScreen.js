@@ -40,7 +40,7 @@ export default function SignupScreen({ route, navigation }) {
 
     try {
       // Call the backend API to create the user
-      const response = await fetch('https://4d18bffc-5559-4534-b92c-8106440742d3-00-3g1frlvror77n.riker.replit.dev/signup', {
+      const response = await fetch('https://079d4493-7284-45e2-8f07-032acf84a6e7-00-okeb4h5jwg8d.pike.replit.dev/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -20,8 +20,13 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, user }) => {
   };
 
   const handleConfirmClaim = async () => {
-    let newBarcode;
-    if (barcodeFormat === 'ean13' || barcodeFormat === 'upca') {
+    try {
+      setLoading(true);
+      
+      // Generate barcode using the original format
+      let newBarcode;
+      const barcodeFormat = 'ean13'; // Use EAN-13 format
+      
       // Generate a unique ID by appending a timestamp
       let uniqueId = `${selectedReward.id}${Date.now()}`;
       // Ensure it's numeric and length is correct
@@ -32,74 +37,102 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, user }) => {
         numericId = '1' + numericId.slice(1); // Replace first 0 with 1
       }
 
+      // Calculate check digit for EAN-13
+      const calculateCheckDigit = (number) => {
+        const digits = number.split('').map(Number);
+        const sum = digits.reduce((acc, digit, index) => {
+          return acc + digit * (index % 2 === 0 ? 1 : 3);
+        }, 0);
+        return ((10 - (sum % 10)) % 10).toString();
+      };
+
       const checkDigit = calculateCheckDigit(numericId);
       newBarcode = numericId + checkDigit;
-    } else {
-      newBarcode = `REWARD-${selectedReward.id}-${selectedReward.name}-${selectedReward.points}-${Date.now()}`;
-    }
+      
+      // Generate barcode URL using the EAN-13 format
+      const barcodeApiUrl = `https://bwipjs-api.metafloor.com/?bcid=${barcodeFormat}&text=${newBarcode}&scale=3&includetext`;
 
-    setLoading(true);
+      // Rest of the claiming process
+      const response = await axios.post(
+        'https://079d4493-7284-45e2-8f07-032acf84a6e7-00-okeb4h5jwg8d.pike.replit.dev/claim-reward',
+        {
+          userId: user.id,
+          rewardId: selectedReward.id,
+          points: selectedReward.points,
+          barcode: newBarcode
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }
+      );
 
-    // Generate the barcode image URL using bwip-js API
-    const barcodeApiUrl = `https://bwipjs-api.metafloor.com/?bcid=${barcodeFormat}&text=${encodeURIComponent(newBarcode)}&scale=3&includetext`;
-
-    setBarcodeUrl(barcodeApiUrl);
-
-    try {
-      // Call the backend to claim the reward and update the user's points
-      const response = await axios.post('http://192.168.1.9:3000/claim-reward', {
-        userId: user.id,
-        rewardId: selectedReward.id,
-      });
-
-      if (response.data.success) {
-        // Update the user context with the new points
-        setUser((prevUser) => ({
-          ...prevUser,
-          points: response.data.newPoints,
-        }));
-        ToastAndroid.show('Reward claimed successfully!', ToastAndroid.LONG);
-      } else {
-        Alert.alert('Error', response.data.message);
+      if (!response || !response.data.success) {
+        throw new Error('Failed to claim reward');
       }
 
-      // Update stock in Firestore
-      await updateRewardStock(selectedReward.id, selectedReward.stock - 1);
+      // If we get here, the claim was successful
+      try {
+        // Update user points
+        setUser((prevUser) => ({
+          ...prevUser,
+          points: response.data.newPoints || prevUser.points - selectedReward.points
+        }));
 
-      // Add claimed reward to Firestore and get the document ID
-      const docRef = await addClaimedReward({
-        name: selectedReward.name,
-        points: selectedReward.points,
-        barcode: newBarcode,
-        barcodeUrl: barcodeApiUrl, // Store the barcode URL
-        claimedAt: new Date().toISOString(),
-        status: 'toBeClaimed',
-        imageUrl: selectedReward.image.uri, // Store the image URL
-        userName: user?.name || 'Unknown', // Add user name with default value
-        studentNumber: user?.studentNumber || 'Unknown', // Add student number with default value
-      });
+        // Update stock in Firestore
+        await updateRewardStock(selectedReward.id, selectedReward.stock - 1);
 
-      // Store the document ID for future updates
-      selectedReward.claimedRewardDocId = docRef.id;
-      console.log(`Claimed reward added with document ID: ${docRef.id}`);
+        // Add claimed reward to Firestore
+        const docRef = await addClaimedReward({
+          name: selectedReward.name,
+          points: selectedReward.points,
+          barcode: newBarcode,
+          barcodeUrl: barcodeApiUrl,
+          claimedAt: new Date().toISOString(),
+          status: 'toBeClaimed',
+          imageUrl: selectedReward.image?.uri || null,
+          userName: user?.name || 'Unknown',
+          studentNumber: user?.studentNumber || 'Unknown',
+          userId: user.id // Add user ID for reference
+        });
+
+        // Set the barcode URL and show success
+        setBarcodeUrl(barcodeApiUrl);
+        ToastAndroid.show('Reward claimed successfully!', ToastAndroid.LONG);
+        
+        selectedReward.claimedRewardDocId = docRef.id;
+        console.log(`Claimed reward added with document ID: ${docRef.id}`);
+
+      } catch (dbError) {
+        console.error('Database error:', dbError);
+        Alert.alert(
+          'Warning', 
+          'Reward claimed but some updates failed. The reward is still valid.',
+          [{ text: 'OK' }]
+        );
+      }
+
     } catch (error) {
-      Alert.alert('Error', 'Failed to claim reward');
-    } finally {
+      console.error('Final claim error:', error);
+      let errorMessage = 'Failed to claim reward. Please try again.';
+      
+      if (error.response) {
+        errorMessage = error.response.data?.message || 'Server error occurred';
+      } else if (error.request) {
+        errorMessage = 'Network error. Please check your internet connection.';
+      }
+      
+      Alert.alert('Error', errorMessage);
       setLoading(false);
       setShowConfirmModal(false);
-      setShowBarcodeModal(true);
+      return; // Don't show barcode modal on error
     }
-  };
 
-  // Function to calculate the check digit for EAN-13 and UPC-A barcodes
-  const calculateCheckDigit = (numericId) => {
-    let sum = 0;
-    for (let i = 0; i < numericId.length; i++) {
-      const digit = parseInt(numericId[i], 10);
-      sum += (i % 2 === 0) ? digit : digit * 3;
-    }
-    const checkDigit = (10 - (sum % 10)) % 10;
-    return checkDigit.toString();
+    // Only reach here on success
+    setLoading(false);
+    setShowConfirmModal(false);
+    setShowBarcodeModal(true);
   };
 
   return (
@@ -113,7 +146,7 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, user }) => {
                 style={styles.closeButton} 
                 onPress={() => SheetManager.hide(sheetId)}
               >
-                <Feather name="x" size={wp('6%')} color="#455e14" />
+                <Feather name="x" size={wp('8%')} color="#455e14" />
               </TouchableOpacity>
             </View>
 
@@ -195,21 +228,44 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, user }) => {
       <Modal
         visible={showConfirmModal}
         transparent={true}
-        animationType="slide"
+        animationType="fade"
         onRequestClose={() => setShowConfirmModal(false)}
       >
         <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, styles.confirmModalContent]}>
+            <MaterialCommunityIcons name="alert-circle-outline" size={50} color="#83951c" />
             <Text style={styles.modalTitle}>Confirm Claim</Text>
-            <Text style={styles.modalText}>Are you sure you want to claim this reward?</Text>
+            <Text style={styles.confirmModalText}>
+              Are you sure you want to claim {selectedReward?.name} for {selectedReward?.points} points?
+            </Text>
             <View style={styles.modalButtons}>
-              <TouchableOpacity style={styles.modalButton} onPress={() => setShowConfirmModal(false)}>
-                <Text style={styles.modalButtonText}>Cancel</Text>
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.cancelButton]} 
+                onPress={() => setShowConfirmModal(false)}
+              >
+                <Text style={[styles.modalButtonText, styles.cancelButtonText]}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.modalButton} onPress={handleConfirmClaim}>
+              <TouchableOpacity 
+                style={styles.modalButton} 
+                onPress={handleConfirmClaim}
+              >
                 <Text style={styles.modalButtonText}>Confirm</Text>
               </TouchableOpacity>
             </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Loading Modal */}
+      <Modal
+        visible={loading}
+        transparent={true}
+        animationType="fade"
+      >
+        <View style={styles.modalContainer}>
+          <View style={[styles.modalContent, styles.loadingModalContent]}>
+            <ActivityIndicator size="large" color="#83951c" />
+            <Text style={styles.loadingText}>Claiming your reward...</Text>
           </View>
         </View>
       </Modal>
@@ -218,21 +274,38 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, user }) => {
       <Modal
         visible={showBarcodeModal}
         transparent={true}
-        animationType="slide"
+        animationType="fade"
         onRequestClose={() => setShowBarcodeModal(false)}
       >
         <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Reward Claimed</Text>
-            {loading ? (
-              <ActivityIndicator size="large" color="#83951c" />
+          <View style={[styles.modalContent, styles.barcodeModalContent]}>
+            <View style={styles.successIconContainer}>
+              <MaterialCommunityIcons name="check-circle" size={60} color="#4CAF50" />
+            </View>
+            <Text style={styles.modalTitle}>Reward Claimed!</Text>
+            {barcodeUrl ? (
+              <Image 
+                source={{ uri: barcodeUrl }} 
+                style={styles.barcodeImage}
+                onError={(e) => console.log('Barcode image error:', e.nativeEvent.error)}
+              />
             ) : (
-              <Image source={{ uri: barcodeUrl }} style={styles.barcodeImage} />
+              <View style={styles.barcodeError}>
+                <Text style={styles.errorText}>Failed to load barcode</Text>
+              </View>
             )}
-            <Text style={styles.modalText}>Reward: {selectedReward?.name}</Text>
-            <Text style={styles.modalText}>Points: {selectedReward?.points}</Text>
-            <TouchableOpacity style={styles.modalButtonss} onPress={() => setShowBarcodeModal(false)}>
-              <Text style={styles.modalButtonTexts}>Close</Text>
+            <View style={styles.rewardDetailsContainer}>
+              <Text style={styles.rewardName}>{selectedReward?.name}</Text>
+              <Text style={styles.pointsText}>{selectedReward?.points} points</Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.closeButton} 
+              onPress={() => {
+                setShowBarcodeModal(false);
+                setBarcodeUrl('');
+              }}
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -249,21 +322,26 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: wp('5%'),
   },
   actionSheetHeader: {
-    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    width: '100%',
     marginBottom: hp('2%'),
   },
   headerLine: {
+    position: 'absolute',
+    left: '42.5%',
     width: wp('15%'),
     height: hp('0.5%'),
     backgroundColor: '#E0E0E0',
     borderRadius: wp('1%'),
-    marginBottom: hp('2%'),
+    top: hp('1%'),
   },
   closeButton: {
-    position: 'absolute',
-    right: 0,
-    top: 0,
-    padding: wp('2%'),
+    paddingVertical: hp('1.5%'),
+    borderRadius: 10,
+    marginTop: hp('2%'),
+    width: '100%',
+    alignItems: 'flex-end',
   },
   actionSheetImage: {
     width: wp('90%'),
@@ -369,7 +447,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#83951c',  // Your theme green for enabled state
   },
   disabledButton: {
-    backgroundColor: '#cccccc',  // Gray color for disabled state
+    backgroundColor: '#83951c80',  // Semi-transparent green
   },
   sheetButtonText: {
     color: 'white',
@@ -393,22 +471,101 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    width: wp('80%'),
-    padding: hp('2%'),
+    width: wp('85%'),
+    padding: hp('3%'),
     backgroundColor: 'white',
+    borderRadius: 15,
+    alignItems: 'center',
+    elevation: 5,
+  },
+  confirmModalContent: {
+    paddingTop: hp('4%'),
+  },
+  loadingModalContent: {
+    padding: hp('4%'),
+    backgroundColor: 'white',
+    borderRadius: 15,
+  },
+  barcodeModalContent: {
+    paddingTop: hp('2%'),
+  },
+  modalTitle: {
+    fontSize: hp('2.8%'),
+    fontFamily: 'Poppins-Bold',
+    color: '#455e14',
+    marginVertical: hp('2%'),
+    textAlign: 'center',
+  },
+  confirmModalText: {
+    fontSize: hp('2%'),
+    fontFamily: 'Poppins-Medium',
+    color: '#666666',
+    textAlign: 'center',
+    marginBottom: hp('3%'),
+  },
+  loadingText: {
+    fontSize: hp('2%'),
+    fontFamily: 'Poppins-Medium',
+    color: '#83951c',
+    marginTop: hp('2%'),
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginTop: hp('2%'),
+  },
+  modalButton: {
+    flex: 1,
+    padding: hp('1.5%'),
+    margin: hp('1%'),
+    backgroundColor: '#83951c',
     borderRadius: 10,
     alignItems: 'center',
   },
-  modalTitle: {
-    fontSize: hp('3%'),
-    fontFamily: 'Poppins-Bold',
-    marginBottom: hp('2%'),
-    color: '#455e14',
+  cancelButton: {
+    backgroundColor: '#f5f5f5',
+    borderWidth: 1,
+    borderColor: '#83951c',
   },
-  modalText: {
+  modalButtonText: {
+    color: 'white',
     fontSize: hp('2%'),
     fontFamily: 'Poppins-SemiBold',
+  },
+  cancelButtonText: {
+    color: '#83951c',
+  },
+  successIconContainer: {
+    marginBottom: hp('1%'),
+  },
+  rewardDetailsContainer: {
+    alignItems: 'center',
+    marginVertical: hp('2%'),
+  },
+  rewardName: {
+    fontSize: hp('2.2%'),
+    fontFamily: 'Poppins-SemiBold',
     color: '#455e14',
+    textAlign: 'center',
+  },
+  pointsText: {
+    fontSize: hp('2%'),
+    fontFamily: 'Poppins-Medium',
+    color: '#83951c',
+    marginTop: hp('0.5%'),
+  },
+  closeButton: {
+    borderRadius: 10,
+    marginTop: hp('2%'),
+    width: '100%',
+    alignItems: 'flex-end',
+  },
+  closeButtonText: {
+    color: 'white',
+    fontSize: hp('2%'),
+    fontFamily: 'Poppins-SemiBold',
+    textAlign: 'right',
   },
   barcodeImage: {
     width: wp('70%'), // Adjusted width
@@ -416,35 +573,19 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     marginBottom: hp('2%'),
   },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-  },
-  modalButton: {
-    flex: 1,
-    padding: hp('1.5%'),
-    margin: hp('0.5%'),
-    backgroundColor: '#83951c',
-    borderRadius: 5,
-    alignItems: 'center',
-  },
-  modalButtonText: {
-    color: 'white',
-    fontSize: hp('2%'),
-    fontFamily: 'Poppins-SemiBold',
-  },
-  modalButtonss: {
-    padding: hp('1%'),
-    paddingHorizontal: hp('3%'),
-    backgroundColor: '#83951c',
-    borderRadius: 5,
+  barcodeError: {
+    width: wp('70%'),
+    height: hp('20%'),
     justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f8f8f8',
+    borderRadius: 8,
+    marginBottom: hp('2%'),
   },
-  modalButtonTexts: {
-    color: 'white',
-    fontSize: hp('2%'),
-    fontFamily: 'Poppins-SemiBold',
+  errorText: {
+    color: '#ed3e3e',
+    fontFamily: 'Poppins-Medium',
+    fontSize: wp('3.5%'),
   },
 });
 

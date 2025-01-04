@@ -23,7 +23,9 @@ import PrivacyPolicyScreen from '@/screens/PrivacyPolicyScreen';
 import HelpCenterScreen from '@/screens/HelpCenterScreen';
 import AboutScreen from '@/screens/AboutScreen';
 import ContactUsScreen from '@/screens/ContactUsScreen';
-
+import ReportProblemScreen from '@/screens/ReportProblemScreen';
+import MyReportsScreen from '../screens/MyReportsScreen';
+import ReportDetailsScreen from '../screens/ReportDetailsScreen';
 const Stack = createStackNavigator();
 
 export default function AuthStack() {
@@ -54,6 +56,21 @@ export default function AuthStack() {
         <Stack.Screen name="HelpCenter" component={HelpCenterScreen} options={{cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,}}/>
         <Stack.Screen name="About" component={AboutScreen} options={{cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,}}/>
         <Stack.Screen name="Contact" component={ContactUsScreen} options={{cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,}}/>
+        <Stack.Screen name="ReportProblem" component={ReportProblemScreen} options={{cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,}}/>
+        <Stack.Screen 
+          name="MyReports" 
+          component={MyReportsScreen} 
+          options={{
+            cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+          }}
+        />
+        <Stack.Screen 
+          name="ReportDetails" 
+          component={ReportDetailsScreen} 
+          options={{
+            cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
     </SnackbarProvider>
