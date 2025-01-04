@@ -10,10 +10,10 @@ const path = require("path");
 const { Storage } = require("@google-cloud/storage");
 
 // Access environment variables
-const privateKey = process.env.FIREBASE_PRIVATE_KEY;
-if (!privateKey) {
-  throw new Error("FIREBASE_PRIVATE_KEY is not set");
-}
+// const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+// if (!privateKey) {
+//   throw new Error("FIREBASE_PRIVATE_KEY is not set");
+// }
 
 const serviceAccount = {
   type: process.env.FIREBASE_TYPE,
