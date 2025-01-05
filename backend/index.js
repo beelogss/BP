@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require("express");
 const nodemailer = require("nodemailer");
 const admin = require("firebase-admin");
@@ -9,94 +8,34 @@ const path = require("path");
 const { Storage } = require("@google-cloud/storage");
 
 // Access environment variables
-// const privateKey = process.env.FIREBASE_PRIVATE_KEY;
-// if (!privateKey) {
-//   throw new Error("FIREBASE_PRIVATE_KEY is not set");
-// }
-
-// const serviceAccount = {
-//   type: process.env.FIREBASE_TYPE,
-//   project_id: process.env.FIREBASE_PROJECT_ID,
-//   private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-//   private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-//   client_email: process.env.FIREBASE_CLIENT_EMAIL,
-//   client_id: process.env.FIREBASE_CLIENT_ID,
-//   auth_uri: process.env.FIREBASE_AUTH_URI,
-//   token_uri: process.env.FIREBASE_TOKEN_URI,
-//   auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
-//   client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL
-// };
-
-
-// Initialize Firebase Admin
-// Add this after serviceAccount initialization
-
-// Initialize Firebase with error handling
-// Near the top of index.js, after the require statements
-
-// Initialize Firebase with error handling
-try {
-  // First verify environment variables are set
-  const requiredEnvVars = [
-    'FIREBASE_TYPE',
-    'FIREBASE_PROJECT_ID',
-    'FIREBASE_PRIVATE_KEY_ID',
-    'FIREBASE_PRIVATE_KEY',
-    'FIREBASE_CLIENT_EMAIL',
-    'FIREBASE_CLIENT_ID',
-    'FIREBASE_AUTH_URI', 
-    'FIREBASE_TOKEN_URI',
-    'FIREBASE_AUTH_PROVIDER_X509_CERT_URL',
-    'FIREBASE_CLIENT_X509_CERT_URL'
-  ];
-
-  const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
-  
-  if (missingVars.length > 0) {
-    throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
-  }
-
-  // Create service account object
-  const serviceAccount = {
-    type: process.env.FIREBASE_TYPE,
-    project_id: process.env.FIREBASE_PROJECT_ID,
-    private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-    private_key: process.env.FIREBASE_PRIVATE_KEY,
-    client_email: process.env.FIREBASE_CLIENT_EMAIL,
-    client_id: process.env.FIREBASE_CLIENT_ID,
-    auth_uri: process.env.FIREBASE_AUTH_URI,
-    token_uri: process.env.FIREBASE_TOKEN_URI,
-    auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
-    client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL
-  };
-
-  // Initialize Firebase Admin
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: process.env.FIREBASE_DATABASE_URL
-  });
-
-  console.log('Firebase initialized successfully');
-} catch (error) {
-  console.error('Firebase initialization error:', error);
-  throw error;
+const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+if (!privateKey) {
+  throw new Error("FIREBASE_PRIVATE_KEY is not set");
 }
 
+const serviceAccount = {
+  type: process.env.FIREBASE_TYPE,
+  project_id: process.env.FIREBASE_PROJECT_ID,
+  private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
+  private_key: privateKey.replace(/\\n/g, "\n"), // Handle newlines
+  client_email: process.env.FIREBASE_CLIENT_EMAIL,
+  client_id: process.env.FIREBASE_CLIENT_ID,
+  auth_uri: process.env.FIREBASE_AUTH_URI,
+  token_uri: process.env.FIREBASE_TOKEN_URI,
+  auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
+  client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL,
+};
+
+// Initialize Firebase Admin
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://bpts-34c54-default-rtdb.firebaseio.com",
+});
 const db = admin.firestore();
 // const storage = new Storage({ keyFilename: "./serviceAccountKey.json" });
 const storage = new Storage({
-  credentials: {
-    type: process.env.FIREBASE_TYPE,
-    project_id: process.env.FIREBASE_PROJECT_ID,
-    private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-    private_key: process.env.FIREBASE_PRIVATE_KEY,
-    client_email: process.env.FIREBASE_CLIENT_EMAIL,
-    client_id: process.env.FIREBASE_CLIENT_ID,
-    auth_uri: process.env.FIREBASE_AUTH_URI,
-    token_uri: process.env.FIREBASE_TOKEN_URI,
-    auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
-    client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL
-  }
+  credentials: serviceAccount,
+  projectId: process.env.FIREBASE_PROJECT_ID,
 });
 const bucket = storage.bucket("bpts-34c54.appspot.com"); // Replace with your Firebase Storage bucket name
 
