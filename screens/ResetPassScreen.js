@@ -40,7 +40,7 @@ export default function ResetPassScreen({ route, navigation }) {
 
   const handleVerifyCode = async () => {
     try {
-      const response = await fetch('https://079d4493-7284-45e2-8f07-032acf84a6e7-00-okeb4h5jwg8d.pike.replit.dev/verifyCode', {
+      const response = await fetch('https://bp-opal.vercel.app/verifyCode', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ export default function ResetPassScreen({ route, navigation }) {
     try {
       setIsResendDisabled(true);
       setTimer(60);
-      const response = await fetch('https://4d18bffc-5559-4534-b92c-8106440742d3-00-3g1frlvror77n.riker.replit.dev/sendVerificationCode', {
+      const response = await fetch('https://bp-opal.vercel.app/sendVerificationCode', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -114,7 +114,7 @@ export default function ResetPassScreen({ route, navigation }) {
     }
 
     try {
-      const response = await fetch('https://4d18bffc-5559-4534-b92c-8106440742d3-00-3g1frlvror77n.riker.replit.dev/resetPassword', {
+      const response = await fetch('https://bp-opal.vercel.app/resetPassword', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -57,7 +57,7 @@ export default function EditProfileScreen({ navigation }) {
         
         console.log('Uploading image...');
         const imageResponse = await fetch(
-          'https://079d4493-7284-45e2-8f07-032acf84a6e7-00-okeb4h5jwg8d.pike.replit.dev/api/users/avatar',
+          'https://bp-opal.vercel.app/api/users/avatar',
           {
             method: 'POST',
             body: formData,
@@ -83,7 +83,7 @@ export default function EditProfileScreen({ navigation }) {
 
       console.log('Updating profile...');
       const updateResponse = await fetch(
-        'https://079d4493-7284-45e2-8f07-032acf84a6e7-00-okeb4h5jwg8d.pike.replit.dev/api/users/update-profile',
+        'https://bp-opal.vercel.app/api/users/update-profile',
         {
           method: 'PUT',
           headers: {

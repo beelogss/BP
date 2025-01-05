@@ -112,7 +112,7 @@ export default function VerificationCodeScreen({ route, navigation }) {
   const handleSendVerification = () => {
     const code = verificationCode.join('');
   
-    fetch('https://079d4493-7284-45e2-8f07-032acf84a6e7-00-okeb4h5jwg8d.pike.replit.dev/verifyCode', {
+    fetch('https://bp-opal.vercel.app/verifyCode', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -138,7 +138,7 @@ export default function VerificationCodeScreen({ route, navigation }) {
   
 
   const resendVerificationCode = () => {
-    fetch('https://079d4493-7284-45e2-8f07-032acf84a6e7-00-okeb4h5jwg8d.pike.replit.dev/sendVerificationCode', {
+    fetch('https://bp-opal.vercel.app/sendVerificationCode', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

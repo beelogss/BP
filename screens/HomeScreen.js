@@ -73,7 +73,7 @@ export default function HomeScreen({ navigation }) {
 
         // Proceed with fetching user data
         const response = await axios.post(
-          'https://079d4493-7284-45e2-8f07-032acf84a6e7-00-okeb4h5jwg8d.pike.replit.dev/login',
+          'https://bp-opal.vercel.app/login',
           { 
             email: storedEmail, 
             password: storedPassword 
@@ -88,7 +88,7 @@ export default function HomeScreen({ navigation }) {
 
         // Fetch total points and bottle count
         const pointsSnapshot = await axios.get(
-          `https://079d4493-7284-45e2-8f07-032acf84a6e7-00-okeb4h5jwg8d.pike.replit.dev/userPoints?studentNumber=${userData.studentNumber}`
+          `https://bp-opal.vercel.app/userPoints?studentNumber=${userData.studentNumber}`
         );
 
         const totalPoints = pointsSnapshot.data.totalPoints || 0;
@@ -103,7 +103,7 @@ export default function HomeScreen({ navigation }) {
       } else {
         // If user exists, just update points and bottle count
         const pointsSnapshot = await axios.get(
-          `https://079d4493-7284-45e2-8f07-032acf84a6e7-00-okeb4h5jwg8d.pike.replit.dev/userPoints?studentNumber=${user.studentNumber}`
+          `https://bp-opal.vercel.app/userPoints?studentNumber=${user.studentNumber}`
         );
 
         const totalPoints = pointsSnapshot.data.totalPoints || 0;
@@ -131,7 +131,7 @@ export default function HomeScreen({ navigation }) {
 
   const fetchLeaderboardData = async () => {
     try {
-      const response = await axios.get('https://079d4493-7284-45e2-8f07-032acf84a6e7-00-okeb4h5jwg8d.pike.replit.dev/leaderboard');
+      const response = await axios.get('https://bp-opal.vercel.app/leaderboard');
       if (response.data.success) {
         setLeaderboardData(response.data.leaderboard);
       } else {

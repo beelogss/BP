@@ -25,7 +25,7 @@ export default function EmailInputScreen({ navigation }) {
     setLoading(true);
 
     try {
-      const response = await fetch('https://079d4493-7284-45e2-8f07-032acf84a6e7-00-okeb4h5jwg8d.pike.replit.dev/sendVerificationCode', {
+      const response = await fetch('https://bp-opal.vercel.app/sendVerificationCode', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -22,11 +22,11 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, user }) => {
   const handleConfirmClaim = async () => {
     try {
       setLoading(true);
-      
+
       // Generate barcode using the original format
       let newBarcode;
       const barcodeFormat = 'ean13'; // Use EAN-13 format
-      
+
       // Generate a unique ID by appending a timestamp
       let uniqueId = `${selectedReward.id}${Date.now()}`;
       // Ensure it's numeric and length is correct
@@ -48,13 +48,13 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, user }) => {
 
       const checkDigit = calculateCheckDigit(numericId);
       newBarcode = numericId + checkDigit;
-      
+
       // Generate barcode URL using the EAN-13 format
       const barcodeApiUrl = `https://bwipjs-api.metafloor.com/?bcid=${barcodeFormat}&text=${newBarcode}&scale=3&includetext`;
 
       // Rest of the claiming process
       const response = await axios.post(
-        'https://079d4493-7284-45e2-8f07-032acf84a6e7-00-okeb4h5jwg8d.pike.replit.dev/claim-reward',
+        'https://bp-opal.vercel.app//claim-reward',
         {
           userId: user.id,
           rewardId: selectedReward.id,
@@ -100,14 +100,14 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, user }) => {
         // Set the barcode URL and show success
         setBarcodeUrl(barcodeApiUrl);
         ToastAndroid.show('Reward claimed successfully!', ToastAndroid.LONG);
-        
+
         selectedReward.claimedRewardDocId = docRef.id;
         console.log(`Claimed reward added with document ID: ${docRef.id}`);
 
       } catch (dbError) {
         console.error('Database error:', dbError);
         Alert.alert(
-          'Warning', 
+          'Warning',
           'Reward claimed but some updates failed. The reward is still valid.',
           [{ text: 'OK' }]
         );
@@ -116,13 +116,13 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, user }) => {
     } catch (error) {
       console.error('Final claim error:', error);
       let errorMessage = 'Failed to claim reward. Please try again.';
-      
+
       if (error.response) {
         errorMessage = error.response.data?.message || 'Server error occurred';
       } else if (error.request) {
         errorMessage = 'Network error. Please check your internet connection.';
       }
-      
+
       Alert.alert('Error', errorMessage);
       setLoading(false);
       setShowConfirmModal(false);
@@ -142,8 +142,8 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, user }) => {
           <>
             <View style={styles.actionSheetHeader}>
               <View style={styles.headerLine} />
-              <TouchableOpacity 
-                style={styles.closeButton} 
+              <TouchableOpacity
+                style={styles.closeButton}
                 onPress={() => SheetManager.hide(sheetId)}
               >
                 <Feather name="x" size={wp('8%')} color="#455e14" />
@@ -151,10 +151,10 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, user }) => {
             </View>
 
             <Image source={selectedReward.image} style={styles.actionSheetImage} />
-            
+
             <View style={styles.detailsContainer}>
               <Text style={styles.actionSheetTitle}>{selectedReward.name}</Text>
-              
+
               <View style={styles.infoRow}>
                 <View style={styles.stockContainer}>
                   <MaterialCommunityIcons name="package-variant" size={wp('5%')} color="#83951c" />
@@ -190,17 +190,26 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, user }) => {
               {/* Description section if you have it */}
               <View style={styles.descriptionContainer}>
                 <Text style={styles.descriptionTitle}>About this reward</Text>
-                <Text style={styles.descriptionText}>
-                  {selectedReward.description || "Claim this reward at the designated redemption area. Show the barcode to the staff to redeem your reward."}
-                </Text>
+                {["Short Bond Paper", "Long Bond Paper"].some(paper => selectedReward.name.includes(paper)) ? (
+                  <>
+                    <Text style={styles.noteStyle}>Note: You will only get 10 pieces of this item per claim.</Text>
+                    <Text style={styles.descriptionText}>
+                      {"\n"}Claim this reward at the designated redemption area. Show the barcode to the staff to redeem your reward.
+                    </Text>
+                  </>
+                ) : (
+                  <Text style={styles.descriptionText}>
+                    {selectedReward.description || "Claim this reward at the designated redemption area. Show the barcode to the staff to redeem your reward."}
+                  </Text>
+                )}
               </View>
             </View>
 
             <TouchableOpacity
               style={[
                 styles.actionSheetButton,
-                (selectedReward.points > points || selectedReward.stock <= 0) 
-                  ? styles.disabledButton 
+                (selectedReward.points > points || selectedReward.stock <= 0)
+                  ? styles.disabledButton
                   : styles.enabledButton
               ]}
               onPress={handleClaimPress}
@@ -208,13 +217,13 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, user }) => {
             >
               <Text style={[
                 styles.sheetButtonText,
-                (selectedReward.points > points || selectedReward.stock <= 0) 
-                  && styles.disabledButtonText
+                (selectedReward.points > points || selectedReward.stock <= 0)
+                && styles.disabledButtonText
               ]}>
-                {selectedReward.stock <= 0 
-                  ? 'Out of Stock' 
-                  : selectedReward.points > points 
-                    ? 'Insufficient Points' 
+                {selectedReward.stock <= 0
+                  ? 'Out of Stock'
+                  : selectedReward.points > points
+                    ? 'Insufficient Points'
                     : 'Claim Reward'}
               </Text>
             </TouchableOpacity>
@@ -239,14 +248,14 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, user }) => {
               Are you sure you want to claim {selectedReward?.name} for {selectedReward?.points} points?
             </Text>
             <View style={styles.modalButtons}>
-              <TouchableOpacity 
-                style={[styles.modalButton, styles.cancelButton]} 
+              <TouchableOpacity
+                style={[styles.modalButton, styles.cancelButton]}
                 onPress={() => setShowConfirmModal(false)}
               >
                 <Text style={[styles.modalButtonText, styles.cancelButtonText]}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.modalButton} 
+              <TouchableOpacity
+                style={styles.modalButton}
                 onPress={handleConfirmClaim}
               >
                 <Text style={styles.modalButtonText}>Confirm</Text>
@@ -284,8 +293,8 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, user }) => {
             </View>
             <Text style={styles.modalTitle}>Reward Claimed!</Text>
             {barcodeUrl ? (
-              <Image 
-                source={{ uri: barcodeUrl }} 
+              <Image
+                source={{ uri: barcodeUrl }}
                 style={styles.barcodeImage}
                 onError={(e) => console.log('Barcode image error:', e.nativeEvent.error)}
               />
@@ -298,8 +307,8 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, user }) => {
               <Text style={styles.rewardName}>{selectedReward?.name}</Text>
               <Text style={styles.pointsText}>{selectedReward?.points} points</Text>
             </View>
-            <TouchableOpacity 
-              style={styles.closeButton} 
+            <TouchableOpacity
+              style={styles.closeButton}
               onPress={() => {
                 setShowBarcodeModal(false);
                 setBarcodeUrl('');
@@ -435,6 +444,11 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     color: '#666666',
     lineHeight: hp('2.5%'),
+  },
+  noteStyle: {
+    fontSize: hp('1.8%'),
+    color: '#FFA000', // Orange color for note
+    fontFamily: 'Poppins-Medium'
   },
   actionSheetButton: {
     padding: hp('2%'),

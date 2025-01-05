@@ -66,7 +66,7 @@ const NotifScreen = ({ navigation }) => {
   const fetchNotifications = async () => {
     setLoading(true); // Set loading to true when fetching starts
     try {
-      const response = await axios.post('https://079d4493-7284-45e2-8f07-032acf84a6e7-00-okeb4h5jwg8d.pike.replit.dev/notifications', { studentNumber: user.studentNumber });
+      const response = await axios.post('https://bp-opal.vercel.app/notifications', { studentNumber: user.studentNumber });
       if (response.data.success) {
         // Filter out deleted notifications
         const activeNotifications = response.data.notifications.filter(notif => !notif.deleted);
@@ -83,7 +83,7 @@ const NotifScreen = ({ navigation }) => {
   };
   const deleteNotification = async (id) => {
     try {
-      const response = await axios.delete(`https://079d4493-7284-45e2-8f07-032acf84a6e7-00-okeb4h5jwg8d.pike.replit.dev/notifications/${id}`);
+      const response = await axios.delete(`https://bp-opal.vercel.app/notifications/${id}`);
       if (response.data.success) {
         // Remove the deleted notification from the state
         setNotifications(notifications.filter(notif => notif.id !== id));
