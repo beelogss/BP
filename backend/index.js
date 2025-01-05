@@ -128,64 +128,116 @@ app.post("/sendVerificationCode", async (req, res) => {
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>${emailSubject}</title>
-          <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+          <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
           <style>
             body {
               font-family: 'Poppins', Arial, sans-serif;
-              background-color: white;
-              padding: 20px;
+              background-color: #f5f5f5;
+              margin: 0;
+              padding: 40px 20px;
             }
             .email-container {
-              max-width: 36rem;
+              max-width: 600px;
               margin: auto;
-              background-color: #e5eeda;
-              padding: 20px;
-              border-radius: 8px;
-              box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+              background-color: #ffffff;
+              padding: 40px;
+              border-radius: 16px;
+              box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            }
+            .logo-container {
+              text-align: center;
+              margin-bottom: 32px;
             }
             .header {
               text-align: center;
-              margin-bottom: 18px;
+              margin-bottom: 32px;
+              padding-bottom: 32px;
+              border-bottom: 2px solid #e5eeda;
             }
             .header h1 {
-              font-size: 1.5rem;
-              font-weight: 600;
-              font-weight: bold;
+              font-size: 28px;
+              font-weight: 700;
+              color: #455e14;
+              margin: 0;
+              letter-spacing: -0.5px;
             }
             .body {
               text-align: center;
-              font-size: 0.9rem;
-              line-height: 1.5;
+              font-size: 16px;
+              line-height: 1.6;
+              color: #7a9b57;
+              margin-bottom: 32px;
+            }
+            .code-container {
+              background-color: #e5eeda;
+              padding: 24px;
+              border-radius: 12px;
+              margin: 32px 0;
             }
             .code {
-              font-size: 2.1rem;
-              font-weight: 600;
-              margin: 20px 0;
-              letter-spacing: 7px; 
+              font-size: 36px;
+              font-weight: 700;
+              color: #83951c;
+              letter-spacing: 8px;
+              margin: 0;
+            }
+            .message {
+              color: #666666;
+              font-size: 14px;
+              margin-top: 24px;
+              padding: 16px;
+              background-color: #f8f9fa;
+              border-radius: 8px;
             }
             .footer {
-              margin-top: 20px;
-              font-size: 0.6rem;
-              color: #888;
+              margin-top: 40px;
+              padding-top: 24px;
+              border-top: 2px solid #e5eeda;
               text-align: center;
+            }
+            .footer p {
+              font-size: 12px;
+              color: #999999;
+              margin: 4px 0;
+            }
+            .signature {
+              margin-top: 24px;
+              color: #7a9b57;
+              font-size: 14px;
+              text-align: left;
             }
           </style>
         </head>
         <body>
           <div class="email-container">
             <div class="header">
-              <h1 style="color: #455e14">BottlePoints</h1>
+              <h1>BottlePoints</h1>
             </div>
             <div class="body">
-              ${emailBody}
+              ${purpose === 'signup' 
+                ? '<p>Thank you for signing up for <strong style="color: #455e14">BottlePoints</strong></p>'
+                : '<p>You requested to reset your password for <strong style="color: #455e14">BottlePoints</strong></p>'
+              }
+              <p>Use the verification code below:</p>
+            </div>
+            <div class="code-container">
+              <div class="code">${code}</div>
+            </div>
+            <div class="message">
+              If you did not request this code, please ignore this email.
+            </div>
+            <div class="signature">
+              Regards,<br>
+              <strong>BottlePoints Team</strong>
             </div>
             <div class="footer">
-              <p>© 2024 BottlePoints. All rights reserved.</p>
+              <p>© ${new Date().getFullYear()} BottlePoints. All rights reserved.</p>
+              <p>This is an automated email, please do not reply.</p>
             </div>
           </div>
         </body>
         </html>
-      `,
+      `
     };
 
     await transporter.sendMail(mailOptions);
