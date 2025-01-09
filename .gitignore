@@ -36,7 +36,7 @@ yarn-error.*
 
 # Service account key
 /backend/serviceAccountKey.json
-
+/backend/bpts-bf680-firebase-adminsdk-vdig4-4cc7b46f57.json
 # Android and iOS
 /android
 /ios
