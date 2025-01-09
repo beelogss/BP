@@ -1,5 +1,5 @@
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../backend/firebaseConfig'; // Adjust the path to your firebaseConfig
+import { db } from '../backend/firebase/firebaseConfig'; // Adjust the path to your firebaseConfig
 
 export const getAvailableBottles = async () => {
   try {

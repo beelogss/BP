@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, BackHandler, ActivityIndicator } from 'react-native';
-import { getAvailableRewards } from './rewardsService'; // Fetch from Firestore
+import { getAvailableRewards } from './rewardsServices'; // Fetch from Firestore
 import RewardActionSheet from '../components/RewardActionSheet'; // Import the centralized ActionSheet
 import { FontAwesome6, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
@@ -97,16 +97,18 @@ const RewardsScreen = ({ navigation }) => {
           <Text style={styles.rewardPoints}>{item.points}</Text>
           
           {/* Points Indicator */}
-          {item.points > points ? (
-            <View style={styles.insufficientPoints}>
-              <Text style={styles.insufficientPointsText}>Need {item.points - points} more</Text>
-            </View>
-          ) : (
-            <View style={styles.canClaimBadge}>
-              <FontAwesome5 name="check-circle" size={wp('3%')} color="#4CAF50" />
-              <Text style={styles.canClaimText}>Can Claim</Text>
-            </View>
-          )}
+          <View style={styles.pointsIndicator}>
+            {item.points > points ? (
+              <View style={styles.insufficientPoints}>
+                <Text style={styles.insufficientPointsText}>Need {item.points - points} more</Text>
+              </View>
+            ) : (
+              <View style={styles.canClaimBadge}>
+                <FontAwesome5 name="check-circle" size={wp('3%')} color="#4CAF50" />
+                <Text style={styles.canClaimText}>Can Claim</Text>
+              </View>
+            )}
+          </View>
         </View>
       </View>
     </TouchableOpacity>
@@ -440,11 +442,12 @@ const styles = StyleSheet.create({
     color: '#455e14',
   },
   rewardPoints: {
-    fontSize: hp('1.5%'),
+    fontSize: hp('1.7%'),
     fontFamily: 'Poppins-Bold',
     color: '#83951c',
     marginTop: hp('0.5%'),
     marginLeft: wp('.5%'),
+    marginRight: wp('1%'),
   },
   columnWrapper: {
     justifyContent: 'space-between', // Add this line to space out the columns
@@ -590,6 +593,10 @@ const styles = StyleSheet.create({
   },
   loader: {
     marginTop: hp('25%'),
+  },
+  pointsIndicator: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
   },
 });
 

@@ -10,6 +10,25 @@
       "client_info": {
         "mobilesdk_app_id": "1:320960896346:android:ee6b52179a899f54a7a763",
         "android_client_info": {
+          "package_name": "b.pts_bcltv"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAmGakciNnC_M2_p_JSjJg9LlcGvSqZ2Yw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:320960896346:android:0aa46bfe79babf76a7a763",
+        "android_client_info": {
           "package_name": "com.bilogsss.BP"
         }
       },

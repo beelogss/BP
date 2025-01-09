@@ -101,7 +101,10 @@ const NotifScreen = ({ navigation }) => {
 
   return (
     <SafeAreaProvider style={styles.container}>
-      <Text style={styles.title}>History</Text>
+      <View style={styles.titleContainer}>
+        <Text style={styles.title}>History</Text>
+        <View style={styles.titleUnderline} />
+      </View>
       {loading ? (
         <ActivityIndicator size="large" color="#83951c" style={styles.loadingIndicator} />
       ) : notifications.length === 0 ? (
@@ -148,12 +151,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8f9fa', // Light background color
     paddingTop: hp('5%'),
   },
+  titleContainer: {
+    alignItems: 'center',
+    marginBottom: hp('3%'),
+  },
   title: {
     fontSize: hp('3.5%'),
     fontFamily: 'Poppins-Bold',
     color: '#455e14',
     textAlign: 'center',
-    marginBottom: hp('3%'),
+    marginBottom: hp('1%'),
+  },
+  titleUnderline: {
+    width: wp('25%'),
+    height: hp('0.4%'),
+    backgroundColor: '#83951c',
+    borderRadius: wp('1%'),
   },
   notificationCard: {
     backgroundColor: '#ffffff',

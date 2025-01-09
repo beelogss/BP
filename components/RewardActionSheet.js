@@ -3,7 +3,7 @@ import { View, Text, Image, TouchableOpacity, StyleSheet, Modal, ActivityIndicat
 import ActionSheet, { SheetManager } from 'react-native-actions-sheet';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { updateRewardStock } from '../screens/rewardsService';
+import { updateRewardStock } from '../screens/rewardsServices';
 import { addClaimedReward } from '../screens/claimedRewardsService'; // Import the function to add claimed rewards
 import axios from 'axios'; // Import axios for API calls
 import { UserContext } from '../context/UserContext'; // Import UserContext
@@ -143,7 +143,6 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, user }) => {
             <View style={styles.actionSheetHeader}>
               <View style={styles.headerLine} />
               <TouchableOpacity
-                style={styles.closeButton}
                 onPress={() => SheetManager.hide(sheetId)}
               >
                 <Feather name="x" size={wp('8%')} color="#455e14" />
@@ -284,7 +283,10 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, user }) => {
         visible={showBarcodeModal}
         transparent={true}
         animationType="fade"
-        onRequestClose={() => setShowBarcodeModal(false)}
+        onRequestClose={() => {
+          setShowBarcodeModal(false);
+          setBarcodeUrl('');
+        }}
       >
         <View style={styles.modalContainer}>
           <View style={[styles.modalContent, styles.barcodeModalContent]}>
@@ -307,6 +309,9 @@ const RewardActionSheet = ({ selectedReward, points, sheetId, user }) => {
               <Text style={styles.rewardName}>{selectedReward?.name}</Text>
               <Text style={styles.pointsText}>{selectedReward?.points} points</Text>
             </View>
+            <Text style={styles.noteText}>
+              You can view the details of this reward in the rewards page on rewards tab.
+            </Text>
             <TouchableOpacity
               style={styles.closeButton}
               onPress={() => {
@@ -574,12 +579,14 @@ const styles = StyleSheet.create({
     marginTop: hp('2%'),
     width: '100%',
     alignItems: 'flex-end',
+    backgroundColor: '#83951c',
+    padding: hp('1%'),
   },
   closeButtonText: {
     color: 'white',
     fontSize: hp('2%'),
     fontFamily: 'Poppins-SemiBold',
-    textAlign: 'right',
+    alignSelf: 'center',
   },
   barcodeImage: {
     width: wp('70%'), // Adjusted width
@@ -600,6 +607,12 @@ const styles = StyleSheet.create({
     color: '#ed3e3e',
     fontFamily: 'Poppins-Medium',
     fontSize: wp('3.5%'),
+  },
+  noteText: {
+    fontSize: hp('1.7%'),
+    color: '#666666',
+    fontFamily: 'Poppins-Regular',
+    marginTop: hp('1%'),
   },
 });
 

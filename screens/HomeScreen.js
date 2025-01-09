@@ -215,6 +215,11 @@ export default function HomeScreen({ navigation }) {
 
   const recyclingTips = [
     {
+      icon: 'barcode-scan',
+      title: 'Keep Labels Intact',
+      text: 'Do not remove bottle labels as they contain barcodes needed for scanning.',
+    },
+    {
       icon: 'recycle',
       title: 'Clean Before Recycling',
       text: 'Make sure bottles are empty and clean before depositing.',
@@ -224,11 +229,7 @@ export default function HomeScreen({ navigation }) {
       title: 'Check Bottle List',
       text: 'Verify if your bottle is accepted by checking the Bottles List first.',
     },
-    {
-      icon: 'barcode-scan',
-      title: 'Keep Labels Intact',
-      text: 'Do not remove bottle labels as they contain barcodes needed for scanning.',
-    },
+    
   ];
 
   const checkNotifications = async () => {
@@ -258,7 +259,11 @@ export default function HomeScreen({ navigation }) {
 
   // Add early return if no user
   if (!user) {
-    return null; // or return a loading screen
+    return (
+      <View style={styles.emptyState}>
+        <Text style={styles.emptyStateText}>Loading...</Text>
+      </View>
+    );
   }
 
   return (
@@ -266,7 +271,7 @@ export default function HomeScreen({ navigation }) {
       <View style={styles.container}>
         {/* Fixed Welcome Section */}
         <View style={styles.welcomeHeader}>
-          <Text style={styles.welcomeText}>Welcome back,</Text>
+          <Text style={styles.welcomeText}>Welcome,</Text>
           <Text style={styles.greeting}>{userName}</Text>
         </View>
 
@@ -490,22 +495,35 @@ export default function HomeScreen({ navigation }) {
             </ScrollView>
           </View>
 
-          {/* <View style={{ marginBottom: hp('5%') }}>
-            <View >
-              <Text style={{ fontFamily: 'Poppins-Bold', fontSize: hp('2.5%'), color: '#455e14', marginLeft: hp('2%') }}>About</Text>
+          <View style={styles.sustainabilityContainer}>
+            <Text style={styles.sectionTitle}>Environmental Impact</Text>
+            <View style={styles.impactCard}>
+              <View style={styles.impactHeader}>
+                <MaterialCommunityIcons name="leaf" size={wp('6%')} color="#83951c" />
+                <Text style={styles.impactTitle}>Why Your Recycling Matters</Text>
+              </View>
+              <Text style={styles.impactDescription}>
+                Every bottle you recycle helps reduce plastic pollution and greenhouse gas emissions. One recycled bottle can save enough energy to power a light bulb for 3 hours.
+              </Text>
+              <View style={styles.impactStats}>
+                <View style={styles.impactStatItem}>
+                  <MaterialCommunityIcons name="water" size={wp('5%')} color="#83951c" />
+                  <Text style={styles.impactStatText}>Reduces ocean pollution</Text>
+                </View>
+                <View style={styles.impactStatItem}>
+                  <MaterialCommunityIcons name="molecule-co2" size={wp('5%')} color="#83951c" />
+                  <Text style={styles.impactStatText}>Lowers carbon emissions</Text>
+                </View>
+                <View style={styles.impactStatItem}>
+                  <MaterialCommunityIcons name="tree" size={wp('5%')} color="#83951c" />
+                  <Text style={styles.impactStatText}>Preserves natural resources</Text>
+                </View>
+              </View>
             </View>
-            <View style={styles.bottom}>
-              <Pressable style={styles.button} onPress={() => navigation.navigate('RecyclingInfo')}>
-                <Text style={styles.buttonText}>Learn More About Recycling</Text>
-              </Pressable>
-              <Pressable style={styles.button} onPress={() => navigation.navigate('Track')}>
-                <Text style={styles.buttonText}>Track Your Recycling</Text>
-              </Pressable>
-            </View>
-          </View> */}
+          </View>
 
           <View style={styles.tipsContainer}>
-            <Text style={styles.sectionTitle}>Recycling Tips</Text>
+            <Text style={styles.sectionTitle}>Collecting Tips</Text>
             <ScrollView 
               horizontal 
               showsHorizontalScrollIndicator={false}
@@ -1036,5 +1054,52 @@ const styles = StyleSheet.create({
   },
   bottomSpacing: {
     height: hp('10%'),
+  },
+  sustainabilityContainer: {
+    marginHorizontal: wp('5%'),
+    marginBottom: hp('2%'),
+  },
+  impactCard: {
+    backgroundColor: 'white',
+    borderRadius: wp('4%'),
+    padding: wp('4%'),
+    elevation: 2,
+  },
+  impactHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: hp('1%'),
+  },
+  impactTitle: {
+    fontSize: hp('2%'),
+    color: '#455e14',
+    fontFamily: 'Poppins-Bold',
+    marginLeft: wp('2%'),
+  },
+  impactDescription: {
+    fontSize: hp('1.6%'),
+    color: '#83951c',
+    fontFamily: 'Poppins-Medium',
+    lineHeight: hp('2.2%'),
+    marginBottom: hp('2%'),
+  },
+  impactStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: '#f5f8f2',
+    borderRadius: wp('3%'),
+    padding: wp('3%'),
+  },
+  impactStatItem: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  impactStatText: {
+    fontSize: hp('1.4%'),
+    color: '#455e14',
+    fontFamily: 'Poppins-Medium',
+    textAlign: 'center',
+    marginTop: hp('0.5%'),
   },
 });

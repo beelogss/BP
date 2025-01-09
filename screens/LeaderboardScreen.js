@@ -9,7 +9,7 @@ import axios from 'axios';
 import { useBackHandler } from '../hooks/useBackHandler';
 
 const getOrdinal = (place) => {
-  switch(place) {
+  switch (place) {
     case 1: return 'st';
     case 2: return 'nd';
     case 3: return 'rd';
@@ -19,7 +19,7 @@ const getOrdinal = (place) => {
 
 const TopThreeItem = ({ user, place }) => {
   const getPlaceColor = () => {
-    switch(place) {
+    switch (place) {
       case 1: return ['#ffd700', '#fff5cc']; // Gold
       case 2: return ['#c0c0c0', '#f5f5f5']; // Silver
       case 3: return ['#cd7f32', '#ffddc1']; // Bronze
@@ -30,7 +30,7 @@ const TopThreeItem = ({ user, place }) => {
   const [primaryColor, secondaryColor] = getPlaceColor();
 
   return (
-    <Animated.View 
+    <Animated.View
       entering={FadeInDown.delay(place * 200)}
       style={[
         styles.podiumWrapper,
@@ -40,25 +40,25 @@ const TopThreeItem = ({ user, place }) => {
       <View style={[styles.crownContainer, { opacity: place === 1 ? 1 : 0 }]}>
         <MaterialCommunityIcons name="crown" size={hp('4%')} color="#ffd700" />
       </View>
-      <Image 
-        source={{ uri: user.avatar }} 
-        style={[styles.avatar, { borderColor: primaryColor }]} 
+      <Image
+        source={{ uri: user.avatar }}
+        style={[styles.avatar, { borderColor: primaryColor }]}
       />
       <View style={[styles.podiumItem, { backgroundColor: secondaryColor }]}>
         <Text style={styles.nameText} numberOfLines={1}>{user.name}</Text>
         <View style={[styles.medalContainer, { backgroundColor: primaryColor }]}>
-          <MaterialCommunityIcons 
-            name="medal" 
-            size={hp('2.5%')} 
-            color="#fff" 
+          <MaterialCommunityIcons
+            name="medal"
+            size={hp('2.5%')}
+            color="#fff"
           />
           <Text style={styles.rankText}>{place}{getOrdinal(place)}</Text>
         </View>
         <View style={styles.bottleInfoContainer}>
-          <MaterialCommunityIcons 
-            name="bottle-soda" 
-            size={hp('2.5%')} 
-            color="#83951c" 
+          <MaterialCommunityIcons
+            name="bottle-soda"
+            size={hp('2.5%')}
+            color="#83951c"
           />
           <Text style={styles.bottleText}>{user.bottleCount}</Text>
         </View>
@@ -68,7 +68,7 @@ const TopThreeItem = ({ user, place }) => {
 };
 
 const LeaderboardItem = ({ user, index }) => (
-  <Animated.View 
+  <Animated.View
     entering={FadeInUp.delay(index * 100)}
     style={styles.leaderboardItem}
   >
@@ -79,10 +79,10 @@ const LeaderboardItem = ({ user, index }) => (
     <View style={styles.userInfoContainer}>
       <Text style={styles.leaderboardName} numberOfLines={1}>{user.name}</Text>
       <View style={styles.bottleCountContainer}>
-        <MaterialCommunityIcons 
-          name="bottle-soda-outline" 
-          size={hp('2%')} 
-          color="#83951c" 
+        <MaterialCommunityIcons
+          name="bottle-soda-outline"
+          size={hp('2%')}
+          color="#83951c"
         />
         <Text style={styles.bottleCountText}>{user.bottleCount} bottles</Text>
       </View>
@@ -135,30 +135,41 @@ const LeaderboardScreen = ({ navigation }) => {
   return (
     <SafeAreaProvider style={styles.container}>
       <Text style={styles.title}>Leaderboard</Text>
-      <Text style={styles.subtitle}>Top Users</Text>
-      
+      <View style={styles.impactSummary}>
+        <MaterialCommunityIcons name="leaf" size={hp('2.5%')} color="#83951c" />
+        <Text style={styles.impactText}>
+          Together, our top recyclers have saved{' '}
+          <Text style={styles.impactHighlight}>
+            {leaderboardData.reduce((total, user) => total + user.bottleCount, 0)} bottles
+          </Text>
+          {' '}from landfills!
+        </Text>
+      </View>
+
+
+
       <View style={styles.podiumContainer}>
         {top3Users.map((user, index) => (
-          <TopThreeItem 
-            key={user.studentNumber} 
-            user={user} 
-            place={index + 1} 
+          <TopThreeItem
+            key={user.studentNumber}
+            user={user}
+            place={index + 1}
           />
         ))}
       </View>
-      <Text style={styles.subtitle}>Others</Text>
+      <Text style={styles.subtitle}>Other ranks</Text>
       <View style={styles.leaderboardContainer}>
-      
+
         <View style={styles.tableHeader}>
           <Text style={[styles.tableHeaderText, { flex: 0.3 }]}>Rank</Text>
           <Text style={[styles.tableHeaderText, { flex: 0.7, textAlign: 'left' }]}>Name</Text>
         </View>
         <ScrollView showsVerticalScrollIndicator={false}>
           {restOfUsers.map((user, index) => (
-            <LeaderboardItem 
-              key={user.studentNumber} 
-              user={user} 
-              index={index} 
+            <LeaderboardItem
+              key={user.studentNumber}
+              user={user}
+              index={index}
             />
           ))}
         </ScrollView>
@@ -343,6 +354,25 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     color: '#7a9b57',
     marginTop: hp('1%'),
+  },
+  impactSummary: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0f4e8',
+    padding: wp('3%'),
+    borderRadius: wp('3%'),
+  },
+  impactText: {
+    flex: 1,
+    marginLeft: wp('2%'),
+    fontSize: hp('1.6%'),
+    fontFamily: 'Poppins-Medium',
+    color: '#455e14',
+    lineHeight: hp('2.2%'),
+  },
+  impactHighlight: {
+    fontFamily: 'Poppins-Bold',
+    color: '#83951c',
   },
 });
 

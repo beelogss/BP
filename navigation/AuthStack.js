@@ -13,7 +13,6 @@ import HomeTabs from './_layout';
 import LeaderboardScreen from '../screens/LeaderboardScreen'
 import RewardDetailsScreen from '../screens/RewardDetailsScreen'
 import RewardsScreen from '../screens/RewardsScreen'
-import AllRewardsScreen from '../screens/AllRewardsScreen'
 import ClaimedRewardsScreen from '../screens/ClaimedRewardsScreen'
 import BottleList from '../screens/BottleList';
 import EditProfileScreen from '../screens/EditProfileScreen';
@@ -46,7 +45,7 @@ export default function AuthStack() {
         <Stack.Screen name="Leaderboard" component={LeaderboardScreen} options={{cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,}}/>
         <Stack.Screen name="Rewards" component={RewardsScreen} />
         <Stack.Screen name="RewardDetails" component={RewardDetailsScreen} />
-        <Stack.Screen name="AllRewards" component={AllRewardsScreen} options={{cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,}}/> 
+      
         <Stack.Screen name="ClaimedRewards" component={ClaimedRewardsScreen} options={{cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,}}/>
         <Stack.Screen name="Bottles" component={BottleList} />
         <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,}}/>

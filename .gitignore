@@ -35,4 +35,9 @@ yarn-error.*
 *.tsbuildinfo
 
 # Service account key
-/backend
+/backend/serviceAccountKey.json
+
+# Android and iOS
+/android
+/ios
+

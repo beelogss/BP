@@ -1,5 +1,5 @@
 import { collection, query, where, addDoc, getDocs, updateDoc, doc, getDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '../backend/firebaseConfig';
+import { db } from '../backend/firebase/firebaseConfig';
 
 // Function to add a claimed reward to Firestore
 export const addClaimedReward = async (reward) => {

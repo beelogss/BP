@@ -44,7 +44,7 @@ if (getRNMinorVersion() >= 75) {
   }
 }
 
-rootProject.name = 'BP'
+rootProject.name = 'Bottle Points'
 
 dependencyResolutionManagement {
   versionCatalogs {

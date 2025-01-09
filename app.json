@@ -4,26 +4,29 @@
     "slug": "BP",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/small-logo.png",
+    "icon": "./assets/images/square-logo.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/small-logo.png",
+        "foregroundImage": "./assets/images/square-logo.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.bilogsss.BP",
-      "googleServicesFile": "./google-services.json"
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
+      "package": "b.pts_bcltv",
+      "googleServicesFile": "./google-services.json",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "plugins": [
       "expo-font",
@@ -37,6 +40,9 @@
       ]
     ],
     "extra": {
+      "router": {
+        "origin": false
+      },
       "eas": {
         "projectId": "8b1bf633-da5f-4e6f-bc51-96aeee7f18e8"
       }

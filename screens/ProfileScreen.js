@@ -99,11 +99,39 @@ export default function ProfileScreen({ navigation }) {
         contentContainerStyle={styles.contentContainer}
         style={styles.scrollView}
       >
-        {/* Stats Card */}
+        {/* Enhanced Stats Section */}
         <View style={styles.statsContainer}>
           <View style={styles.statsCard}>
-            <Text style={styles.statsValue}>{bottleCount}</Text>
-            <Text style={styles.statsLabel}>Total Bottle Contributions</Text>
+            <Text style={styles.journeyTitle}>Your Recycling Journey</Text>
+            
+            <View style={styles.mainStatsContainer}>
+              <View style={styles.bottleIconContainer}>
+                <MaterialCommunityIcons name="bottle-soda" size={wp('12%')} color="#83951c" />
+              </View>
+              <View style={styles.statsTextContainer}>
+                <Text style={styles.statsValue}>{bottleCount}</Text>
+                <Text style={styles.statsLabel}>Plastic Bottles Contributed</Text>
+              </View>
+            </View>
+
+            <View style={styles.achievementBadge}>
+              <MaterialCommunityIcons 
+                name={bottleCount >= 50 ? "star-circle" : "star-circle-outline"} 
+                size={wp('5%')} 
+                color="#83951c" 
+              />
+              <Text style={styles.achievementText}>
+                {bottleCount >= 50 
+                  ? "Keep it up! Every bottle counts!" 
+                  : `Start your recycling journey today!`}
+              </Text>
+            </View>
+            
+            <View style={styles.milestoneContainer}>
+              <Text style={styles.milestoneText}>
+                Thank you for helping create a cleaner environment!
+              </Text>
+            </View>
           </View>
         </View>
 
@@ -325,20 +353,55 @@ const styles = StyleSheet.create({
   statsCard: {
     backgroundColor: '#ffffff',
     borderRadius: wp('5%'),
-    padding: wp('5%'),
-    alignItems: 'center',
+    padding: wp('4%'),
     elevation: 2,
   },
+  journeyTitle: {
+    fontSize: wp('4%'),
+    fontFamily: 'Poppins-SemiBold',
+    color: '#455e14',
+    marginBottom: hp('2%'),
+  },
+  mainStatsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5eeda',
+    paddingBottom: hp('2%'),
+    marginBottom: hp('2%'),
+  },
+  bottleIconContainer: {
+    backgroundColor: '#f0f4e8',
+    padding: wp('4%'),
+    borderRadius: wp('4%'),
+    marginRight: wp('4%'),
+  },
+  statsTextContainer: {
+    flex: 1,
+  },
   statsValue: {
-    fontSize: wp('12%'),
+    fontSize: wp('8%'),
     fontFamily: 'Poppins-Bold',
     color: '#83951c',
-    marginVertical: hp('1%'),
   },
   statsLabel: {
     fontSize: wp('3.5%'),
     fontFamily: 'Poppins-Medium',
     color: '#455e14',
+  },
+  achievementBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#e5eeda',
+    padding: wp('3%'),
+    borderRadius: wp('3%'),
+    justifyContent: 'center',
+  },
+  achievementText: {
+    fontSize: wp('3.2%'),
+    fontFamily: 'Poppins-SemiBold',
+    color: '#83951c',
+    marginLeft: wp('2%'),
   },
   menuContainer: {
     padding: wp('5%'),
@@ -492,5 +555,16 @@ const styles = StyleSheet.create({
     marginTop: hp('2%'),
 
   },
-
+  milestoneContainer: {
+    marginTop: hp('2%'),
+    padding: wp('3%'),
+    backgroundColor: '#f0f4e8',
+    borderRadius: wp('3%'),
+  },
+  milestoneText: {
+    fontSize: wp('3.2%'),
+    fontFamily: 'Poppins-Medium',
+    color: '#455e14',
+    textAlign: 'center',
+  },
 });
