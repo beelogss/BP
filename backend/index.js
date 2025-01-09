@@ -37,7 +37,7 @@ const storage = new Storage({
   credentials: serviceAccount,
   projectId: process.env.FIREBASE_PROJECT_ID,
 });
-const bucket = storage.bucket("bpts-34c54.appspot.com"); // Replace with your Firebase Storage bucket name
+const bucket = storage.bucket("bpts-34c54.appspot.com"); // Replace with your Firebase Storage bucket n
 
 const app = express();
 app.use(cors());
